@@ -75,7 +75,7 @@ export const SignUpForm = () => {
         </div>
         <div className="text-center text-sm">
           Have an account?{' '}
-          <Link to={'/login'} className="underline underline-offset-4">
+          <Link to={'/auth/login'} className="underline underline-offset-4">
             Login
           </Link>
         </div>

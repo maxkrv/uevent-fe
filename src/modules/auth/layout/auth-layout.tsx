@@ -1,5 +1,5 @@
 import { FC, PropsWithChildren } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
 
 import { Logo } from '@/assets/logos/logo';
 
@@ -16,7 +16,10 @@ export const AuthLayout: FC<PropsWithChildren> = ({ children }) => {
           </Link>
         </div>
         <div className="flex flex-1 items-center justify-center">
-          <div className="w-full max-w-xs">{children}</div>
+          <div className="w-full max-w-xs">
+            {children}
+            <Outlet />
+          </div>
         </div>
       </div>
       <div className="relative hidden bg-muted lg:flex lg:items-center lg:justify-center">

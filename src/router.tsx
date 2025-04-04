@@ -1,6 +1,7 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
-import App from './app';
+import { App } from './app';
+import { AuthLayout } from './modules/auth/layout/auth-layout';
 import { ActivateAccountPage } from './modules/auth/pages/activate-account-page';
 import { ForgotPasswordPage } from './modules/auth/pages/forgot-password-page';
 import { LoginPage } from './modules/auth/pages/login-page';
@@ -19,24 +20,30 @@ const router = createBrowserRouter([
         element: <HomePage />
       },
       {
-        path: '/login',
-        element: <LoginPage />
-      },
-      {
-        path: '/sign-up',
-        element: <SignUpPage />
-      },
-      {
-        path: '/forgot-password',
-        element: <ForgotPasswordPage />
-      },
-      {
-        path: '/auth/reset-password/:token',
-        element: <ResetPasswordPage />
-      },
-      {
-        path: '/auth/activate/:token',
+        path: 'auth/activate/:token',
         element: <ActivateAccountPage />
+      },
+      {
+        path: 'auth',
+        element: <AuthLayout />,
+        children: [
+          {
+            path: 'login',
+            element: <LoginPage />
+          },
+          {
+            path: 'sign-up',
+            element: <SignUpPage />
+          },
+          {
+            path: 'forgot-password',
+            element: <ForgotPasswordPage />
+          },
+          {
+            path: 'reset-password/:token',
+            element: <ResetPasswordPage />
+          }
+        ]
       },
       {
         path: '*',

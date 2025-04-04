@@ -28,7 +28,7 @@ export const ActivateAccountPage = () => {
     if (isSuccess) {
       TimeUtils.timeout(2000, () => {
         toast.success('Account activated successfully');
-        navigate('/login', { replace: true });
+        navigate('/auth/login', { replace: true });
       });
     }
   }, [isSuccess]);
