@@ -1,7 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import ky, { HTTPError } from 'ky';
 
 import { config } from '@/config/config';
+
+import { Tokens, tokensStore } from '../../modules/auth/stores/tokens.store';
 
 export const apiClient = ky.create({
   prefixUrl: config.apiUrl,
@@ -10,44 +11,42 @@ export const apiClient = ky.create({
       async (request) => {
         if (request.url.includes('auth/refresh') || request.url.includes('auth/logout')) return request;
 
-        // const accessToken = getAccessToken();
+        const accessToken = tokensStore.getState().tokens?.accessToken;
 
-        // if (accessToken) {
-        //   request.headers.set('Authorization', `Bearer ${accessToken}`);
-        // }
-
+        if (accessToken) {
+          request.headers.set('Authorization', `Bearer ${accessToken}`);
+        }
         return request;
       }
     ],
     beforeError: [
       async (error) => {
-        const err = await error.response.json();
-        return err as HTTPError;
+        return error.response.json<HTTPError>();
       }
     ],
     beforeRetry: [
       async ({ request, error }) => {
-        if ((error as any).statusCode !== 401) return;
-        // const refreshToken = getRefreshToken();
+        if ('status' in error && error.status !== 401) return;
+        const refreshToken = tokensStore.getState().tokens?.refreshToken;
 
         if (request.url.includes('auth/refresh')) {
-          // removeTokens();
+          tokensStore.getState().deleteTokens();
           window.location.href = '/';
           return;
         }
 
-        // if (!refreshToken) return;
+        if (!refreshToken) return;
 
-        // const res = await apiClient
-        //   .post('auth/refresh', {
-        //     headers: {
-        //       // Authorization: `Bearer ${refreshToken}`
-        //     }
-        //   })
-        //   .json<TokenPair>();
+        const res = await apiClient
+          .post('auth/refresh', {
+            headers: {
+              Authorization: `Bearer ${refreshToken}`
+            }
+          })
+          .json<Tokens>();
 
-        // addTokens(res);
-        // request.headers.set('Authorization', `Bearer ${res.accessToken}`);
+        tokensStore.getState().setTokens(res);
+        request.headers.set('Authorization', `Bearer ${res.accessToken}`);
       }
     ]
   },
