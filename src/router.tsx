@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom';
 
 import { App } from './app';
 import { AuthLayout } from './modules/auth/layout/auth-layout';
@@ -20,13 +20,17 @@ const router = createBrowserRouter([
         element: <HomePage />
       },
       {
-        path: 'auth/activate/:token',
-        element: <ActivateAccountPage />
-      },
-      {
         path: 'auth',
         element: <AuthLayout />,
         children: [
+          {
+            index: true,
+            element: <Navigate to="/auth/login" replace />
+          },
+          {
+            path: 'activate/:token',
+            element: <ActivateAccountPage />
+          },
           {
             path: 'login',
             element: <LoginPage />
