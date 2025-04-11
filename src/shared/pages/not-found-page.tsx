@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { Logo } from '../../assets/logos/logo';
+
 const TERMINAL_MESSAGES = [
   'Searching for page...',
   'Error: Page not found (404)',
