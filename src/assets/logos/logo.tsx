@@ -17,11 +17,12 @@ export const Logo: FC<LogoProps> = ({ width = '1rem', height = '1rem', fill = '#
     className={className}>
     <path
       d="M30 8C19.5066 8 11 16.5066 11 27C11 32.5599 13.3018 37.5783 17 41.0888V41.0888L30 54L43 41.0888C46.6982 37.5783 49 32.5599 49 27C49 16.5066 40.4934 8 30 8Z"
+      className="stroke-foreground"
       fill={fill}
     />
 
     {/* Inner Circle */}
-    <circle cx="30" cy="27" r="10" className="fill-background" stroke={fill} strokeWidth="2" />
+    <circle cx="30" cy="27" r="10" className="fill-background stroke-foreground" />
 
     {/* Event Elements */}
     <rect x="25" y="22" width="10" height="2" rx="1" fill={fill} />

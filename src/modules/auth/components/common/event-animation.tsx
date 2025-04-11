@@ -38,7 +38,7 @@ export const EventAnimation: FC = () => {
   ];
 
   return (
-    <div className="relative flex items-center justify-center h-screen  overflow-hidden w-full">
+    <div className="relative flex items-center justify-center h-full  overflow-hidden w-full">
       {/* Background Pulses */}
       <div
         className={`absolute w-48 h-48 bg-indigo-500 rounded-full opacity-30 transition-all duration-1000 scale-100 ${animate ? 'scale-150 opacity-0' : 'scale-100 opacity-30'}`}

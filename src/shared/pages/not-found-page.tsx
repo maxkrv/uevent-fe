@@ -2,6 +2,12 @@ import { useEffect, useState } from 'react';
 
 import { Logo } from '../../assets/logos/logo';
 
+const TERMINAL_MESSAGES = [
+  'Searching for page...',
+  'Error: Page not found (404)',
+  'Coordinates invalid. Recalculating...',
+  'System recommendation: Return to main map'
+];
 export const NotFoundPage = () => {
   const [pinPosition, setPinPosition] = useState({ x: 50, y: 40 });
   const [searchRadius, setSearchRadius] = useState(0);
@@ -26,10 +32,10 @@ export const NotFoundPage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center">
-      <div className="w-full rounded-2xl overflow-hidden">
+    <div className="max-h-screen-no-header min-h-full flex flex-col items-center justify-center">
+      <div className="w-full rounded-2xl overflow-hidden h-full">
         {/* Map area */}
-        <div className="relative h-80 min-h-screen w-full bg-gray-100 overflow-hidden">
+        <div className="relative min-h-80 h-screen-no-header w-full bg-gray-100 overflow-hidden">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-300 mb-2 text-center">Oops! You seem to be lost</h1>
           {/* Map grid */}
           <div className="absolute inset-0 grid grid-cols-12 grid-rows-6">
@@ -90,7 +96,7 @@ export const NotFoundPage = () => {
             <div className="relative">
               <Logo className="size-16" />
               <div className="absolute top-1/4 left-1/4 w-1/2 h-1/2 flex items-center justify-center">
-                <span className="text-white font-bold text-xl bg-[#4F46E5] px-1.5">?</span>
+                <span className="text-white font-bold text-xl bg-[#4F46E5] px-2 py-1 rounded-full">?</span>
               </div>
             </div>
 
@@ -102,28 +108,9 @@ export const NotFoundPage = () => {
 
           {/* Alert terminal */}
           <div className="absolute bottom-4 left-4 bg-black/80 rounded-lg p-3 font-mono text-sm text-green-400 flex flex-col space-y-1 overflow-hidden">
-            <div className="flex">
-              <span className="w-4">&gt;</span>
-              <span className="animate-typing overflow-hidden whitespace-nowrap">Searching for page...</span>
-            </div>
-            <div className="flex">
-              <span className="w-4">&gt;</span>
-              <span className="animate-typing-delay-1 overflow-hidden whitespace-nowrap">
-                Error: Page not found (404)
-              </span>
-            </div>
-            <div className="flex">
-              <span className="w-4">&gt;</span>
-              <span className="animate-typing-delay-2 overflow-hidden whitespace-nowrap">
-                Coordinates invalid. Recalculating...
-              </span>
-            </div>
-            <div className="flex">
-              <span className="w-4">&gt;</span>
-              <span className="animate-typing-delay-3 overflow-hidden whitespace-nowrap">
-                System recommendation: Return to main map
-              </span>
-            </div>
+            {TERMINAL_MESSAGES.map((message, index) => (
+              <div key={index}>{message}</div>
+            ))}
           </div>
         </div>
       </div>

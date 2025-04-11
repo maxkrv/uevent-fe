@@ -1,0 +1,101 @@
+import dayjs from 'dayjs';
+import type React from 'react';
+import { FaArrowRightLong } from 'react-icons/fa6';
+import { FiCalendar, FiDollarSign, FiHeart, FiMapPin, FiShare2 } from 'react-icons/fi';
+
+import type { Event } from '../../event/interfaces/event.interface';
+
+interface EventListItemProps {
+  event: Event;
+}
+
+const formatDate = (dateString: string) => dayjs(dateString).format('MMM D, YYYY');
+
+export const EventCard: React.FC<EventListItemProps> = ({ event }) => {
+  return (
+    <div className="bg-secondary rounded-xl overflow-hidden shadow transition-all duration-300 @container min-h-fit min-w-80 hover:shadow-2xl hover:scale-[1.02] group">
+      <div className="h-full flex flex-col @lg:flex-row">
+        {/* Image container - 2/5 height in vertical, 2/5 width in horizontal */}
+        <div className="relative h-2/5 @lg:h-auto @lg:w-2/5 flex-none overflow-hidden">
+          <img
+            src={event.poster || '/images/event-placeholder.jpg'}
+            alt={event.title}
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+          />
+          {/* Badge for category */}
+          <div className="absolute top-4 left-4">
+            <span className="px-3 py-1 bg-primary text-primary-foreground text-xs font-semibold rounded-full">
+              {event.category?.name || 'Event'}
+            </span>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="p-6 flex-1 flex flex-col grow">
+          <div className="flex justify-between items-start mb-3">
+            <h3 className="text-xl font-bold group-hover:text-primary transition-colors duration-300">{event.title}</h3>
+
+            <div className="flex space-x-2">
+              <button
+                className="p-2 rounded-full text-gray-400 hover:text-red-700/80 hover:bg-red-100/60  transition-colors duration-300"
+                aria-label="Like event">
+                <FiHeart />
+              </button>
+              <button
+                className="p-2 rounded-full text-gray-400 hover:text-primary hover:bg-primary-light transition-colors duration-300"
+                aria-label="Share event">
+                <FiShare2 />
+              </button>
+            </div>
+          </div>
+
+          <div className="mb-4 flex flex-wrap gap-y-2 justify-between">
+            <div className="flex items-center text-gray-500 dark:text-gray-400 mr-6 space-x-2">
+              <FiCalendar className="mr-2" />
+              <span>{formatDate(event.startDate)}</span>
+              {event.endDate && event.endDate !== event.startDate && (
+                <>
+                  <FaArrowRightLong />
+                  <span>{formatDate(event.endDate)}</span>
+                </>
+              )}
+            </div>
+            <div className="flex items-center text-gray-500 dark:text-gray-400">
+              <FiMapPin className="mr-2" />
+              <span>{event.location?.address || 'Location TBA'}</span>
+            </div>
+          </div>
+
+          <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-2 grow">{event.description}</p>
+
+          <div className="mt-auto flex justify-between items-center">
+            <div className="flex items-center">
+              <FiDollarSign className="text-green-500" />
+              <span className="font-bold text-gray-900 dark:text-white">
+                {event.price ? `$${event.price.toFixed(2)}` : 'Free'}
+              </span>
+            </div>
+
+            <button className="px-4 py-2 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg transform hover:scale-105 transition-all duration-300">
+              Get Tickets
+            </button>
+          </div>
+
+          {/* Company info */}
+          {event.company && (
+            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex items-center">
+              <img
+                src={event.company.logo || '/images/company-placeholder.jpg'}
+                alt={event.company.name}
+                className="w-8 h-8 rounded-full object-cover mr-3"
+              />
+              <span className="text-sm text-gray-600 dark:text-gray-400">
+                By <span className="font-semibold text-gray-900 dark:text-white">{event.company.name}</span>
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
