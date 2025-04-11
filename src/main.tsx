@@ -7,13 +7,12 @@ import ReactDOM from 'react-dom/client';
 import { toast } from 'sonner';
 
 import { Router } from './router';
-import { TimeUtils } from './shared/utils/time.utils';
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
-      retryDelay: TimeUtils.ONE_MINUTE * 5
+      retry: false
     },
     mutations: {
       retry: false,

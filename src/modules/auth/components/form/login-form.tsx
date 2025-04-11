@@ -31,7 +31,7 @@ export const LoginForm = () => {
     mutationFn: AuthService.login,
     onSuccess: (data) => {
       setTokens(data);
-      queryClient.resetQueries(userGroupOptions());
+      queryClient.invalidateQueries(userGroupOptions());
       navigate('/', { replace: true });
       toast.success('Logged in successfully');
     }
