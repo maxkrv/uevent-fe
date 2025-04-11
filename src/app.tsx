@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom';
 
+import { Header } from './shared/components/common/header';
 import { BoxBordersSwitch } from './shared/components/dev/box-borders-switch';
 import { TailwindIndicator } from './shared/components/dev/tailwindIndicator';
 import { Toaster } from './shared/components/ui/sonner';
@@ -10,6 +11,7 @@ export const App = () => {
 
   return (
     <>
+      <Header />
       <Outlet />
       <TailwindIndicator />
       <BoxBordersSwitch />
