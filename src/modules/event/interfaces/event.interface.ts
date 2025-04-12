@@ -1,6 +1,6 @@
-import { EventCategory } from '../../category/inteefaces/category.interface';
-import { Company } from '../../company/interfaces/company.interface';
-import { User } from '../../user/interfaces/user.interface';
+import type { EventCategory } from '../../category/inteefaces/category.interface';
+import type { Company } from '../../company/interfaces/company.interface';
+import type { User } from '../../user/interfaces/user.interface';
 
 export interface Location {
   address: string;

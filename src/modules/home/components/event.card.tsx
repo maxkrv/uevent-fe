@@ -3,6 +3,7 @@ import type React from 'react';
 import { FaArrowRightLong } from 'react-icons/fa6';
 import { FiCalendar, FiDollarSign, FiHeart, FiMapPin, FiShare2 } from 'react-icons/fi';
 
+import { Button } from '../../../shared/components/ui/button';
 import type { Event } from '../../event/interfaces/event.interface';
 
 interface EventListItemProps {
@@ -32,8 +33,10 @@ export const EventCard: React.FC<EventListItemProps> = ({ event }) => {
 
         {/* Content */}
         <div className="p-6 flex-1 flex flex-col grow">
-          <div className="flex justify-between items-start mb-3">
-            <h3 className="text-xl font-bold group-hover:text-primary transition-colors duration-300">{event.title}</h3>
+          <div className="flex justify-between items-start mb-3 gap-2">
+            <h3 className="text-xl font-bold group-hover:text-primary transition-colors duration-300 line-clamp-2">
+              {event.title}
+            </h3>
 
             <div className="flex space-x-2">
               <button
@@ -62,23 +65,25 @@ export const EventCard: React.FC<EventListItemProps> = ({ event }) => {
             </div>
             <div className="flex items-center text-gray-500 dark:text-gray-400">
               <FiMapPin className="mr-2" />
-              <span>{event.location?.address || 'Location TBA'}</span>
+              <span>{event.location?.address || 'Online'}</span>
             </div>
           </div>
 
-          <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-2 grow">{event.description}</p>
+          <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">{event.description}</p>
 
-          <div className="mt-auto flex justify-between items-center">
-            <div className="flex items-center">
+          <div className="mt-auto flex justify-between items-center gap-4 flex-wrap">
+            <div className="flex items-center grow">
               <FiDollarSign className="text-green-500" />
               <span className="font-bold text-gray-900 dark:text-white">
                 {event.price ? `$${event.price.toFixed(2)}` : 'Free'}
               </span>
             </div>
-
-            <button className="px-4 py-2 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg transform hover:scale-105 transition-all duration-300">
-              Get Tickets
-            </button>
+            <div className="flex gap-2 grow *:grow">
+              <Button variant="outline" className="@max-sm:hidden">
+                Learn More
+              </Button>
+              <Button>Get Tickets</Button>
+            </div>
           </div>
 
           {/* Company info */}
