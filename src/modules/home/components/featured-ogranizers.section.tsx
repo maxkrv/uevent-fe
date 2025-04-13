@@ -62,7 +62,7 @@ const FeaturedOrganizers: React.FC = () => {
           <p className="text-muted-foreground">Discover top event creators and follow their upcoming events</p>
         </div>
 
-        <Link to="/organizers" className="text-lg font-semibold" withArrow>
+        <Link to="/organizers" className="text-lg font-semibold" withArrowRight>
           View All Organizers
         </Link>
       </div>

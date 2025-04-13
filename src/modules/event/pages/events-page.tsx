@@ -8,8 +8,7 @@ import { cn } from '@/shared/lib/utils';
 
 import { mockEvents } from '../../../__mock__/events';
 import type { Event } from '../../event/interfaces/event.interface';
-import { EventCard } from '../../home/components/event.card';
-import { ActiveFilters } from '../components/active-filters';
+import { EventCard } from '../components/event.card';
 import { EventFilters } from '../components/event-filters';
 import { EventsView, EventViewToggle } from '../components/event-view-toggle';
 import { EventsDisplay } from '../components/events-display';
@@ -141,14 +140,6 @@ export const EventsPage = () => {
           </Button>
         </div>
       </div>
-
-      {/* Active Filters */}
-      <ActiveFilters
-        searchQuery={searchQuery}
-        onClearSearch={() => setSearchQuery('')}
-        showFilters={showFilters}
-        onToggleFilters={() => setShowFilters(!showFilters)}
-      />
 
       <div
         className={cn(

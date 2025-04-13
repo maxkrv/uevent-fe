@@ -8,6 +8,7 @@ import { Logo } from '../../../assets/logos/logo';
 import { useAuth } from '../../../modules/auth/queries/use-auth.query';
 import { cn } from '../../lib/utils';
 import { Button, buttonVariants } from '../ui/button';
+import { Link } from './link';
 import { UserAvatar } from './user-avatar';
 
 const LINKS = [
@@ -30,12 +31,12 @@ export const Header: React.FC = () => {
         <div className="flex items-center justify-between h-full">
           {/* Logo and Name */}
           <div className="flex items-center">
-            <a href="/" className="flex items-center">
+            <Link to="/" className="flex items-center">
               <Logo className="size-10 mb-1" />
               <span className="text-3xl font-bold">
                 U<span className="text-primary">e</span>vent
               </span>
-            </a>
+            </Link>
           </div>
 
           {/* Desktop Navigation */}

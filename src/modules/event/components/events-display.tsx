@@ -2,11 +2,11 @@
 
 import { useMemo } from 'react';
 
+import { EventCard } from '@/modules/event/components/event.card';
 import { EventsView } from '@/modules/event/components/event-view-toggle';
 import { EventsMap } from '@/modules/event/components/events-map';
 import { NoEventsFound } from '@/modules/event/components/no-events-found';
 import type { Event } from '@/modules/event/interfaces/event.interface';
-import { EventCard } from '@/modules/home/components/event.card';
 import { Pagination, PaginationResultsInfo } from '@/shared/components/ui/pagination';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 
