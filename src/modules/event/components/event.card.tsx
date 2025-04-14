@@ -1,10 +1,16 @@
 import dayjs from 'dayjs';
+import { CreditCard } from 'lucide-react';
 import type React from 'react';
+import { MouseEventHandler } from 'react';
 import { FaArrowRightLong } from 'react-icons/fa6';
 import { FiCalendar, FiDollarSign, FiHeart, FiMapPin, FiShare2 } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
 
-import { Button } from '../../../shared/components/ui/button';
-import type { Event } from '../../event/interfaces/event.interface';
+import { Link } from '../../../shared/components/common/link';
+import { Button, buttonVariants } from '../../../shared/components/ui/button';
+import { useShare } from '../../../shared/hooks/use-share';
+import { cn } from '../../../shared/lib/utils';
+import type { Event } from '../interfaces/event.interface';
 
 interface EventListItemProps {
   event: Event;
@@ -13,9 +19,27 @@ interface EventListItemProps {
 const formatDate = (dateString: string) => dayjs(dateString).format('MMM D, YYYY');
 
 export const EventCard: React.FC<EventListItemProps> = ({ event }) => {
+  const share = useShare();
+  const nav = useNavigate();
+  const handleShare: MouseEventHandler<HTMLButtonElement> = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (!event) return;
+    share({
+      title: event.title,
+      text: `Check out this event: ${event.title}`,
+      url: window.location.href
+    });
+  };
+
+  const isSoldOut = event.maxAttendees && event.currentAttendees === event.maxAttendees;
+  const isEventPassed = event.endDate
+    ? dayjs(event.endDate).isBefore(dayjs())
+    : dayjs(event.startDate).isBefore(dayjs());
+
   return (
-    <div className="bg-secondary rounded-xl overflow-hidden shadow transition-all duration-300 @container min-h-fit min-w-80 hover:shadow-2xl hover:scale-[1.02] group">
-      <div className="h-full flex flex-col @lg:flex-row">
+    <article className="bg-secondary rounded-xl overflow-hidden shadow transition-all duration-300 @container min-h-fit min-w-80 hover:shadow-2xl hover:scale-[1.02] group">
+      <Link to={`/events/${event.id}`} className="h-full flex flex-col @lg:flex-row" unstyled>
         {/* Image container - 2/5 height in vertical, 2/5 width in horizontal */}
         <div className="relative h-2/5 @lg:h-auto @lg:w-2/5 flex-none overflow-hidden">
           <img
@@ -39,16 +63,21 @@ export const EventCard: React.FC<EventListItemProps> = ({ event }) => {
             </h3>
 
             <div className="flex space-x-2">
-              <button
-                className="p-2 rounded-full text-gray-400 hover:text-red-700/80 hover:bg-red-100/60  transition-colors duration-300"
+              <Button
+                variant="ghost"
+                size="icon"
+                className="p-2 rounded-full text-gray-400 hover:text-red-700/80 hover:bg-red-100/60  transition-colors duration-300 hover:border-red-700/80"
                 aria-label="Like event">
                 <FiHeart />
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
                 className="p-2 rounded-full text-gray-400 hover:text-primary hover:bg-primary-light transition-colors duration-300"
-                aria-label="Share event">
+                aria-label="Share event"
+                onClick={handleShare}>
                 <FiShare2 />
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -79,10 +108,15 @@ export const EventCard: React.FC<EventListItemProps> = ({ event }) => {
               </span>
             </div>
             <div className="flex gap-2 grow *:grow">
-              <Button variant="outline" className="@max-sm:hidden">
-                Learn More
+              <p className={cn(buttonVariants({ variant: 'outline' }), '@max-sm:hidden')}>Learn More</p>
+              <Button disabled={isSoldOut || isEventPassed}>
+                <CreditCard className="mr-2 h-4 w-4" />
+                {isSoldOut
+                  ? 'Sold Out'
+                  : isEventPassed
+                    ? 'Event Ended'
+                    : `Get ${event.price ? 'Tickets' : 'Free Ticket'}`}
               </Button>
-              <Button>Get Tickets</Button>
             </div>
           </div>
 
@@ -95,12 +129,22 @@ export const EventCard: React.FC<EventListItemProps> = ({ event }) => {
                 className="w-8 h-8 rounded-full object-cover mr-3"
               />
               <span className="text-sm text-gray-600 dark:text-gray-400">
-                By <span className="font-semibold text-gray-900 dark:text-white">{event.company.name}</span>
+                By
+                <Button
+                  variant="link"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    nav(`/organizers/${event.company?.name}`);
+                  }}
+                  className="font-semibold text-gray-900 dark:text-white pl-1">
+                  {event.company.name}
+                </Button>
               </span>
             </div>
           )}
         </div>
-      </div>
-    </div>
+      </Link>
+    </article>
   );
 };

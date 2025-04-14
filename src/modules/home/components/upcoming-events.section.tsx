@@ -6,7 +6,7 @@ import { mockEvents } from '../../../__mock__/events';
 import { Link } from '../../../shared/components/common/link';
 import { Button } from '../../../shared/components/ui/button';
 import { cn } from '../../../shared/lib/utils';
-import { EventCard } from './event.card';
+import { EventCard } from '../../event/components/event.card';
 
 const UpcomingEventsSection: React.FC = () => {
   const totalPages = 3; // Mock total pages for pagination
@@ -97,7 +97,7 @@ const UpcomingEventsSection: React.FC = () => {
 
       {/* View all button */}
       <div className="mt-8 text-center">
-        <Link to="/events" className="text-xl font-semibold" withArrow>
+        <Link to="/events" className="text-xl font-semibold" withArrowRight>
           View All Events
         </Link>
       </div>
