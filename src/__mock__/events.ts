@@ -446,7 +446,7 @@ export const mockEvents: Event[] = [
     category: { id: '11', name: 'Environment', description: 'Environmental and sustainability events' },
     format: EventFormat.CONFERENCE,
     company: {
-      id: '17',
+      id: '1',
       name: 'Green Earth Alliance',
       logo: 'https://randomuser.me/api/portraits/men/17.jpg'
     },

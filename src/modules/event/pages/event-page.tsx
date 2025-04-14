@@ -7,11 +7,13 @@ import { mockEvents } from '@/__mock__/events';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 
 import { NotFoundPage } from '../../../shared/pages/not-found-page';
+import { CompanyCard } from '../../company/components/company-card';
+import { EventComments } from '../components/comments/event-comments';
 import { EventAttendees } from '../components/event-details/event-attendees';
 import { EventHero } from '../components/event-details/event-hero';
 import { EventMap } from '../components/event-details/event-map';
-import { EventOrganizer } from '../components/event-details/event-organizer';
 import { EventTickets } from '../components/event-details/event-tickets';
+import { OrganizerEvents } from '../components/event-details/organizer-events';
 import { SimilarEvents } from '../components/event-details/similar-events';
 import type { Event } from '../interfaces/event.interface';
 
@@ -67,13 +69,14 @@ export const EventPage = () => {
 
             {/* Event Location */}
             {event.location && <EventMap location={event.location} />}
-
             {/* Event Attendees */}
             <EventAttendees
               attendees={event.attendees}
               maxAttendees={event.maxAttendees}
               currentAttendees={event.currentAttendees}
             />
+            {/* Event Comments */}
+            <EventComments eventId={event.id} />
           </div>
 
           {/* Sidebar */}
@@ -82,7 +85,9 @@ export const EventPage = () => {
             <EventTickets event={event} />
 
             {/* Organizer Info */}
-            {event.company && <EventOrganizer company={event.company} />}
+            {event.company && <CompanyCard company={event.company} />}
+            {/* More events from this organizer */}
+            {event.company && <OrganizerEvents currentEventId={event.id} companyId={event.company.id} />}
 
             {/* Related Events */}
             <SimilarEvents currentEventId={event.id} categoryId={event.category?.id} />

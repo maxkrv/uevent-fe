@@ -7,6 +7,8 @@ import { ForgotPasswordPage } from './modules/auth/pages/forgot-password-page';
 import { LoginPage } from './modules/auth/pages/login-page';
 import { ResetPasswordPage } from './modules/auth/pages/reset-password-page';
 import { SignUpPage } from './modules/auth/pages/sign-up-page';
+import { CompaniesPage } from './modules/company/pages/companies-page';
+import { CompanyDetailPage } from './modules/company/pages/company-details-page';
 import { EventPage } from './modules/event/pages/event-page';
 import { EventsPage } from './modules/event/pages/events-page';
 import { HomePage } from './modules/home/pages/home.page';
@@ -60,6 +62,14 @@ const router = createBrowserRouter([
       {
         path: 'events/:id',
         element: <EventPage />
+      },
+      {
+        path: 'companies',
+        element: <CompaniesPage />
+      },
+      {
+        path: 'companies/:id',
+        element: <CompanyDetailPage />
       },
       {
         path: '*',

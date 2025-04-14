@@ -14,8 +14,7 @@ import { UserAvatar } from './user-avatar';
 const LINKS = [
   { name: 'Home', path: '/' },
   { name: 'Events', path: '/events' },
-  { name: 'Organizers', path: '/organizers' },
-  { name: 'Categories', path: '/categories' }
+  { name: 'Companies', path: '/companies' }
 ];
 const getNavLinkClassName = ({ isActive }: { isActive: boolean }) =>
   cn('font-medium hover:text-primary transition-colors duration-300', isActive && 'text-primary');
@@ -31,7 +30,7 @@ export const Header: React.FC = () => {
         <div className="flex items-center justify-between h-full">
           {/* Logo and Name */}
           <div className="flex items-center">
-            <Link to="/" className="flex items-center">
+            <Link to="/" className="flex items-center" unstyled>
               <Logo className="size-10 mb-1" />
               <span className="text-3xl font-bold">
                 U<span className="text-primary">e</span>vent
