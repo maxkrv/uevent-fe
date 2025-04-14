@@ -76,7 +76,7 @@ export const EventsDisplay = ({
       )}
 
       {viewMode === EventsView.MAP && (
-        <div className="h-[600px] rounded-lg overflow-hidden">
+        <div className="h-150 rounded-lg overflow-hidden">
           <EventsMap events={displayEvents} />
         </div>
       )}

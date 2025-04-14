@@ -5,6 +5,7 @@ import { useState } from 'react';
 
 import { Link } from '../../../shared/components/common/link';
 import { Skeleton } from '../../../shared/components/ui/skeleton';
+import { CompanyCard } from '../../company/components/company-card';
 import { Company } from '../../company/interfaces/company.interface';
 
 const mockCompanies: Company[] = [
@@ -81,25 +82,9 @@ const FeaturedOrganizers: React.FC = () => {
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {companies.map((company) => (
-            <div
-              key={company.id}
-              className="bg-secondary rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] cursor-pointer">
-              <div className="flex items-center mb-4">
-                <img
-                  src={company.logo || '/images/company-placeholder.jpg'}
-                  alt={company.name}
-                  className="w-12 h-12 rounded-full object-cover mr-4 border-2  border-primary"
-                />
-                <h3 className="font-bold ">{company.name}</h3>
-              </div>
-              <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{company.description}</p>
-              <div className="flex justify-between items-center">
-                <span className="text-xs text-muted-foreground">{Math.floor(Math.random() * 50) + 1} Events</span>
-                <Link to={`/organizers/${company.id}`}>Follow</Link>
-              </div>
-            </div>
+            <CompanyCard key={company.id} company={company} />
           ))}
         </div>
       )}

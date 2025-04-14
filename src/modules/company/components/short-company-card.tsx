@@ -1,6 +1,6 @@
 'use client';
 
-import { ExternalLink, Mail, Star } from 'lucide-react';
+import { ExternalLink, Mail } from 'lucide-react';
 import { useState } from 'react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
@@ -8,20 +8,19 @@ import { Badge } from '@/shared/components/ui/badge';
 import { Button, buttonVariants } from '@/shared/components/ui/button';
 import { Card, CardContent } from '@/shared/components/ui/card';
 
-import { Link } from '../../../../shared/components/common/link';
-import type { Company } from '../../../company/interfaces/company.interface';
+import { Link } from '../../../shared/components/common/link';
+import type { Company } from '../interfaces/company.interface';
 
 interface EventOrganizerProps {
   company: Company;
 }
 
-export const EventOrganizer = ({ company }: EventOrganizerProps) => {
+export const ShortCompanyCard = ({ company }: EventOrganizerProps) => {
   const [isFollowing, setIsFollowing] = useState(false);
 
   // Mock data for organizer stats
   const organizerStats = {
-    eventsHosted: Math.floor(Math.random() * 50) + 5,
-    rating: (Math.random() * 2 + 3).toFixed(1) // Random rating between 3.0 and 5.0
+    eventsHosted: Math.floor(Math.random() * 50) + 5
   };
 
   return (
@@ -47,10 +46,6 @@ export const EventOrganizer = ({ company }: EventOrganizerProps) => {
             </div>
 
             <div className="flex items-center gap-1 text-muted-foreground text-sm mt-1">
-              <div className="flex items-center">
-                <Star className="h-3.5 w-3.5 text-yellow-500 mr-1" />
-                <span>{organizerStats.rating}</span>
-              </div>
               <span className="mx-1.5">•</span>
               <span>{organizerStats.eventsHosted} events</span>
             </div>

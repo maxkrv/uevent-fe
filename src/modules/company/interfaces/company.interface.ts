@@ -5,8 +5,11 @@ export interface Company {
   email?: string;
   website?: string;
   logo?: string;
-  address?: string;
+  coverImage?: string;
+  location?: string;
   createdAt?: string;
   updatedAt?: string;
   ownerId?: string;
+  eventCount?: number;
+  subscriberCount?: number;
 }

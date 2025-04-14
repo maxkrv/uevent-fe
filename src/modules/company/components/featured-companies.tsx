@@ -1,0 +1,37 @@
+'use client';
+
+import { TrendingUp } from 'lucide-react';
+
+import type { Company } from '../interfaces/company.interface';
+import { CompanyCard } from './company-card';
+
+interface FeaturedCompaniesProps {
+  companies: Company[];
+}
+
+export const FeaturedCompanies = ({ companies }: FeaturedCompaniesProps) => {
+  // Get featured companies (top 3 by subscriber count)
+  const featuredCompanies = [...companies]
+    .sort((a, b) => (b.subscriberCount || 0) - (a.subscriberCount || 0))
+    .slice(0, 3);
+
+  if (featuredCompanies.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="mb-12">
+      <h2 className="text-2xl font-bold mb-6 flex items-center">
+        <span className="bg-primary/10 text-primary p-1 rounded-md mr-2">
+          <TrendingUp className="h-5 w-5" />
+        </span>
+        Featured Organizers
+      </h2>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {featuredCompanies.map((company) => (
+          <CompanyCard key={company.id} company={company} isFeatured={true} />
+        ))}
+      </div>
+    </div>
+  );
+};
