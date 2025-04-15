@@ -90,7 +90,7 @@ export const EventHero = ({ event }: EventHeroProps) => {
         <div className="container mx-auto">
           <div className="flex flex-wrap items-center gap-2 mb-3">
             {event.category && (
-              <Badge className="bg-white/20 hover:bg-white/30 text-white border-none backdrop-blur-sm">
+              <Badge className="bg-white/20 hover:bg-white/30 text-white border-transparent backdrop-blur-sm">
                 {event.category.name}
               </Badge>
             )}

@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/shared/components/ui/button';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 
-import type { Comment, ReactionType } from '../../interfaces/comment.interface';
+import type { Comment, ReactionType } from '../interfaces/comment.interface';
 import { CommentItem } from './comment-item';
 
 interface CommentListProps {

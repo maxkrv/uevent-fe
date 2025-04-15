@@ -34,7 +34,7 @@ const HERO_SLIDES = [
     description: 'Follow your favorite event organizers and never miss their upcoming events',
     cta: 'View Organizers',
     image: '/top-organizers.png',
-    link: '/organizers',
+    link: '/companies',
     icon: CiAlignTop,
     color: 'from-emerald-600 to-teal-700'
   },

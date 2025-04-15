@@ -63,7 +63,7 @@ export const CompanyContact = ({ company, isFollowing, onFollowToggle }: Company
 
         <div className="pt-4 border-t border-border">
           <Button className="w-full" onClick={onFollowToggle} variant={isFollowing ? 'outline' : 'default'}>
-            {isFollowing ? 'Following' : 'Follow Organizer'}
+            {isFollowing ? 'Following' : 'Follow Company'}
           </Button>
         </div>
       </CardContent>

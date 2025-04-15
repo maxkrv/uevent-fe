@@ -1,5 +1,5 @@
+import type { Event } from '../../event/interfaces/event.interface';
 import type { User } from '../../user/interfaces/user.interface';
-import type { Event } from './event.interface';
 
 export type ReactionType = 'LIKE' | 'DISLIKE' | 'LOVE' | 'LAUGH' | 'SAD' | 'ANGRY';
 

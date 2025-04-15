@@ -75,7 +75,7 @@ export const CompanyHero = ({ company }: CompanyHeroProps) => {
           className="text-white/90 hover:text-red-700/80 hover:bg-red-500/30 transition-colors duration-300 hover:border-red-700/80"
           onClick={() => setIsFollowing(!isFollowing)}
           aria-pressed={isFollowing}
-          aria-label="Follow organizer">
+          aria-label="Follow Company">
           <FiHeart className="size-6" fill={isFollowing ? 'currentColor' : 'none'} />
         </Button>
         <Button
@@ -83,7 +83,7 @@ export const CompanyHero = ({ company }: CompanyHeroProps) => {
           size={'icon'}
           onClick={handleShare}
           className="text-white/90 hover:text-primary hover:bg-primary/30 transition-colors duration-300"
-          aria-label="Share organizer">
+          aria-label="Share Company">
           <FiShare2 className="size-6" />
         </Button>
       </div>

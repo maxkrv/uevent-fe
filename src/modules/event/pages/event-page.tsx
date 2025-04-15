@@ -7,13 +7,13 @@ import { mockEvents } from '@/__mock__/events';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 
 import { NotFoundPage } from '../../../shared/pages/not-found-page';
+import { Comments } from '../../comments/components/comments';
 import { CompanyCard } from '../../company/components/company-card';
-import { EventComments } from '../components/comments/event-comments';
 import { EventAttendees } from '../components/event-details/event-attendees';
 import { EventHero } from '../components/event-details/event-hero';
 import { EventMap } from '../components/event-details/event-map';
 import { EventTickets } from '../components/event-details/event-tickets';
-import { OrganizerEvents } from '../components/event-details/organizer-events';
+import { CompanyEvents } from '../components/event-details/organizer-events';
 import { SimilarEvents } from '../components/event-details/similar-events';
 import type { Event } from '../interfaces/event.interface';
 
@@ -76,7 +76,9 @@ export const EventPage = () => {
               currentAttendees={event.currentAttendees}
             />
             {/* Event Comments */}
-            <EventComments eventId={event.id} />
+            <div className="hidden lg:block">
+              <Comments eventId={event.id} />
+            </div>
           </div>
 
           {/* Sidebar */}
@@ -87,10 +89,13 @@ export const EventPage = () => {
             {/* Organizer Info */}
             {event.company && <CompanyCard company={event.company} />}
             {/* More events from this organizer */}
-            {event.company && <OrganizerEvents currentEventId={event.id} companyId={event.company.id} />}
+            {event.company && <CompanyEvents currentEventId={event.id} companyId={event.company.id} />}
 
             {/* Related Events */}
             <SimilarEvents currentEventId={event.id} categoryId={event.category?.id} />
+            <div className="lg:hidden block">
+              <Comments eventId={event.id} />
+            </div>
           </div>
         </div>
       </div>

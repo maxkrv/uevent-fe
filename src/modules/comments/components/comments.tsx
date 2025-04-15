@@ -9,8 +9,8 @@ import { useAuth } from '@/modules/auth/queries/use-auth.query';
 import { Card, CardContent, CardTitle } from '@/shared/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select';
 
-import { Toggle } from '../../../../shared/components/ui/toggle';
-import type { Comment, Reaction, ReactionType } from '../../interfaces/comment.interface';
+import { Toggle } from '../../../shared/components/ui/toggle';
+import type { Comment, Reaction, ReactionType } from '../interfaces/comment.interface';
 import { CommentForm } from './comment-form';
 import { CommentList } from './comment-list';
 
@@ -111,7 +111,7 @@ interface EventCommentsProps {
   eventId: string;
 }
 
-export const EventComments = ({ eventId }: EventCommentsProps) => {
+export const Comments = ({ eventId }: EventCommentsProps) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showOnlyMyComments, setShowOnlyMyComments] = useState(false);
@@ -305,15 +305,15 @@ export const EventComments = ({ eventId }: EventCommentsProps) => {
   });
 
   return (
-    <Card>
-      <CardContent className="gap-4 grid">
-        <div className="flex flex-row items-center justify-between gap-4 flex-wrap">
+    <Card className="max-sm:py-0 order-last">
+      <CardContent className="gap-4 grid max-sm:p-3">
+        <div className="flex flex-row items-center gap-4 flex-wrap">
           <CardTitle className="flex items-center gap-2 grow">
             <MessageSquare className="h-5 w-5 text-primary" />
             Comments
           </CardTitle>
-          <div className="flex items-center gap-4 flex-1 *:grow">
-            <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 justify-end">
               <Toggle
                 pressed={showOnlyMyComments}
                 onPressedChange={setShowOnlyMyComments}

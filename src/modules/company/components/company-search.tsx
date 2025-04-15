@@ -20,7 +20,7 @@ export const CompanySearch = ({ searchQuery, setSearchQuery, sortBy, setSortBy }
           <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
           <Input
             type="text"
-            placeholder="Search organizers by name, description, or location..."
+            placeholder="Search companies by name, description, or location..."
             className="pl-10 pr-10 w-full"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}

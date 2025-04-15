@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui
 import { Input } from '@/shared/components/ui/input';
 import { Progress } from '@/shared/components/ui/progress';
 
+import { Link } from '../../../../shared/components/common/link';
 import { Pagination } from '../../../../shared/components/ui/pagination';
 import { User } from '../../../user/interfaces/user.interface';
 import { EventAttendee } from './event-attendee';
@@ -22,7 +23,10 @@ export const EventAttendees = ({ attendees, maxAttendees, currentAttendees = 0 }
   const [searchQuery, setSearchQuery] = useState('');
   const attendancePercentage =
     maxAttendees && currentAttendees !== undefined ? Math.round((currentAttendees / maxAttendees) * 100) : 0;
-
+  // Filter attendees based on search query
+  const filteredAttendees = searchQuery
+    ? attendees?.filter((attendee) => attendee.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    : attendees;
   // If there are no attendees or the event doesn't show attendees, return a message
   if (!attendees?.length) {
     return (
@@ -78,7 +82,11 @@ export const EventAttendees = ({ attendees, maxAttendees, currentAttendees = 0 }
         )}
 
         <div className="grid w-full grid-flow-row grid-cols-[repeat(auto-fill,_6.5rem)] grid-rows-[auto] justify-center gap-2">
-          {attendees?.map((attendee) => <EventAttendee key={attendee.id} attendee={attendee} />)}
+          {filteredAttendees?.map((attendee) => (
+            <Link key={attendee.id} to={`/users/${attendee.id}`} unstyled>
+              <EventAttendee attendee={attendee} />
+            </Link>
+          ))}
         </div>
 
         <Pagination currentPage={17} totalPages={80} onPageChange={() => {}} />

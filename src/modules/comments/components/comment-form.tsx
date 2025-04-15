@@ -10,7 +10,7 @@ import { Button } from '@/shared/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/components/ui/popover';
 import { Textarea } from '@/shared/components/ui/textarea';
 
-import { cn } from '../../../../shared/lib/utils';
+import { cn } from '../../../shared/lib/utils';
 
 // Common emoji categories
 const EMOJI_CATEGORIES = [

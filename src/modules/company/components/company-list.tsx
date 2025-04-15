@@ -52,7 +52,7 @@ export const CompanyList = ({ companies, isLoading, currentPage, totalPages, onP
         <span className="bg-primary/10 text-primary p-1 rounded-md mr-2">
           <Building2 className="h-5 w-5" />
         </span>
-        All Organizers
+        All Companies
       </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

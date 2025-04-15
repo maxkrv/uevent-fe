@@ -51,7 +51,7 @@ const mockCompanies: Company[] = [
   }
 ];
 
-const FeaturedOrganizers: React.FC = () => {
+const FeaturedCompanies: React.FC = () => {
   const [companies] = useState<Company[]>(mockCompanies);
   const [isLoading] = useState(false);
 
@@ -59,12 +59,12 @@ const FeaturedOrganizers: React.FC = () => {
     <section className="py-16">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
         <div>
-          <h2 className="text-3xl font-bold  mb-2">Featured Organizers</h2>
+          <h2 className="text-3xl font-bold  mb-2">Featured Companies</h2>
           <p className="text-muted-foreground">Discover top event creators and follow their upcoming events</p>
         </div>
 
-        <Link to="/organizers" className="text-lg font-semibold" withArrowRight>
-          View All Organizers
+        <Link to="/companies" className="text-lg font-semibold" withArrowRight>
+          View All Companies
         </Link>
       </div>
 
@@ -92,4 +92,4 @@ const FeaturedOrganizers: React.FC = () => {
   );
 };
 
-export default FeaturedOrganizers;
+export default FeaturedCompanies;

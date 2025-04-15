@@ -15,7 +15,7 @@ export const CompanyAbout = ({ description }: CompanyAboutProps) => {
         </h2>
         <div className="prose max-w-none">
           <p className="text-muted-foreground whitespace-pre-line leading-relaxed">
-            {description || 'No description available for this organizer.'}
+            {description || 'No description available for this company.'}
           </p>
         </div>
       </CardContent>

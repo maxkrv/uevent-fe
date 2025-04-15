@@ -20,7 +20,7 @@ export const CompanyStatistics = ({ companies }: CompanyStatisticsProps) => {
           <Building2 className="h-6 w-6 text-primary" />
         </div>
         <div>
-          <p className="text-sm text-muted-foreground">Total Organizers</p>
+          <p className="text-sm text-muted-foreground">Total Companies</p>
           <h3 className="text-2xl font-bold">{companies.length}</h3>
         </div>
       </div>

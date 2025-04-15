@@ -7,12 +7,15 @@ import { mockCompanies } from '@/__mock__/companies';
 import { mockEvents } from '@/__mock__/events';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 
+import { mockUsers } from '../../../__mock__/users';
 import { NotFoundPage } from '../../../shared/pages/not-found-page';
 import type { Event } from '../../event/interfaces/event.interface';
 import { CompanyAbout } from '../components/company-detail/company-about';
 import { CompanyContact } from '../components/company-detail/company-contact';
 import { CompanyEvents } from '../components/company-detail/company-events';
 import { CompanyHero } from '../components/company-detail/company-hero';
+import { CompanyNews } from '../components/company-detail/company-news';
+import { CompanyOwner } from '../components/company-detail/company-owner';
 import { CompanyStats } from '../components/company-detail/company-stats';
 import { SimilarCompanies } from '../components/company-detail/similar-companies';
 import type { Company } from '../interfaces/company.interface';
@@ -58,7 +61,8 @@ export const CompanyDetailPage = () => {
   }
 
   // Get upcoming events count
-  const upcomingEventsCount = companyEvents.filter((event) => new Date(event.startDate) > new Date()).length;
+  const upcomingEvents = companyEvents.filter((event) => new Date(event.startDate) > new Date());
+  const pastEvents = companyEvents.filter((event) => new Date(event.startDate) <= new Date());
 
   return (
     <div className="bg-background min-h-screen-no-header">
@@ -71,9 +75,10 @@ export const CompanyDetailPage = () => {
           <div className="lg:col-span-2 space-y-8">
             {/* Company Description */}
             <CompanyAbout description={company.description} />
-
+            {/* Company News */}
+            <CompanyNews company={company} />
             {/* Company Events */}
-            <CompanyEvents events={companyEvents} companyId={company.id} />
+            <CompanyEvents events={upcomingEvents} companyId={company.id} title="Upcoming Events" />
           </div>
 
           {/* Sidebar */}
@@ -88,12 +93,15 @@ export const CompanyDetailPage = () => {
             {/* Company Stats */}
             <CompanyStats
               company={company}
-              upcomingEventsCount={upcomingEventsCount}
+              upcomingEventsCount={upcomingEvents.length}
               totalEventsCount={companyEvents.length}
             />
+            {/* Team Members */}
+            <CompanyOwner user={mockUsers.at(0)} />
 
             {/* Similar Organizers */}
             <SimilarCompanies currentCompanyId={company.id} companies={mockCompanies} />
+            <CompanyEvents events={pastEvents} companyId={company.id} title="Past Events" />
           </div>
         </div>
       </div>

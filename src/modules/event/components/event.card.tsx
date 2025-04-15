@@ -135,7 +135,7 @@ export const EventCard: React.FC<EventListItemProps> = ({ event }) => {
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
-                    nav(`/organizers/${event.company?.name}`);
+                    nav(`/companies/${event.company?.id}`);
                   }}
                   className="font-semibold text-gray-900 dark:text-white pl-1">
                   {event.company.name}

@@ -41,7 +41,11 @@ export const Header: React.FC = () => {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
             {LINKS.map((link) => (
-              <NavLink key={link.name} to={link.path} className={getNavLinkClassName}>
+              <NavLink
+                key={link.name}
+                to={link.path}
+                onClick={() => window.scrollTo({ top: 0 })}
+                className={getNavLinkClassName}>
                 {link.name}
               </NavLink>
             ))}
@@ -69,19 +73,21 @@ export const Header: React.FC = () => {
                 </Button>
                 {/* User Avatar */}
                 <NavLink
-                  to={`/user`}
+                  to={`/profile`}
+                  onClick={() => window.scrollTo({ top: 0 })}
                   className={({ isActive }) =>
                     cn(
                       'border-2 rounded-full border-border hover:border-primary transition-colors duration-300',
                       isActive && 'border-primary'
                     )
                   }>
-                  <UserAvatar user={user.data} className="border-0" />
+                  <UserAvatar user={user.data} className="border-transparent" />
                 </NavLink>
               </>
             ) : (
               <NavLink
                 to="/auth/login"
+                onClick={() => window.scrollTo({ top: 0 })}
                 className={({ isActive }) =>
                   buttonVariants({ variant: isActive ? 'default' : 'outline', size: 'icon' })
                 }>

@@ -32,6 +32,7 @@ export const Link = ({ onClick, withArrowRight, withArrowLeft, unstyled = false,
       }}
       className={cn(
         !unstyled && buttonVariants({ variant: 'link' }),
+        'min-h-fit',
         (withArrowRight || withArrowLeft) && 'flex items-center group gap-1',
         props.className
       )}>

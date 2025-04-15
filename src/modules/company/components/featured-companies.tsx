@@ -25,7 +25,7 @@ export const FeaturedCompanies = ({ companies }: FeaturedCompaniesProps) => {
         <span className="bg-primary/10 text-primary p-1 rounded-md mr-2">
           <TrendingUp className="h-5 w-5" />
         </span>
-        Featured Organizers
+        Featured Companies
       </h2>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {featuredCompanies.map((company) => (
