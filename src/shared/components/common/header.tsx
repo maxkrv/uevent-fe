@@ -9,7 +9,7 @@ import { useAuth } from '../../../modules/auth/queries/use-auth.query';
 import { cn } from '../../lib/utils';
 import { Button, buttonVariants } from '../ui/button';
 import { Link } from './link';
-import { UserAvatar } from './user-avatar';
+import { UserMenuSheet } from './user-menu-sheet';
 
 const LINKS = [
   { name: 'Home', path: '/' },
@@ -71,18 +71,7 @@ export const Header: React.FC = () => {
                   className="md:hidden">
                   {isMobileMenuOpen ? <FiX className="text-xl" /> : <FiMenu className="text-xl" />}
                 </Button>
-                {/* User Avatar */}
-                <NavLink
-                  to={`/profile`}
-                  onClick={() => window.scrollTo({ top: 0 })}
-                  className={({ isActive }) =>
-                    cn(
-                      'border-2 rounded-full border-border hover:border-primary transition-colors duration-300',
-                      isActive && 'border-primary'
-                    )
-                  }>
-                  <UserAvatar user={user.data} className="border-transparent" />
-                </NavLink>
+                <UserMenuSheet />
               </>
             ) : (
               <NavLink
