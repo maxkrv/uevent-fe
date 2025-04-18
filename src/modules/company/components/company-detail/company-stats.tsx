@@ -36,7 +36,7 @@ export const CompanyStats = ({ company, upcomingEventsCount, totalEventsCount }:
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground">Followers:</span>
-            <span className="font-medium">{company.subscriberCount?.toLocaleString() || 0}</span>
+            <span className="font-medium">{company.subscribers?.length || 0}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground">Upcoming events:</span>

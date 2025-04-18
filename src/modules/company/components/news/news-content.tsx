@@ -10,21 +10,21 @@ import { useShare } from '@/shared/hooks/use-share';
 import dayjs from '@/shared/lib/dayjs';
 
 import type { Company } from '../../interfaces/company.interface';
-import type { NewsItem } from '../../interfaces/news.interface';
-
+import { CompanyNews } from '../../interfaces/news.interface';
+import { CompanyLogo } from '../company-logo';
 interface NewsContentProps {
-  newsItem: NewsItem;
+  newsItem: CompanyNews;
   company: Company;
 }
 
 export const NewsContent = ({ newsItem, company }: NewsContentProps) => {
-  const [isLiked, setIsLiked] = useState(newsItem.isLiked || false);
-  const [likes, setLikes] = useState(newsItem.likes || 0);
+  const [isLiked, setIsLiked] = useState(false);
+  const [likes] = useState(0);
   const share = useShare();
 
   const handleLike = () => {
     setIsLiked(!isLiked);
-    setLikes((prev) => prev + (isLiked ? -1 : 1));
+
     toast.success(isLiked ? 'Like removed' : 'News liked');
   };
 
@@ -42,15 +42,8 @@ export const NewsContent = ({ newsItem, company }: NewsContentProps) => {
         <Calendar className="h-4 w-4" />
         <span>{dayjs(newsItem.createdAt).format('MMMM D, YYYY')}</span>
 
-        <Link to={`/companies/${company.id}`} className="ml-auto flex items-center gap-1">
-          <img
-            src={
-              company.logo ||
-              `/placeholder.svg?height=24&width=24&query=${encodeURIComponent(company.name) || '/placeholder.svg'} logo`
-            }
-            alt={company.name}
-            className="h-6 w-6 rounded-full object-cover"
-          />
+        <Link to={`/companies/${company.id}`} className="ml-auto flex items-center gap-2">
+          <CompanyLogo company={company} className="h-6 w-6" />
           <span>{company.name}</span>
         </Link>
       </div>

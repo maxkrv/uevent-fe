@@ -1,57 +1,49 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
-import { mockCompanies } from '@/__mock__/companies';
-import { mockEvents } from '@/__mock__/events';
-import type { Company } from '@/modules/company/interfaces/company.interface';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
+import { Skeleton } from '@/shared/components/ui/skeleton';
+import { QueryKeys } from '@/shared/constants/query-keys';
 
 import { ShortCompanyCard } from '../../../company/components/short-company-card';
+import { UserService } from '../../services/user.service';
 
 interface UserCompaniesProps {
   userId: string;
 }
 
 export const UserCompanies = ({ userId }: UserCompaniesProps) => {
-  const [userCompanies, setUserCompanies] = useState<Company[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchUserCompanies = async () => {
-      setIsLoading(true);
-      try {
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
-        // For demo purposes, randomly select some companies as owned by this user
-        // In a real app, this would be fetched from the API based on the user ID
-        const randomCompanies = [...mockCompanies]
-          .sort(() => 0.5 - Math.random())
-          .slice(0, Math.floor(Math.random() * 2) + 1);
-
-        // For each company, count how many events they have
-        const companiesWithEventCount = randomCompanies.map((company) => {
-          const eventCount = mockEvents.filter((event) => event.company?.id === company.id).length;
-          return { ...company, eventCount };
-        });
-
-        setUserCompanies(companiesWithEventCount);
-      } catch (error) {
-        console.error('Failed to fetch user companies:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchUserCompanies();
-  }, [userId]);
+  // Fetch companies owned by the user
+  const { data: userCompanies, isLoading } = useQuery({
+    queryKey: [QueryKeys.USER_COMPANIES, userId],
+    queryFn: () => UserService.getOwnedCompanies(userId),
+    enabled: !!userId
+  });
 
   if (isLoading) {
-    return null;
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Companies</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {[1, 2].map((i) => (
+            <div key={i} className="flex gap-3">
+              <Skeleton className="h-16 w-16 rounded-full flex-shrink-0" />
+              <div className="flex-1">
+                <Skeleton className="h-5 w-3/4 mb-2" />
+                <Skeleton className="h-4 w-1/2 mb-2" />
+                <Skeleton className="h-4 w-1/4" />
+              </div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+    );
   }
 
-  if (userCompanies.length === 0) {
+  if (!userCompanies || userCompanies.length === 0) {
     return null;
   }
 

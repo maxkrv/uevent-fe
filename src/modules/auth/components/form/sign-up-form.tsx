@@ -1,3 +1,5 @@
+'use client';
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Label } from '@radix-ui/react-label';
 import { useMutation } from '@tanstack/react-query';
@@ -11,7 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from '@/shared/components/ui/input';
 import { PasswordInput } from '@/shared/components/ui/password-input';
 
-import { RegisterDto, RegisterSchema } from '../../interfaces/auth.interface';
+import { type RegisterDto, RegisterSchema } from '../../interfaces/auth.interface';
 import { AuthService } from '../../services/auth.service';
 
 export const SignUpForm = () => {

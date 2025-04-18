@@ -1,3 +1,5 @@
+'use client';
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Label } from '@radix-ui/react-label';
 import { useMutation } from '@tanstack/react-query';
@@ -7,7 +9,7 @@ import { toast } from 'sonner';
 
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
-import { EmailDto, EmailSchema } from '@/shared/types/interfaces';
+import { type EmailDto, EmailSchema } from '@/shared/types/interfaces';
 
 import { AuthService } from '../../services/auth.service';
 

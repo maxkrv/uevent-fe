@@ -30,7 +30,7 @@ export const ShortUserCard: FC<ShortUserCardProps> = ({ user, eventsAttended = 0
         <h3 className="font-medium text-base line-clamp-1 group-hover:text-primary transition-colors">{user.name}</h3>
 
         <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-          {user.bio || `${user.role === 'ADMIN' && 'Administrator'}`}
+          {user.bio ? user.bio : `${user.role === 'ADMIN' ? 'Administrator' : 'No bio available'}`}
         </p>
 
         <div className="flex items-center gap-3 mt-2 @max-[15rem]:hidden">

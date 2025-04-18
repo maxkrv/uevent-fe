@@ -1,7 +1,7 @@
 'use client';
 
 import { Users } from 'lucide-react';
-import { FC, useState } from 'react';
+import { type FC, useState } from 'react';
 
 import { ShortUserCard } from '@/modules/user/components/short-user-card';
 import type { User } from '@/modules/user/interfaces/user.interface';

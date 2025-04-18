@@ -1,22 +1,29 @@
-import dayjs from 'dayjs';
+'use client';
+
+import { useQuery } from '@tanstack/react-query';
+import dayjs, { type Dayjs } from 'dayjs';
 import { CreditCard } from 'lucide-react';
 import type React from 'react';
-import { MouseEventHandler } from 'react';
+import type { MouseEventHandler } from 'react';
 import { FaArrowRightLong } from 'react-icons/fa6';
 import { FiCalendar, FiDollarSign, FiHeart, FiMapPin, FiShare2 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 
+import { Image } from '../../../shared/components/common/image';
 import { Link } from '../../../shared/components/common/link';
 import { Button, buttonVariants } from '../../../shared/components/ui/button';
+import { QueryKeys } from '../../../shared/constants/query-keys';
 import { useShare } from '../../../shared/hooks/use-share';
 import { cn } from '../../../shared/lib/utils';
+import { CompanyLogo } from '../../company/components/company-logo';
 import type { Event } from '../interfaces/event.interface';
+import { EventService } from '../services/event.service';
 
 interface EventListItemProps {
   event: Event;
 }
 
-const formatDate = (dateString: string) => dayjs(dateString).format('MMM D, YYYY');
+const formatDate = (dateString: string | Dayjs | Date) => dayjs(dateString).format('MMM D, YYYY');
 
 export const EventCard: React.FC<EventListItemProps> = ({ event }) => {
   const share = useShare();
@@ -31,26 +38,34 @@ export const EventCard: React.FC<EventListItemProps> = ({ event }) => {
       url: window.location.href
     });
   };
+  const { data: attendees } = useQuery({
+    queryKey: [QueryKeys.EVENT_ATTENDEES, event.id],
+    queryFn: () => {
+      return EventService.getAttendees(event.id);
+    },
+    enabled: !!event.id
+  });
 
-  const isSoldOut = event.maxAttendees && event.currentAttendees === event.maxAttendees;
+  const isSoldOut = event.maxAttendees && attendees?.meta.totalItemsCount === event.maxAttendees;
   const isEventPassed = event.endDate
     ? dayjs(event.endDate).isBefore(dayjs())
     : dayjs(event.startDate).isBefore(dayjs());
 
   return (
     <article className="bg-secondary rounded-xl overflow-hidden shadow transition-all duration-300 @container min-h-fit min-w-80 hover:shadow-2xl hover:scale-[1.02] group">
-      <Link to={`/events/${event.id}`} className="h-full flex flex-col @lg:flex-row" unstyled>
+      <Link to={`/events/${event.id}`} className="h-full flex flex-col @lg:flex-row @lg:min-h-80 min-h-148" unstyled>
         {/* Image container - 2/5 height in vertical, 2/5 width in horizontal */}
-        <div className="relative h-2/5 @lg:h-auto @lg:w-2/5 flex-none overflow-hidden">
-          <img
-            src={event.poster || '/images/event-placeholder.jpg'}
+        <div className="relative min-h-2/5 @lg:h-auto @lg:w-2/5 flex-none overflow-hidden max-h-60  @lg:max-h-100 ">
+          <Image
             alt={event.title}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+            src={event.posterUrl}
+            wrapperClassName="group-hover:scale-110 transition-transform duration-700 "
+            className="object-cover size-full"
           />
           {/* Badge for category */}
-          <div className="absolute top-4 left-4">
+          <div className="absolute top-4 left-4 flex items-center">
             <span className="px-3 py-1 bg-primary text-primary-foreground text-xs font-semibold rounded-full">
-              {event.category?.name || 'Event'}
+              {event.format.replace(/_/g, ' ').toUpperCase()}
             </span>
           </div>
         </div>
@@ -122,24 +137,19 @@ export const EventCard: React.FC<EventListItemProps> = ({ event }) => {
 
           {/* Company info */}
           {event.company && (
-            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex items-center">
-              <img
-                src={event.company.logo || '/images/company-placeholder.jpg'}
-                alt={event.company.name}
-                className="w-8 h-8 rounded-full object-cover mr-3"
-              />
-              <span className="text-sm text-gray-600 dark:text-gray-400">
+            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex items-center gap-4">
+              <CompanyLogo company={event.company} className="h-8 w-8" />
+              <span className="text-sm text-muted-foreground flex items-center gap-0.5 grow">
                 By
-                <Button
-                  variant="link"
+                <span
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
                     nav(`/companies/${event.company?.id}`);
                   }}
-                  className="font-semibold text-gray-900 dark:text-white pl-1">
-                  {event.company.name}
-                </Button>
+                  className="font-semibold text-foreground pl-1 line-clamp-1 hover:text-primary">
+                  {event.company?.name}
+                </span>
               </span>
             </div>
           )}

@@ -21,13 +21,12 @@ const EMOJI_CATEGORIES = [
 ];
 
 interface CommentFormProps {
-  eventId: string;
-  replyToId?: string;
   onSubmit: (content: string) => void;
   onCancel?: () => void;
   placeholder?: string;
   autoFocus?: boolean;
   isReply?: boolean;
+  isSubmitting?: boolean;
 }
 
 export const CommentForm = ({
@@ -35,10 +34,10 @@ export const CommentForm = ({
   onCancel,
   placeholder = 'Share your thoughts about this event...',
   autoFocus = false,
-  isReply = false
+  isReply = false,
+  isSubmitting = false
 }: CommentFormProps) => {
   const [content, setContent] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const { data: user } = useAuth();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
@@ -46,14 +45,13 @@ export const CommentForm = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!content.trim()) return;
+    if (!content.trim() || isSubmitting) return;
 
-    setIsSubmitting(true);
     try {
       await onSubmit(content);
       setContent('');
-    } finally {
-      setIsSubmitting(false);
+    } catch (error) {
+      console.error('Error submitting comment:', error);
     }
   };
 
@@ -86,12 +84,13 @@ export const CommentForm = ({
               placeholder={placeholder}
               className="min-h-[80px] resize-none"
               autoFocus={autoFocus}
+              disabled={isSubmitting}
             />
           </div>
           <div className="flex justify-between items-center gap-2">
             <Popover open={isEmojiPickerOpen} onOpenChange={setIsEmojiPickerOpen}>
               <PopoverTrigger asChild>
-                <Button type="button" variant="outline" size="sm" className="h-8 rounded-full">
+                <Button type="button" variant="outline" size="sm" className="h-8 rounded-full" disabled={isSubmitting}>
                   <Smile className="h-4 w-4 mr-1" />
                   Add Emoji
                 </Button>
@@ -131,8 +130,9 @@ export const CommentForm = ({
                 type="submit"
                 disabled={!content.trim() || isSubmitting}
                 className="gap-2"
-                size={isReply ? 'sm' : 'default'}>
-                <Send className="h-4 w-4" />
+                size={isReply ? 'sm' : 'default'}
+                isLoading={isSubmitting}>
+                {!isSubmitting && <Send className="h-4 w-4" />}
                 {isSubmitting ? 'Posting...' : isReply ? 'Reply' : 'Post Comment'}
               </Button>
             </div>

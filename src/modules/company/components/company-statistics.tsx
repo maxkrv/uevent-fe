@@ -10,8 +10,8 @@ interface CompanyStatisticsProps {
 
 export const CompanyStatistics = ({ companies }: CompanyStatisticsProps) => {
   // Calculate statistics
-  const totalEvents = companies.reduce((sum, company) => sum + (company.eventCount || 0), 0);
-  const totalSubscribers = companies.reduce((sum, company) => sum + (company.subscriberCount || 0), 0);
+  const totalEvents = companies.reduce((sum, company) => sum + (company.events?.length || 0), 0);
+  const totalSubscribers = companies.reduce((sum, company) => sum + (company.subscribers?.length || 0), 0);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">

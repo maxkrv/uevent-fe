@@ -1,3 +1,5 @@
+'use client';
+
 import { useMediaQuery } from 'usehooks-ts';
 
 export enum Breakpoint {

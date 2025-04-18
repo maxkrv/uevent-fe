@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 
-import { mockEvents } from '@/__mock__/events';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 
+import { QueryKeys } from '../../../shared/constants/query-keys';
 import { NotFoundPage } from '../../../shared/pages/not-found-page';
 import { Comments } from '../../comments/components/comments';
 import { CompanyCard } from '../../company/components/company-card';
@@ -15,31 +15,35 @@ import { EventMap } from '../components/event-details/event-map';
 import { EventTickets } from '../components/event-details/event-tickets';
 import { CompanyEvents } from '../components/event-details/organizer-events';
 import { SimilarEvents } from '../components/event-details/similar-events';
-import type { Event } from '../interfaces/event.interface';
+import { EventService } from '../services/event.service';
 
 export const EventPage = () => {
   const { id } = useParams<{ id: string }>();
-  const [event, setEvent] = useState<Event | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
 
-  // Simulate fetching event data
-  useEffect(() => {
-    const fetchEvent = async () => {
-      setIsLoading(true);
-      try {
-        // In a real app, this would be an API call
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        const foundEvent = mockEvents.find((e) => e.id === id);
-        setEvent(foundEvent || null);
-      } catch (error) {
-        console.error('Failed to fetch event:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  // Fetch event details
+  const {
+    data: event,
+    isLoading: isEventLoading,
+    error
+  } = useQuery({
+    queryKey: [QueryKeys.EVENTS, id],
+    queryFn: () => EventService.getById(id!),
+    enabled: !!id
+  });
 
-    fetchEvent();
-  }, [id]);
+  // Fetch event attendees
+  const { data: attendees, isLoading: isAttendeesLoading } = useQuery({
+    queryKey: [QueryKeys.EVENT_ATTENDEES, id],
+    queryFn: () => EventService.getAttendees(id!),
+    enabled: !!id && !!event?.showAttendeeList
+  });
+
+  const isLoading = isEventLoading || isAttendeesLoading;
+
+  // Handle error state
+  if (error) {
+    return <NotFoundPage />;
+  }
 
   if (isLoading) {
     return <EventSkeleton />;
@@ -69,12 +73,16 @@ export const EventPage = () => {
 
             {/* Event Location */}
             {event.location && <EventMap location={event.location} />}
-            {/* Event Attendees */}
-            <EventAttendees
-              attendees={event.attendees}
-              maxAttendees={event.maxAttendees}
-              currentAttendees={event.currentAttendees}
-            />
+
+            {/* Event Attendees - only show if the event has showAttendeeList enabled */}
+            {event.showAttendeeList && (
+              <EventAttendees
+                attendees={attendees?.items}
+                maxAttendees={event.maxAttendees}
+                currentAttendees={attendees?.meta.totalItemsCount}
+              />
+            )}
+
             {/* Event Comments */}
             <div className="hidden lg:block">
               <Comments eventId={event.id} />
@@ -84,15 +92,17 @@ export const EventPage = () => {
           {/* Sidebar */}
           <div className="space-y-8">
             {/* Event Actions */}
-            <EventTickets event={event} />
+            <EventTickets event={event} currentAttendees={attendees?.meta.totalItemsCount || 0} />
 
             {/* Organizer Info */}
             {event.company && <CompanyCard company={event.company} />}
+
             {/* More events from this organizer */}
             {event.company && <CompanyEvents currentEventId={event.id} companyId={event.company.id} />}
 
             {/* Related Events */}
-            <SimilarEvents currentEventId={event.id} categoryId={event.category?.id} />
+            <SimilarEvents event={event} />
+
             <div className="lg:hidden block">
               <Comments eventId={event.id} />
             </div>

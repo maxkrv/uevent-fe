@@ -9,8 +9,8 @@ import { Input } from '@/shared/components/ui/input';
 import { Progress } from '@/shared/components/ui/progress';
 
 import { Link } from '../../../../shared/components/common/link';
-import { Pagination } from '../../../../shared/components/ui/pagination';
-import { User } from '../../../user/interfaces/user.interface';
+import { Pagination } from '../../../../shared/components/common/pagination';
+import type { User } from '../../../user/interfaces/user.interface';
 import { EventAttendee } from './event-attendee';
 
 interface EventAttendeesProps {

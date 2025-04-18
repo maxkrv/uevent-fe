@@ -2,7 +2,7 @@
 
 import { Building2 } from 'lucide-react';
 
-import { Pagination } from '@/shared/components/ui/pagination';
+import { Pagination } from '@/shared/components/common/pagination';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 
 import type { Company } from '../interfaces/company.interface';

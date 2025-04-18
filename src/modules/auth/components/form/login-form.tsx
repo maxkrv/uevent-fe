@@ -1,3 +1,5 @@
+'use client';
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
@@ -9,7 +11,7 @@ import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 import { PasswordInput } from '@/shared/components/ui/password-input';
 
-import { LoginDto, LoginSchema } from '../../interfaces/auth.interface';
+import { type LoginDto, LoginSchema } from '../../interfaces/auth.interface';
 import { userGroupOptions } from '../../queries/use-auth.query';
 import { AuthService } from '../../services/auth.service';
 import { useTokens } from '../../stores/tokens.store';

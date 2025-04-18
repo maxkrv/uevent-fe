@@ -9,7 +9,9 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/shared/components/ui/button';
 import { useShare } from '@/shared/hooks/use-share';
 
+import { Image } from '../../../../shared/components/common/image';
 import type { Company } from '../../interfaces/company.interface';
+import { CompanyLogo } from '../company-logo';
 
 interface CompanyHeroProps {
   company: Company;
@@ -29,28 +31,15 @@ export const CompanyHero = ({ company }: CompanyHeroProps) => {
   };
 
   return (
-    <div className="relative w-full h-[40vh] md:h-[50vh] overflow-hidden">
+    <div className="relative w-full h-[40vh] md:h-[50vh] overflow-hidden ">
       <div className="absolute inset-0 z-10"></div>
-      <img
-        src={
-          company.coverImage ||
-          `/placeholder.svg?height=600&width=1200&query=${encodeURIComponent(company.name) || '/placeholder.svg'} headquarters`
-        }
-        alt={company.name}
-        className="w-full h-full object-cover object-center scale-105"
-      />
+      <Image src={company.coverImage} alt={company.name} className="w-full h-full object-cover object-center" />
       <div className="absolute inset-0 bg-black/30"></div>
       {/* Hero Content */}
       <div className="absolute bottom-0 left-0 right-0 z-20 p-6 md:p-10 text-white">
         <div className="container mx-auto flex items-end gap-6">
           <div className="h-24 w-24 md:h-32 md:w-32 rounded-full border-4 border-background overflow-hidden bg-accent shadow-lg">
-            <img
-              src={
-                company.logo || `/placeholder.svg?height=128&width=128&query=${encodeURIComponent(company.name)} logo`
-              }
-              alt={company.name}
-              className="w-full h-full object-cover"
-            />
+            <CompanyLogo company={company} className="w-full h-full" />
           </div>
           <div className="flex-1 gap-2 grid">
             <h1 className="text-3xl md:text-5xl font-bold mb-2">{company.name}</h1>
@@ -96,24 +85,22 @@ interface CompanyHeroStatsProps {
 }
 
 const CompanyHeroStats = ({ company }: CompanyHeroStatsProps) => {
-  const { location, eventCount = 0, subscriberCount = 0 } = company;
-
   return (
     <div className="flex flex-wrap gap-x-6 gap-y-2 text-white/90">
       {location && (
         <div className="flex items-center">
           <FaLocationDot className="mr-2 h-5 w-5" />
-          <span>{location}</span>
+          <span>{company.location.address}</span>
         </div>
       )}
       <div className="flex items-center">
         <FaCalendarDays className="mr-2 h-5 w-5" />
-        <span>{eventCount} Events</span>
+        <span>{company.events?.length} Events</span>
       </div>
       <div className="flex items-center">
         <FaRegUser className="mr-2 h-5 w-5" />
 
-        <span>{subscriberCount.toLocaleString()} Followers</span>
+        <span>{company.subscribers?.length} Followers</span>
       </div>
     </div>
   );

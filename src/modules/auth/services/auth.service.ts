@@ -1,9 +1,9 @@
 import { apiClient } from '@/shared/api/api';
-import { EmailDto } from '@/shared/types/interfaces';
+import type { EmailDto } from '@/shared/types/interfaces';
 
-import { User } from '../../user/interfaces/user.interface';
-import { LoginDto, RegisterDto, ResetPasswordDto, Success } from '../interfaces/auth.interface';
-import { Tokens } from '../stores/tokens.store';
+import type { User } from '../../user/interfaces/user.interface';
+import type { LoginDto, RegisterDto, ResetPasswordDto, Success } from '../interfaces/auth.interface';
+import type { Tokens } from '../stores/tokens.store';
 
 export class AuthService {
   static async login(dto: LoginDto): Promise<Tokens> {

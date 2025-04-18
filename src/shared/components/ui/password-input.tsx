@@ -1,10 +1,12 @@
+'use client';
+
 import * as React from 'react';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 import { cn } from '@/shared/lib/utils';
 
 import { Button } from './button';
-import { Input, InputProps } from './input';
+import { Input, type InputProps } from './input';
 
 const PasswordInput = React.forwardRef<HTMLInputElement, InputProps>(({ className, ...props }, ref) => {
   const [showPassword, setShowPassword] = React.useState(false);

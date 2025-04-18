@@ -1,5 +1,5 @@
 import { UserAvatar } from '../../../../shared/components/common/user-avatar';
-import { User } from '../../../user/interfaces/user.interface';
+import type { User } from '../../../user/interfaces/user.interface';
 
 interface EventAttendeeProps {
   attendee: User;

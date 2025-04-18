@@ -48,13 +48,16 @@ export const CompanyContact = ({ company, isFollowing, onFollowToggle }: Company
           <div className="flex justify-between items-center">
             <div className="flex items-center text-sm">
               <MapPin className="h-4 w-4 mr-2 text-primary" />
-              <span>{company.location}</span>
+              <span>{company.location.address}</span>
             </div>
             <Button
               variant="outline"
               size="sm"
               onClick={() =>
-                window.open(`https://maps.google.com/?q=${encodeURIComponent(company.location || '')}`, '_blank')
+                window.open(
+                  `https://maps.google.com/?q=${encodeURIComponent(company.location.address || '')}`,
+                  '_blank'
+                )
               }>
               Map
             </Button>

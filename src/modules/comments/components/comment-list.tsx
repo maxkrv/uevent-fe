@@ -6,7 +6,8 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/shared/components/ui/button';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 
-import type { Comment, ReactionType } from '../interfaces/comment.interface';
+import type { Comment } from '../interfaces/comment.interface';
+import type { ReactionType } from '../interfaces/reaction.interface';
 import { CommentItem } from './comment-item';
 
 interface CommentListProps {
@@ -41,15 +42,15 @@ export const CommentList = ({
     const replies: Record<string, Comment[]> = {};
 
     comments.forEach((comment) => {
-      if (!comment.replyId) {
+      if (!comment.parentId) {
         // This is a root comment
         roots.push(comment);
       } else {
         // This is a reply
-        if (!replies[comment.replyId]) {
-          replies[comment.replyId] = [];
+        if (!replies[comment.parentId]) {
+          replies[comment.parentId] = [];
         }
-        replies[comment.replyId].push(comment);
+        replies[comment.parentId].push(comment);
       }
     });
 

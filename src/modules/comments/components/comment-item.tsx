@@ -3,6 +3,7 @@
 import { formatDistanceToNow } from 'date-fns';
 import { ChevronDown, ChevronUp, MessageSquare, MoreHorizontal, Reply, Trash2 } from 'lucide-react';
 import { useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Link } from '../../../shared/components/common/link';
 import { UserAvatar } from '../../../shared/components/common/user-avatar';
@@ -14,7 +15,8 @@ import {
   DropdownMenuTrigger
 } from '../../../shared/components/ui/dropdown-menu';
 import { Popover, PopoverContent, PopoverTrigger } from '../../../shared/components/ui/popover';
-import type { Comment, ReactionType } from '../interfaces/comment.interface';
+import type { Comment } from '../interfaces/comment.interface';
+import { ReactionType } from '../interfaces/reaction.interface';
 import { CommentForm } from './comment-form';
 
 // Reaction type to emoji mapping
@@ -28,7 +30,7 @@ const REACTION_EMOJIS: Record<ReactionType, string> = {
 };
 
 // All available reaction types
-const REACTION_TYPES = Object.keys(REACTION_EMOJIS) as ReactionType[];
+const REACTION_TYPES: ReactionType[] = Object.values(ReactionType);
 
 interface CommentItemProps {
   comment: Comment;
@@ -53,6 +55,7 @@ export const CommentItem = ({
   const [showReplies, setShowReplies] = useState(false);
   const [isReactionPickerOpen, setIsReactionPickerOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const reactionButtonRef = useRef<HTMLButtonElement>(null);
 
   const isAuthor = currentUserId === comment.userId;
@@ -63,8 +66,14 @@ export const CommentItem = ({
   const hasReplies = replies && replies.length > 0;
 
   const handleReplySubmit = async (content: string) => {
-    await onReply(content, comment.id);
-    setIsReplying(false);
+    setIsSubmitting(true);
+    try {
+      await onReply(content, comment.id);
+      setIsReplying(false);
+      toast.success('Reply added successfully');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleReactionSelect = (reactionType: ReactionType) => {
@@ -223,13 +232,12 @@ export const CommentItem = ({
               {/* Reply form when no replies exist */}
               {isReplying && !hasReplies && !isReply && (
                 <CommentForm
-                  eventId={comment.eventId}
-                  replyToId={comment.id}
                   onSubmit={handleReplySubmit}
                   onCancel={() => setIsReplying(false)}
                   placeholder="Write a reply..."
                   autoFocus
                   isReply
+                  isSubmitting={isSubmitting}
                 />
               )}
 
@@ -245,12 +253,11 @@ export const CommentItem = ({
                     <>
                       {/* Reply form when showing replies */}
                       <CommentForm
-                        eventId={comment.eventId}
-                        replyToId={comment.id}
                         onSubmit={handleReplySubmit}
                         onCancel={() => setIsReplying(false)}
                         placeholder="Write a reply..."
                         isReply
+                        isSubmitting={isSubmitting}
                       />
 
                       <div className="space-y-4 mt-4">

@@ -1,3 +1,5 @@
+'use client';
+
 import dayjs from 'dayjs';
 import { useMemo, useState } from 'react';
 import { FiCalendar } from 'react-icons/fi';
@@ -8,9 +10,9 @@ import { cn } from '@/shared/lib/utils';
 import { DateInput } from '../../../shared/components/form/input/date-input';
 import { Button } from '../../../shared/components/ui/button';
 
-interface DateRange {
-  from: Date | undefined;
-  to: Date | undefined;
+export interface DateRange {
+  from?: Date | undefined;
+  to?: Date | undefined;
 }
 
 interface DateRangeFilterProps {

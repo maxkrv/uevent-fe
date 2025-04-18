@@ -1,59 +1,44 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
-import { toast } from 'sonner';
 
-import { mockCompanies } from '@/__mock__/companies';
 import { Comments } from '@/modules/comments/components/comments';
 
-import { CompanySidebar } from '../components/news/company-sidebar';
+import { QueryKeys } from '../../../shared/constants/query-keys';
+import { CompanyCard } from '../components/company-card';
 import { NewsContent } from '../components/news/news-content';
 import { NewsHero } from '../components/news/news-hero';
 import { NewsNotFound } from '../components/news/news-not-found';
 import { NewsDetailSkeleton } from '../components/news/news-skeleton';
 import { RelatedNews } from '../components/news/related-news';
-import type { Company } from '../interfaces/company.interface';
-import type { NewsItem } from '../interfaces/news.interface';
-import { NewsService } from '../services/news.service';
+import { CompanyService } from '../services/company.service';
 
 export const CompanyNewsDetailPage = () => {
   const { companyId, newsId } = useParams<{ companyId: string; newsId: string }>();
-  const [newsItem, setNewsItem] = useState<NewsItem | null>(null);
-  const [company, setCompany] = useState<Company | null>(null);
-  const [relatedNews, setRelatedNews] = useState<NewsItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!companyId || !newsId) return;
+  // Fetch company data
+  const { data: company, isLoading: isCompanyLoading } = useQuery({
+    queryKey: [QueryKeys.COMPANIES, companyId],
+    queryFn: () => CompanyService.getById(companyId!),
+    enabled: !!companyId
+  });
 
-      setIsLoading(true);
-      try {
-        // Find company
-        const foundCompany = mockCompanies.find((c) => c.id === companyId);
-        if (!foundCompany) {
-          throw new Error('Company not found');
-        }
-        setCompany(foundCompany);
+  // Fetch news item
+  const { data: newsItem, isLoading: isNewsLoading } = useQuery({
+    queryKey: [QueryKeys.COMPANY_NEWS, companyId, newsId],
+    queryFn: () => CompanyService.getNewsItem(newsId!, companyId!),
+    enabled: !!companyId && !!newsId
+  });
 
-        // Get news item
-        const news = await NewsService.getNewsItem(newsId, companyId);
-        setNewsItem(news);
+  // Fetch related news
+  const { data: relatedNews, isLoading: isRelatedLoading } = useQuery({
+    queryKey: [QueryKeys.COMPANY_NEWS, companyId, 'related', newsId],
+    queryFn: () => CompanyService.getRelatedNews(companyId!, newsId),
+    enabled: !!companyId && !!newsId
+  });
 
-        // Get related news
-        const related = await NewsService.getRelatedNews(companyId);
-        setRelatedNews(related);
-      } catch (error) {
-        console.error('Failed to fetch news item:', error);
-        toast.error('Failed to load news item');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [companyId, newsId]);
+  const isLoading = isCompanyLoading || isNewsLoading || isRelatedLoading;
 
   if (isLoading) {
     return <NewsDetailSkeleton />;
@@ -75,16 +60,16 @@ export const CompanyNewsDetailPage = () => {
             <NewsContent newsItem={newsItem} company={company} />
 
             {/* Comments Section */}
-            <Comments eventId={`news-${newsItem.id}`} />
+            <Comments newsId={newsItem.id} />
           </div>
 
           {/* Sidebar */}
           <div className="space-y-8">
             {/* Company Info */}
-            <CompanySidebar company={company} />
+            <CompanyCard company={company} />
 
             {/* Related News */}
-            <RelatedNews companyId={company.id} relatedNews={relatedNews} />
+            {relatedNews && relatedNews.length > 0 && <RelatedNews companyId={company.id} relatedNews={relatedNews} />}
           </div>
         </div>
       </div>

@@ -1,3 +1,5 @@
+'use client';
+
 import { Navigate, useParams } from 'react-router-dom';
 
 import { ResetPasswordForm } from '../components/form/reset-password-form';
