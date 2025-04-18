@@ -12,7 +12,7 @@ interface FeaturedCompaniesProps {
 export const FeaturedCompanies = ({ companies }: FeaturedCompaniesProps) => {
   // Get featured companies (top 3 by subscriber count)
   const featuredCompanies = [...companies]
-    .sort((a, b) => (b.subscriberCount || 0) - (a.subscriberCount || 0))
+    .sort((a, b) => (b.subscribers?.length || 0) - (a.subscribers?.length || 0))
     .slice(0, 3);
 
   if (featuredCompanies.length === 0) {

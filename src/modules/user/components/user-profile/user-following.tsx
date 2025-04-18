@@ -1,47 +1,30 @@
 'use client';
 
+import { useQuery } from '@tanstack/react-query';
 import { Building2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
-import { mockCompanies } from '@/__mock__/companies';
-import type { Company } from '@/modules/company/interfaces/company.interface';
-import { Pagination } from '@/shared/components/ui/pagination';
+import { Pagination } from '@/shared/components/common/pagination';
 import { Skeleton } from '@/shared/components/ui/skeleton';
+import { QueryKeys } from '@/shared/constants/query-keys';
 
 import { ShortCompanyCard } from '../../../company/components/short-company-card';
+import { UserService } from '../../services/user.service';
 
 interface UserFollowingProps {
   userId: string;
 }
 
 export const UserFollowing = ({ userId }: UserFollowingProps) => {
-  const [followedCompanies, setFollowedCompanies] = useState<Company[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
-  useEffect(() => {
-    const fetchFollowedCompanies = async () => {
-      setIsLoading(true);
-      try {
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 600));
-
-        // For demo purposes, randomly select some companies as followed
-        const randomCompanies = [...mockCompanies]
-          .sort(() => 0.5 - Math.random())
-          .slice(0, Math.floor(Math.random() * 10) + 5);
-
-        setFollowedCompanies(randomCompanies);
-      } catch (error) {
-        console.error('Failed to fetch followed companies:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchFollowedCompanies();
-  }, [userId]);
+  // Fetch companies the user is following
+  const { data: followedCompaniesData, isLoading } = useQuery({
+    queryKey: [QueryKeys.USER_COMPANIES, userId, 'following'],
+    queryFn: () => UserService.getFollowedCompanies(userId),
+    enabled: !!userId
+  });
 
   if (isLoading) {
     return (
@@ -62,10 +45,11 @@ export const UserFollowing = ({ userId }: UserFollowingProps) => {
     );
   }
 
+  const followedCompanies = followedCompaniesData?.items || [];
+
   if (followedCompanies.length === 0) {
     return (
       <div className="bg-card rounded-lg border p-8 text-center flex flex-col items-center justify-center min-h-screen-no-header">
-        {' '}
         <Building2 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
         <h3 className="text-lg font-medium mb-2">Not Following Any Companies</h3>
         <p className="text-muted-foreground">This user isn&apos;t following any event organizers yet.</p>
@@ -73,6 +57,7 @@ export const UserFollowing = ({ userId }: UserFollowingProps) => {
     );
   }
 
+  // Calculate pagination
   const totalPages = Math.ceil(followedCompanies.length / itemsPerPage);
   const paginatedCompanies = followedCompanies.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 

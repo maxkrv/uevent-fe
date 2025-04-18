@@ -1,11 +1,12 @@
 import { Link } from '@/shared/components/common/link';
 import dayjs from '@/shared/lib/dayjs';
 
-import type { NewsItem } from '../../interfaces/news.interface';
+import { Image } from '../../../../shared/components/common/image';
+import { CompanyNews } from '../../interfaces/news.interface';
 
 interface RelatedNewsProps {
   companyId: string;
-  relatedNews: NewsItem[];
+  relatedNews: CompanyNews[];
 }
 
 export const RelatedNews = ({ companyId, relatedNews }: RelatedNewsProps) => {
@@ -20,10 +21,11 @@ export const RelatedNews = ({ companyId, relatedNews }: RelatedNewsProps) => {
             to={`/companies/${companyId}/news/${item.id}`}
             className="flex gap-3 group hover:bg-muted p-2 rounded-md transition-colors">
             <div className="h-14 w-14 rounded-md overflow-hidden flex-shrink-0">
-              <img
-                src={item.imageUrl || '/breaking-news-desk.png'}
+              <Image
+                src={item.imageUrl}
                 alt={item.title}
-                className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-300"
+                wrapperClassName="group-hover:scale-110 transition-transform duration-300"
+                className="h-full w-full object-cover"
               />
             </div>
             <div className="flex-1 min-w-0">

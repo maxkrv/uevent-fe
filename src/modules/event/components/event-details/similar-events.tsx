@@ -1,48 +1,24 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
-import { mockEvents } from '@/__mock__/events';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 
+import { QueryKeys } from '../../../../shared/constants/query-keys';
 import type { Event } from '../../interfaces/event.interface';
+import { EventService } from '../../services/event.service';
 import { ShortEventCard } from '../short-event-card';
 
 interface SimilarEventsProps {
-  currentEventId: string;
-  categoryId?: string;
+  event: Event;
 }
 
-export const SimilarEvents = ({ currentEventId, categoryId }: SimilarEventsProps) => {
-  const [relatedEvents, setRelatedEvents] = useState<Event[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchRelatedEvents = async () => {
-      setIsLoading(true);
-      try {
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 800));
-
-        // Filter events by category and exclude current event
-        let filtered = mockEvents.filter((event) => event.id !== currentEventId);
-
-        if (categoryId) {
-          filtered = filtered.filter((event) => event.category?.id === categoryId);
-        }
-
-        // Limit to 3 events
-        setRelatedEvents(filtered.slice(0, 3));
-      } catch (error) {
-        console.error('Failed to fetch related events:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchRelatedEvents();
-  }, [currentEventId, categoryId]);
+export const SimilarEvents = ({ event }: SimilarEventsProps) => {
+  const { data: relatedEvents, isLoading } = useQuery({
+    queryKey: [QueryKeys.EVENTS, event.format, 'related'],
+    queryFn: () => EventService.getMany({ format: [event.format], limit: 5 })
+  });
 
   if (isLoading) {
     return (
@@ -65,7 +41,7 @@ export const SimilarEvents = ({ currentEventId, categoryId }: SimilarEventsProps
     );
   }
 
-  if (relatedEvents.length === 0) {
+  if (relatedEvents?.items.length === 0) {
     return null;
   }
 
@@ -75,7 +51,7 @@ export const SimilarEvents = ({ currentEventId, categoryId }: SimilarEventsProps
         <CardTitle className="text-xl">Similar Events</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {relatedEvents.map((event) => (
+        {relatedEvents?.items.map((event) => (
           <ShortEventCard key={event.id} event={event} className="border-transparent" />
         ))}
       </CardContent>

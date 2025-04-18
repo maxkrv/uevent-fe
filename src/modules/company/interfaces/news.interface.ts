@@ -1,15 +1,17 @@
-// Interface for a single news item
-export interface NewsItem {
+import type { Comment } from '../../comments/interfaces/comment.interface';
+import type { Reaction } from '../../comments/interfaces/reaction.interface';
+import type { Company } from './company.interface';
+
+export interface CompanyNews {
   id: string;
   title: string;
   content: string;
   imageUrl?: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
   companyId: string;
-
-  // Additional frontend properties
-  isLiked?: boolean;
-  likes?: number;
-  comments?: number;
+  // Relations
+  company: Company;
+  comments?: Comment[];
+  reaction?: Reaction[];
 }

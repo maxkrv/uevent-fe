@@ -1,4 +1,7 @@
+'use client';
+
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import type React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { UserAvatar } from '../../../shared/components/common/user-avatar';

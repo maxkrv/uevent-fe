@@ -4,7 +4,7 @@ import { Calendar } from 'lucide-react';
 import { useState } from 'react';
 
 import type { Event } from '@/modules/event/interfaces/event.interface';
-import { Pagination } from '@/shared/components/ui/pagination';
+import { Pagination } from '@/shared/components/common/pagination';
 import dayjs from '@/shared/lib/dayjs';
 
 import { ShortEventCard } from '../../../event/components/short-event-card';
@@ -31,7 +31,6 @@ export const UserUpcomingEvents = ({ events }: UserUpcomingEventsProps) => {
   if (upcomingEvents.length === 0) {
     return (
       <div className="bg-card rounded-lg border p-8 text-center flex flex-col items-center justify-center min-h-screen-no-header">
-        {' '}
         <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
         <h3 className="text-lg font-medium mb-2">No Upcoming Events</h3>
         <p className="text-muted-foreground">This user hasn&apos;t registered for any upcoming events.</p>

@@ -1,4 +1,7 @@
+'use client';
+
 import { DialogTrigger } from '@radix-ui/react-dialog';
+import type React from 'react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -15,7 +18,7 @@ import {
 import { Label } from '../../../../shared/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '../../../../shared/components/ui/radio-group';
 import { Separator } from '../../../../shared/components/ui/separator';
-import { Event } from '../../interfaces/event.interface';
+import type { Event } from '../../interfaces/event.interface';
 
 interface BuyTicketsModalProps {
   event: Event;

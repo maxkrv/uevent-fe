@@ -1,4 +1,6 @@
-import { FC, PropsWithChildren } from 'react';
+'use client';
+
+import type { FC, PropsWithChildren } from 'react';
 import { Navigate } from 'react-router-dom';
 
 import { useAuth } from '../../modules/auth/queries/use-auth.query';

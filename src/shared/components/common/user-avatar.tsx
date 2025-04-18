@@ -1,6 +1,6 @@
-import { FC } from 'react';
+import type { FC } from 'react';
 
-import { User } from '../../../modules/user/interfaces/user.interface';
+import type { User } from '../../../modules/user/interfaces/user.interface';
 import { cn } from '../../lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 

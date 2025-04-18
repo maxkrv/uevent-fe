@@ -1,6 +1,7 @@
-import { FC, PropsWithChildren } from 'react';
+import type { FC, PropsWithChildren } from 'react';
 import { Outlet } from 'react-router-dom';
 
+import { Image } from '../../../shared/components/common/image';
 import { EventAnimation } from '../components/common/event-animation';
 
 export const AuthLayout: FC<PropsWithChildren> = ({ children }) => {
@@ -16,10 +17,11 @@ export const AuthLayout: FC<PropsWithChildren> = ({ children }) => {
       </div>
       <div className="relative hidden bg-muted lg:flex lg:items-center lg:justify-center">
         {/* <Logo /> */}
-        <img
-          src="/placeholder.svg"
+        <Image
+          src="/auth-background.jpg"
           alt="Calendar App Dashboard"
-          className="absolute inset-0 w-full h-full object-cover object-center z-0 animate-pulse-slow blur-xs"
+          wrapperClassName="absolute inset-0 w-full h-full z-0 animate-pulse-slow blur-xs"
+          className="w-full h-full object-cover object-center"
         />
         <EventAnimation />
       </div>

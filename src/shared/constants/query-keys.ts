@@ -1,5 +1,19 @@
 export enum QueryKeys {
   USERS = 'users',
   USERS_ME = 'users-me',
-  USER_ACTIVATION = 'user-activation'
+  USER_ACTIVATION = 'user-activation',
+  USER_COMPANIES = 'user-companies',
+  USER_TICKETS = 'user-tickets',
+  USER_EVENTS = 'user-events',
+  EVENTS = 'events',
+  EVENT_ATTENDEES = 'event-attendees',
+  EVENT_SUBSCRIBERS = 'event-subscribers',
+  TICKETS = 'tickets',
+  COMPANIES = 'companies',
+  COMPANY_EVENTS = 'company-events',
+  COMPANY_SUBSCRIBERS = 'company-subscribers',
+  COMPANY_NEWS = 'company-news',
+  COMMENTS = 'comments',
+  COMMENT_REACTIONS = 'comment-reactions',
+  NOTIFICATIONS = 'notifications'
 }

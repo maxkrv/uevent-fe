@@ -1,6 +1,7 @@
 'use client';
 
 import { CreditCard, Users } from 'lucide-react';
+import { useState } from 'react';
 
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
@@ -13,23 +14,26 @@ import { BuyTicketsModal } from './buy-tickets.modal';
 
 interface EventTicketsProps {
   event: Event;
+  currentAttendees: number;
 }
 
-export const EventTickets = ({ event }: EventTicketsProps) => {
-  const isSoldOut = event.maxAttendees && event.currentAttendees === event.maxAttendees;
+export const EventTickets = ({ event, currentAttendees }: EventTicketsProps) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const isSoldOut = event.maxAttendees && currentAttendees === event.maxAttendees;
   const isEventPassed = event.endDate
     ? dayjs(event.endDate).isBefore(dayjs())
     : dayjs(event.startDate).isBefore(dayjs());
 
   // Calculate attendance percentage
   const attendancePercentage =
-    event.maxAttendees && event.currentAttendees !== undefined
-      ? Math.round((event.currentAttendees / event.maxAttendees) * 100)
+    event.maxAttendees && currentAttendees !== undefined
+      ? Math.round((currentAttendees / event.maxAttendees) * 100)
       : 0;
 
   // Calculate remaining tickets
   const remainingTickets =
-    event.maxAttendees && event.currentAttendees !== undefined ? event.maxAttendees - event.currentAttendees : null;
+    event.maxAttendees && currentAttendees !== undefined ? event.maxAttendees - currentAttendees : null;
 
   return (
     <>
@@ -63,8 +67,12 @@ export const EventTickets = ({ event }: EventTicketsProps) => {
               <Progress value={attendancePercentage} className="h-2" />
             </div>
           )}
-          <BuyTicketsModal event={event}>
-            <Button className="w-full" size="lg" disabled={isSoldOut || isEventPassed}>
+          <BuyTicketsModal event={event} isOpen={isModalOpen} setIsOpen={setIsModalOpen}>
+            <Button
+              className="w-full"
+              size="lg"
+              disabled={isSoldOut || isEventPassed}
+              onClick={() => setIsModalOpen(true)}>
               <CreditCard className="mr-2 h-4 w-4" />
               {isSoldOut
                 ? 'Sold Out'

@@ -1,89 +1,49 @@
 'use client';
 
+import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { FiSliders } from 'react-icons/fi';
 
 import { Button } from '@/shared/components/ui/button';
 import { cn } from '@/shared/lib/utils';
 
-import { mockEvents } from '../../../__mock__/events';
-import type { Event } from '../../event/interfaces/event.interface';
+import { QueryKeys } from '../../../shared/constants/query-keys';
+import { ActiveFilters } from '../components/active-filters';
 import { EventCard } from '../components/event.card';
 import { EventFilters } from '../components/event-filters';
 import { EventsView, EventViewToggle } from '../components/event-view-toggle';
 import { EventsDisplay } from '../components/events-display';
 import { EventsSearch } from '../components/events-search';
 import { EventsSort, type SortOption } from '../components/events-sort';
+import { type EventGetManyDto, EventService } from '../services/event.service';
+
+const EVENTS_PER_PAGE = 10;
 
 export const EventsPage = () => {
   const [viewMode, setViewMode] = useState<EventsView>(EventsView.GRID);
-  const [isLoading, setIsLoading] = useState(true);
-  const [events, setEvents] = useState<Event[]>([]);
-  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
-  const [sortOption, setSortOption] = useState<SortOption>('date');
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 6;
+  const [sortOption, setSortOption] = useState<SortOption>('date');
+  const [filters, setFilters] = useState<EventGetManyDto>({});
 
-  // Simulate loading data
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setEvents(mockEvents);
-      setFilteredEvents(mockEvents);
-      setIsLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Handle search
-  useEffect(() => {
-    if (!events.length) return;
-
-    let filtered = [...events];
-
-    // Apply search filter
-    if (searchQuery.trim() !== '') {
-      filtered = filtered.filter(
-        (event) =>
-          event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          event.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          event.location?.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          event.category?.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    // Apply sorting
-    filtered = sortEvents(filtered, sortOption);
-
-    setFilteredEvents(filtered);
-    // Reset to first page when filters change
-    setCurrentPage(1);
-  }, [searchQuery, events, sortOption]);
-
-  const sortEvents = (eventsToSort: Event[], option: SortOption): Event[] => {
-    const sorted = [...eventsToSort];
-    switch (option) {
-      case 'date':
-        return sorted.sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
-      case 'price-low':
-        return sorted.sort((a, b) => (a.price || 0) - (b.price || 0));
-      case 'price-high':
-        return sorted.sort((a, b) => (b.price || 0) - (a.price || 0));
-      case 'name':
-        return sorted.sort((a, b) => a.title.localeCompare(b.title));
-      default:
-        return sorted;
-    }
+  // Combine search query with filters
+  const queryFilters = {
+    ...filters,
+    search: searchQuery || undefined,
+    page: currentPage,
+    limit: EVENTS_PER_PAGE,
+    sortOrder: getSortOrder(sortOption)
   };
 
-  const handleFilterChange = (filtered: Event[]) => {
-    // We need to make sure we're not causing a loop by setting filteredEvents
-    // which might trigger other effects that update filters
-    setFilteredEvents(filtered);
+  const { data: events, isLoading } = useQuery({
+    queryKey: [QueryKeys.EVENTS, queryFilters],
+    queryFn: () => EventService.getMany(queryFilters)
+  });
+  // Reset to page 1 when filters change
+  useEffect(() => {
     setCurrentPage(1);
-  };
+  }, [searchQuery, filters, sortOption]);
 
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
@@ -98,68 +58,92 @@ export const EventsPage = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Get a featured event (just using the first one for demo)
-  const featuredEvent = events[0];
+  const handleClearSearch = () => {
+    setSearchQuery('');
+  };
 
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredEvents.length / pageSize);
-  const paginatedEvents = filteredEvents.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const handleToggleFilters = () => {
+    setShowFilters(!showFilters);
+  };
 
   return (
-    <div className="container mx-auto md:p-8 p-4">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Discover Events</h1>
+    <div className="container mx-auto md:p-8 p-4 grid gap-6">
+      <div className="grid items-center justify-center">
+        <h1 className="text-3xl font-bold mb-2 text-center">Discover Events</h1>
         <p className="text-muted-foreground">Find and join exciting events happening around you</p>
       </div>
-
       {/* Featured Event */}
-      {!isLoading && featuredEvent && (
-        <div className="mb-10">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold">Featured Event</h2>
-          </div>
-          <EventCard event={featuredEvent} />
+      {events?.items.length && (
+        <div className="grid gap-2">
+          <h1 className="text-2xl font-bold">Featured Event</h1>
+          <p className="text-muted-foreground">Find and join exciting events happening around you</p>
+
+          <EventCard event={events.items[0]} />
         </div>
       )}
+      <div className="grid gap-2">
+        {/* Search and View Controls */}
+        <div className="flex flex-col md:flex-row gap-4">
+          <EventsSearch searchQuery={searchQuery} onSearchChange={handleSearchChange} />
 
-      {/* Search and View Controls */}
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <EventsSearch searchQuery={searchQuery} onSearchChange={handleSearchChange} />
+          <div className="flex gap-2 justify-between items-center flex-wrap">
+            <EventsSort sortOption={sortOption} onSortChange={handleSortChange} />
 
-        <div className="flex gap-2 justify-between items-center flex-wrap">
-          <EventsSort sortOption={sortOption} onSortChange={handleSortChange} />
+            <EventViewToggle view={viewMode} setView={setViewMode} />
 
-          <EventViewToggle view={viewMode} setView={setViewMode} />
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleToggleFilters}
+              className={cn(showFilters && 'bg-primary-light')}>
+              <FiSliders className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
 
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setShowFilters(!showFilters)}
-            className={cn(showFilters && 'bg-primary-light')}>
-            <FiSliders className="h-4 w-4" />
-          </Button>
+        {/* Active Filters */}
+        <ActiveFilters
+          searchQuery={searchQuery}
+          onClearSearch={handleClearSearch}
+          showFilters={showFilters}
+          onToggleFilters={handleToggleFilters}
+        />
+
+        <div
+          className={cn(
+            'p-4 bg-accent rounded-lg animate-in fade-in-0 zoom-in-95 duration-200',
+            showFilters ? 'block' : 'hidden'
+          )}>
+          {/* Filters */}
+          <EventFilters onFilterChange={setFilters} />
         </div>
       </div>
-
-      <div
-        className={cn(
-          'mb-6 p-4 bg-accent rounded-lg animate-in fade-in-0 zoom-in-95 duration-200',
-          showFilters ? 'block' : 'hidden'
-        )}>
-        {/* Filters */}
-        <EventFilters events={events} onFilterChange={handleFilterChange} />
-      </div>
-
       {/* Events Display */}
       <EventsDisplay
-        events={paginatedEvents}
+        events={events?.items || []}
         isLoading={isLoading}
         viewMode={viewMode}
         currentPage={currentPage}
-        totalPages={totalPages}
-        pageSize={pageSize}
+        totalPages={events?.meta.totalPages || 1}
+        pageSize={events?.meta.itemsPerPage || EVENTS_PER_PAGE}
         onPageChange={handlePageChange}
       />
     </div>
   );
 };
+
+// Helper function to convert sort option to sort order
+function getSortOrder(sortOption: SortOption): 'asc' | 'desc' | undefined {
+  switch (sortOption) {
+    case 'date':
+      return 'asc'; // Soonest first
+    case 'price-low':
+      return 'asc';
+    case 'price-high':
+      return 'desc';
+    case 'name':
+      return 'asc';
+    default:
+      return undefined;
+  }
+}

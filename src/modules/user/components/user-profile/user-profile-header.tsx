@@ -13,13 +13,11 @@ interface UserProfileHeaderProps {
 }
 
 export const UserProfileHeader = ({ user, isOwnProfile }: UserProfileHeaderProps) => {
-  // Calculate member since date
-  const memberSince = new Date().getFullYear() - Math.floor(Math.random() * 5) - 1;
+  // Calculate member since date - in a real app, use the user's createdAt date
+  const memberSince = new Date(user.createdAt).getFullYear();
 
-  // Random location for demo purposes
-  const userLocation = ['San Francisco, CA', 'New York, NY', 'London, UK', 'Tokyo, Japan', 'Berlin, Germany'][
-    Math.floor(Math.random() * 5)
-  ];
+  // Get location from user data or mock it if not available
+  const userLocation = user.location || 'No location provided';
 
   return (
     <div className="bg-card rounded-lg border p-6">

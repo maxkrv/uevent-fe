@@ -5,10 +5,11 @@ import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/shared/components/ui/button';
 
-import type { NewsItem } from '../../interfaces/news.interface';
+import { Image } from '../../../../shared/components/common/image';
+import { CompanyNews } from '../../interfaces/news.interface';
 
 interface NewsHeroProps {
-  newsItem: NewsItem;
+  newsItem: CompanyNews;
 }
 
 export const NewsHero = ({ newsItem }: NewsHeroProps) => {
@@ -16,12 +17,8 @@ export const NewsHero = ({ newsItem }: NewsHeroProps) => {
 
   return (
     <div className="relative w-full h-[40vh] overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent z-10"></div>
-      <img
-        src={newsItem.imageUrl || `/placeholder.svg?height=600&width=1200&query=company news`}
-        alt={newsItem.title}
-        className="w-full h-full object-cover object-center"
-      />
+      <div className="absolute inset-0  z-10"></div>
+      <Image src={newsItem.imageUrl} alt={newsItem.title} className="w-full h-full object-cover object-center" />
 
       <Button
         variant="link"

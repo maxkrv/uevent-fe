@@ -1,216 +1,311 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { FiDollarSign, FiMapPin, FiTag } from 'react-icons/fi';
+import { useDebounceValue } from 'usehooks-ts';
+import { z } from 'zod';
 
 import { Button } from '@/shared/components/ui/button';
 import { Checkbox } from '@/shared/components/ui/checkbox';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
+import { Separator } from '@/shared/components/ui/separator';
 import { Slider } from '@/shared/components/ui/slider';
 
-import { type Event, EventFormat } from '../../event/interfaces/event.interface';
+import { EventFormatType, EventThemeType } from '../interfaces/event.interface';
+import type { EventGetManyDto } from '../services/event.service';
 import { DateRangeFilter } from './date-range-filter';
 
+// Define the Zod schema for the filter form
+const FilterFormSchema = z.object({
+  themes: z.array(z.nativeEnum(EventThemeType)).optional(),
+  format: z.array(z.nativeEnum(EventFormatType)).optional(),
+  location: z
+    .object({
+      address: z.string(),
+      lat: z.number(),
+      lng: z.number()
+    })
+    .optional(),
+  priceRange: z.tuple([z.number(), z.number()]),
+  dateRange: z.object({
+    from: z.date().optional(),
+    to: z.date().optional()
+  }),
+  freeEventsOnly: z.boolean().default(false)
+});
+
+type FilterFormValues = z.infer<typeof FilterFormSchema>;
+
 interface EventFiltersProps {
-  events: Event[];
-  onFilterChange: (filteredEvents: Event[]) => void;
+  onFilterChange: (filter: EventGetManyDto) => void;
 }
 
-export const EventFilters = ({ events, onFilterChange }: EventFiltersProps) => {
-  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 300]);
-  const [formatFilter, setFormatFilter] = useState<string[]>([]);
-  const [location, setLocation] = useState('');
-  const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
-    from: undefined,
-    to: undefined
+const MAX_PRICE = 300;
+
+export const EventFilters = ({ onFilterChange }: EventFiltersProps) => {
+  // Initialize the form with React Hook Form and Zod validation
+  const { control, watch, setValue, reset, getValues } = useForm<FilterFormValues>({
+    resolver: zodResolver(FilterFormSchema),
+    defaultValues: {
+      themes: [],
+      format: [],
+      location: {
+        address: '',
+        lat: 1,
+        lng: 1
+      },
+      priceRange: [0, MAX_PRICE],
+      dateRange: {
+        from: undefined,
+        to: undefined
+      },
+      freeEventsOnly: false
+    }
   });
 
-  // Extract unique categories from events
+  // Watch for form value changes
+  const formValues = watch();
+  const freeEventsOnly = watch('freeEventsOnly');
+
+  // Debounce form values to prevent excessive updates
+  const [debouncedFormValues, updateDebouncedFormValues] = useDebounceValue<FilterFormValues>(getValues(), 500);
+
   useEffect(() => {
-    const uniqueCategories = events.reduce(
-      (acc, event) => {
-        if (event.category && !acc.some((cat) => cat.id === event.category?.id)) {
-          acc.push({ id: event.category.id, name: event.category.name });
-        }
-        return acc;
-      },
-      [] as { id: string; name: string }[]
-    );
-    setCategories(uniqueCategories);
-  }, [events]);
-
-  // Apply filters
+    updateDebouncedFormValues(formValues);
+  }, [formValues, updateDebouncedFormValues]);
+  // Update price range when "free events only" is toggled
   useEffect(() => {
-    // Skip initial render when events array might be empty
-    if (events.length === 0) return;
+    if (freeEventsOnly) {
+      setValue('priceRange', [0, 0]);
+    } else if (formValues.priceRange[0] === 0 && formValues.priceRange[1] === 0) {
+      setValue('priceRange', [0, MAX_PRICE]);
+    }
+  }, [freeEventsOnly, formValues.priceRange, setValue]);
 
-    let filtered = [...events];
-
-    // Filter by categories
-    if (selectedCategories.length > 0) {
-      filtered = filtered.filter((event) => event.category && selectedCategories.includes(event.category.id));
+  // Apply filters when debounced form values change
+  useEffect(() => {
+    const filters: EventGetManyDto = {};
+    if (!debouncedFormValues) return;
+    // Only add non-empty values to filters
+    if (debouncedFormValues.themes && debouncedFormValues.themes.length > 0) {
+      filters.themes = debouncedFormValues.themes;
     }
 
-    // Filter by price range
-    filtered = filtered.filter((event) => (event.price || 0) >= priceRange[0] && (event.price || 0) <= priceRange[1]);
-
-    // Filter by date range
-    if (dateRange.from) {
-      const fromDate = new Date(dateRange.from);
-      fromDate.setHours(0, 0, 0, 0);
-
-      filtered = filtered.filter((event) => {
-        const eventDate = new Date(event.startDate);
-        return eventDate >= fromDate;
-      });
+    if (debouncedFormValues.format && debouncedFormValues.format.length > 0) {
+      filters.format = debouncedFormValues.format;
     }
 
-    if (dateRange.to) {
-      const toDate = new Date(dateRange.to);
-      toDate.setHours(23, 59, 59, 999);
-
-      filtered = filtered.filter((event) => {
-        const eventDate = new Date(event.startDate);
-        return eventDate <= toDate;
-      });
+    // Only add location if address is provided
+    if (debouncedFormValues.location?.address && debouncedFormValues.location.address.trim() !== '') {
+      filters.location = debouncedFormValues.location;
     }
 
-    // Filter by format
-    if (formatFilter.length > 0) {
-      filtered = filtered.filter((event) => event.format && formatFilter.includes(event.format));
+    // Add date range if either from or to is defined
+    if (debouncedFormValues.dateRange.from) {
+      filters.startDate = debouncedFormValues.dateRange.from;
     }
 
-    // Filter by location
-    if (location.trim() !== '') {
-      filtered = filtered.filter((event) => event.location?.address.toLowerCase().includes(location.toLowerCase()));
+    if (debouncedFormValues.dateRange.to) {
+      filters.endDate = debouncedFormValues.dateRange.to;
     }
 
-    onFilterChange(filtered);
-  }, [selectedCategories, priceRange, dateRange, formatFilter, location, events]);
+    // Add price range
+    filters.priceFrom = debouncedFormValues.priceRange[0];
 
-  const handleCategoryChange = (categoryId: string) => {
-    setSelectedCategories((prev) =>
-      prev.includes(categoryId) ? prev.filter((id) => id !== categoryId) : [...prev, categoryId]
-    );
-  };
+    // Only add priceTo if it's not the max value
+    if (debouncedFormValues.priceRange[1] < MAX_PRICE) {
+      filters.priceTo = debouncedFormValues.priceRange[1];
+    }
 
-  const handleFormatChange = (format: string) => {
-    setFormatFilter((prev) => (prev.includes(format) ? prev.filter((f) => f !== format) : [...prev, format]));
-  };
+    onFilterChange(filters);
+  }, [debouncedFormValues, onFilterChange]);
 
   const handleReset = () => {
-    setSelectedCategories([]);
-    setPriceRange([0, 300]);
-    setDateRange({ from: undefined, to: undefined });
-    setFormatFilter([]);
-    setLocation('');
+    reset({
+      themes: [],
+      format: [],
+      location: {
+        address: '',
+        lat: 1,
+        lng: 1
+      },
+      priceRange: [0, MAX_PRICE],
+      dateRange: {
+        from: undefined,
+        to: undefined
+      },
+      freeEventsOnly: false
+    });
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-      {/* Left Column: Categories and Format */}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Left Column: Categories, Format, and Date Range */}
       <div className="space-y-6">
+        {/* Categories Section */}
         <div>
           <div className="flex items-center mb-3">
             <FiTag className="mr-2 text-primary" />
             <h3 className="font-semibold">Categories</h3>
           </div>
-          <div className="grid grid-cols-2 gap-2">
-            {categories.map((category) => (
-              <div key={category.id} className="flex items-center">
-                <Checkbox
-                  id={`category-${category.id}`}
-                  checked={selectedCategories.includes(category.id)}
-                  onCheckedChange={() => handleCategoryChange(category.id)}
+          <div className="grid grid-cols-3 gap-2">
+            {Object.values(EventThemeType).map((category) => (
+              <div key={category} className="flex items-center">
+                <Controller
+                  name="themes"
+                  control={control}
+                  render={({ field }) => (
+                    <Checkbox
+                      id={`category-${category}`}
+                      checked={field.value?.includes(category) || false}
+                      onCheckedChange={(checked) => {
+                        const currentThemes = field.value || [];
+                        if (checked) {
+                          setValue('themes', [...currentThemes, category]);
+                        } else {
+                          const filtered = currentThemes.filter((theme) => theme !== category);
+                          setValue('themes', filtered.length > 0 ? filtered : []);
+                        }
+                      }}
+                    />
+                  )}
                 />
-                <Label htmlFor={`category-${category.id}`} className="ml-2 text-sm font-normal cursor-pointer">
-                  {category.name}
+                <Label
+                  htmlFor={`category-${category}`}
+                  className="ml-2 text-sm font-normal cursor-pointer capitalize truncate">
+                  {category.replace(/_/g, ' ').toLowerCase()}
                 </Label>
               </div>
             ))}
           </div>
         </div>
 
+        <Separator />
+
+        {/* Event Format Section */}
         <div>
           <h3 className="font-semibold mb-3">Event Format</h3>
-          <div className="grid grid-cols-2 gap-2">
-            {Object.values(EventFormat).map((format) => (
+          <div className="grid grid-cols-3 gap-2">
+            {Object.values(EventFormatType).map((format) => (
               <div key={format} className="flex items-center">
-                <Checkbox
-                  id={`format-${format}`}
-                  checked={formatFilter.includes(format)}
-                  onCheckedChange={() => handleFormatChange(format)}
+                <Controller
+                  name="format"
+                  control={control}
+                  render={({ field }) => (
+                    <Checkbox
+                      id={`format-${format}`}
+                      checked={field.value?.includes(format) || false}
+                      onCheckedChange={(checked) => {
+                        const currentFormats = field.value || [];
+                        if (checked) {
+                          setValue('format', [...currentFormats, format]);
+                        } else {
+                          const filtered = currentFormats.filter((f) => f !== format);
+                          setValue('format', filtered.length > 0 ? filtered : []);
+                        }
+                      }}
+                    />
+                  )}
                 />
-                <Label htmlFor={`format-${format}`} className="ml-2 text-sm font-normal cursor-pointer capitalize">
-                  {format.toLowerCase()}
+                <Label
+                  htmlFor={`format-${format}`}
+                  className="ml-2 text-sm font-normal cursor-pointer capitalize truncate">
+                  {format.replace(/_/g, ' ').toLowerCase()}
                 </Label>
               </div>
             ))}
           </div>
         </div>
+        <Separator className="my-2 md:hidden" />
       </div>
-
-      {/* Middle Column: Date Range */}
-      <div className="space-y-6 border-x-2 p-3 ">
-        <DateRangeFilter dateRange={dateRange} onDateRangeChange={setDateRange} />
-      </div>
-
       {/* Right Column: Price and Location */}
-      <div className="space-y-6">
+      <div className="space-y-4 md:pl-6 md:border-l-2">
+        {/* Date Range Section */}
+        <Controller
+          name="dateRange"
+          control={control}
+          render={({ field }) => (
+            <DateRangeFilter dateRange={field.value} onDateRangeChange={(range) => field.onChange(range)} />
+          )}
+        />
+
+        <Separator />
+
         <div>
           <div className="flex items-center mb-3">
             <FiDollarSign className="mr-2 text-primary" />
             <h3 className="font-semibold">Price</h3>
           </div>
-          <div className="px-2">
-            <Slider
-              value={priceRange}
-              min={0}
-              max={300}
-              step={5}
-              onValueChange={(value) => setPriceRange(value as [number, number])}
-              className="mb-6"
+          <div className="px-2 grid gap-2">
+            <Controller
+              name="priceRange"
+              control={control}
+              render={({ field }) => (
+                <Slider
+                  value={field.value}
+                  min={0}
+                  max={300}
+                  step={5}
+                  onValueChange={(value) => field.onChange(value)}
+                  disabled={freeEventsOnly}
+                />
+              )}
             />
             <div className="flex justify-between">
-              <span className="text-sm">${priceRange[0]}</span>
-              <span className="text-sm">${priceRange[1]}+</span>
+              <span className="text-sm">${formValues.priceRange[0]}</span>
+              <span className="text-sm">
+                ${formValues.priceRange[1] === MAX_PRICE ? `${MAX_PRICE}+` : formValues.priceRange[1]}
+              </span>
+            </div>
+            <div className="flex items-center">
+              <Controller
+                name="freeEventsOnly"
+                control={control}
+                render={({ field }) => (
+                  <Checkbox id="free-events" checked={field.value} onCheckedChange={field.onChange} />
+                )}
+              />
+              <Label htmlFor="free-events" className="ml-2 text-sm font-normal cursor-pointer">
+                Free events only
+              </Label>
             </div>
           </div>
-          <div className="mt-4 flex items-center">
-            <Checkbox
-              id="free-events"
-              checked={priceRange[0] === 0 && priceRange[1] === 0}
-              onCheckedChange={(checked) => {
-                if (checked) {
-                  setPriceRange([0, 0]);
-                } else {
-                  setPriceRange([0, 300]);
-                }
-              }}
-            />
-            <Label htmlFor="free-events" className="ml-2 text-sm font-normal cursor-pointer">
-              Free events only
-            </Label>
-          </div>
         </div>
+
+        <Separator className="my-4" />
 
         <div>
           <div className="flex items-center mb-3">
             <FiMapPin className="mr-2 text-primary" />
             <h3 className="font-semibold">Location</h3>
           </div>
-          <Input
-            placeholder="City or address"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            className="mb-2"
+          <Controller
+            name="location.address"
+            control={control}
+            render={({ field }) => (
+              <Input
+                placeholder="City or address"
+                value={field.value || ''}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  field.onChange(value);
+                  setValue(
+                    'location',
+                    value.trim() === '' ? { address: '', lat: 1, lng: 1 } : { address: value, lat: 1, lng: 1 }
+                  );
+                }}
+                className="mb-2"
+              />
+            )}
           />
         </div>
 
-        <Button variant="outline" onClick={handleReset} className="w-full">
+        <Separator className="my-4" />
+
+        <Button variant="outline" onClick={handleReset} className="w-full mt-auto">
           Reset Filters
         </Button>
       </div>

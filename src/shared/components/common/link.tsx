@@ -1,4 +1,7 @@
-import React, { ElementType } from 'react';
+'use client';
+
+import type React from 'react';
+import type { ElementType } from 'react';
 import { FiArrowLeft, FiArrowRight } from 'react-icons/fi';
 import { HashLink } from 'react-router-hash-link';
 

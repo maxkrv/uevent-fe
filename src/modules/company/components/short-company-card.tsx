@@ -5,6 +5,7 @@ import { Link } from '../../../shared/components/common/link';
 import { Badge } from '../../../shared/components/ui/badge';
 import { cn } from '../../../shared/lib/utils';
 import type { Company } from '../interfaces/company.interface';
+import { CompanyLogo } from './company-logo';
 
 interface ShortCompanyCardProps extends Partial<ComponentProps<typeof Link>> {
   company: Company;
@@ -21,28 +22,22 @@ export const ShortCompanyCard: FC<ShortCompanyCardProps> = ({ company, className
         className
       )}>
       <div className="h-16 w-16 rounded-full overflow-hidden flex-shrink-0 relative border border-border">
-        <img
-          src={company.logo || `/placeholder.svg?height=64&width=64&query=${encodeURIComponent(company.name)} logo`}
-          alt={company.name}
-          className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-300"
-        />
+        <CompanyLogo company={company} className="size-full group-hover:scale-110 transition-transform duration-300" />
       </div>
       <div className="flex-1 min-w-0">
         <h3 className="font-medium text-sm line-clamp-1 group-hover:text-primary transition-colors">{company.name}</h3>
         <div className="flex items-center text-xs text-muted-foreground mt-1">
           <MapPin className="mr-1 h-3 w-3" />
-          <span className="truncate">{company.location || 'No location'}</span>
+          <span className="line-clamp-1">{company.location.address || 'No location'}</span>
         </div>
         <div className="flex items-center gap-2 mt-1">
           <Badge variant="outline" className="text-xs px-1 py-0 h-4">
             <Building2 className="h-3 w-3 mr-1" />
-            {company.eventCount || 0} events
+            {company.events?.length || 0} events
           </Badge>
-          {company.subscriberCount && (
-            <Badge variant="secondary" className="text-xs px-1 py-0 h-4">
-              {company.subscriberCount.toLocaleString()} followers
-            </Badge>
-          )}
+          <Badge variant="secondary" className="text-xs px-1 py-0 h-4">
+            {company.subscribers?.length || 0} followers
+          </Badge>
         </div>
       </div>
       <div className="self-center opacity-0 group-hover:opacity-100 transition-opacity">

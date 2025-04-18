@@ -1,27 +1,21 @@
+import type { CompanyNews } from '../../company/interfaces/news.interface';
 import type { Event } from '../../event/interfaces/event.interface';
 import type { User } from '../../user/interfaces/user.interface';
-
-export type ReactionType = 'LIKE' | 'DISLIKE' | 'LOVE' | 'LAUGH' | 'SAD' | 'ANGRY';
-
-export interface Reaction {
-  id: string;
-  userId: string;
-  commentId: string;
-  type: ReactionType;
-}
-
+import type { Reaction } from './reaction.interface';
 export interface Comment {
   id: string;
   content: string;
+  parentId?: string; // ID of the comment being replied to
   createdAt: Date;
   updatedAt: Date;
-  eventId: string;
-  replyId: string;
+  eventId?: string;
+  companyNewsId?: string;
   userId: string;
-  reactions?: Reaction[];
-
-  // Optionally include related models if needed
+  // Relations
   event?: Event;
-  user?: User;
-  reply?: Comment;
+  user: User;
+  companyNews?: CompanyNews;
+  replies?: Comment[];
+  replyTo?: Comment;
+  reactions?: Reaction[];
 }

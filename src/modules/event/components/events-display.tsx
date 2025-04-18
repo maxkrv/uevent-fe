@@ -7,7 +7,7 @@ import { EventsView } from '@/modules/event/components/event-view-toggle';
 import { EventsMap } from '@/modules/event/components/events-map';
 import { NoEventsFound } from '@/modules/event/components/no-events-found';
 import type { Event } from '@/modules/event/interfaces/event.interface';
-import { Pagination, PaginationResultsInfo } from '@/shared/components/ui/pagination';
+import { Pagination, PaginationResultsInfo } from '@/shared/components/common/pagination';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 
 interface EventsDisplayProps {
@@ -60,7 +60,7 @@ export const EventsDisplay = ({
   return (
     <div className="space-y-8">
       {viewMode === EventsView.GRID && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-8">
           {displayEvents.map((event) => (
             <EventCard event={event} key={event.id} />
           ))}

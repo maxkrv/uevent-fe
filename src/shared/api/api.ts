@@ -1,8 +1,8 @@
-import ky, { HTTPError } from 'ky';
+import ky, { type HTTPError } from 'ky';
 
 import { config } from '@/config/config';
 
-import { Tokens, tokensStore } from '../../modules/auth/stores/tokens.store';
+import { type Tokens, tokensStore } from '../../modules/auth/stores/tokens.store';
 
 export const apiClient = ky.create({
   prefixUrl: config.apiUrl,

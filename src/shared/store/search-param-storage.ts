@@ -1,4 +1,4 @@
-import { createJSONStorage, PersistOptions } from 'zustand/middleware';
+import { createJSONStorage, type PersistOptions } from 'zustand/middleware';
 
 const getSearchParams = () => {
   return new URLSearchParams(window.location.search);

@@ -1,3 +1,6 @@
+'use client';
+
+import type React from 'react';
 import { useEffect } from 'react';
 import { FaCube } from 'react-icons/fa6';
 import { useToggle } from 'usehooks-ts';

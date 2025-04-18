@@ -16,7 +16,7 @@ export const ActiveFilters = ({ searchQuery, onClearSearch, showFilters, onToggl
   if (!searchQuery && !showFilters) return null;
 
   return (
-    <div className="flex flex-wrap gap-2 mb-4">
+    <div className="flex flex-wrap gap-2">
       {searchQuery && (
         <Badge variant="secondary" className="flex items-center gap-1">
           Search: {searchQuery}

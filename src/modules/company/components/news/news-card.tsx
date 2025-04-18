@@ -1,14 +1,17 @@
+'use client';
+
 import dayjs from 'dayjs';
 import { ChevronRight, MessageSquare, Share2, ThumbsUp } from 'lucide-react';
-import { ComponentProps } from 'react';
+import type { ComponentProps } from 'react';
 
+import { Image } from '../../../../shared/components/common/image';
 import { Link } from '../../../../shared/components/common/link';
 import { Button } from '../../../../shared/components/ui/button';
 import { cn } from '../../../../shared/lib/utils';
-import { NewsItem } from '../../interfaces/news.interface';
+import { CompanyNews } from '../../interfaces/news.interface';
 
 interface NewsCardProps extends Partial<ComponentProps<typeof Link>> {
-  item: NewsItem;
+  item: CompanyNews;
   companyId: string;
   onLike: () => void;
   onShare: () => void;
@@ -17,6 +20,7 @@ interface NewsCardProps extends Partial<ComponentProps<typeof Link>> {
 // Update the NewsCard component to use imageUrl instead of image
 export const NewsCard = ({ item, companyId, onLike, onShare, className, ...props }: NewsCardProps) => {
   const formattedDate = dayjs(item.createdAt).format('MMM D, YYYY');
+  const isLiked = false; // Replace with actual logic to determine if the item is liked
 
   return (
     <Link
@@ -24,16 +28,17 @@ export const NewsCard = ({ item, companyId, onLike, onShare, className, ...props
       to={`/companies/${companyId}/news/${item.id}`}
       {...props}
       className={cn(
-        'border rounded-lg overflow-hidden bg-card hover:border-primary transition-colors duration-300 flex',
+        'border rounded-lg overflow-hidden bg-card hover:border-primary transition-colors duration-300 flex group',
         className
       )}>
       <div className="flex flex-col md:flex-row">
         {item.imageUrl && (
-          <div className="md:w-1/3 h-48 md:h-auto overflow-hidden">
-            <img
-              src={item.imageUrl || '/placeholder.svg'}
+          <div className="md:w-1/3 max-h-48 md:max-h-60 h-full overflow-hidden">
+            <Image
+              src={item.imageUrl}
               alt={item.title}
-              className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+              wrapperClassName="transition-transform duration-500 group-hover:scale-105"
+              className="w-full h-full object-cover"
             />
           </div>
         )}
@@ -48,13 +53,13 @@ export const NewsCard = ({ item, companyId, onLike, onShare, className, ...props
 
           <div className="mt-auto flex justify-between items-center">
             <div className="flex gap-3">
-              <Button variant="ghost" size="sm" onClick={onLike} className={item.isLiked ? 'text-primary' : ''}>
+              <Button variant="ghost" size="sm" onClick={onLike} className={isLiked ? 'text-primary' : ''}>
                 <ThumbsUp className="h-4 w-4 mr-1" />
-                {item.likes || 0}
+                {item.reaction?.length || 0}
               </Button>
               <Button variant="ghost" size="sm">
                 <MessageSquare className="h-4 w-4 mr-1" />
-                {item.comments || 0}
+                {item.comments?.length || 0}
               </Button>
               <Button variant="ghost" size="sm" onClick={onShare}>
                 <Share2 className="h-4 w-4 mr-1" />

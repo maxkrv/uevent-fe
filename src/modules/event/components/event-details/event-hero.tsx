@@ -1,30 +1,41 @@
-import dayjs from 'dayjs';
+'use client';
+
+import dayjs, { Dayjs } from 'dayjs';
 import { ArrowLeft } from 'lucide-react';
 import { useState } from 'react';
 import { FaArrowRightLong } from 'react-icons/fa6';
 import { FiCalendar, FiDollarSign, FiHeart, FiMapPin, FiShare2 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
+import { Image } from '../../../../shared/components/common/image';
 import { Badge } from '../../../../shared/components/ui/badge';
 import { Button } from '../../../../shared/components/ui/button';
 import { useShare } from '../../../../shared/hooks/use-share';
-import { Event } from '../../interfaces/event.interface';
+import type { Event } from '../../interfaces/event.interface';
 
 interface EventHeroProps {
   event: Event;
 }
 
 const categoryColors: Record<string, string> = {
-  '1': 'from-blue-900/70 to-blue-700/30', // Business
-  '2': 'from-purple-900/70 to-purple-700/30', // Music
-  '3': 'from-green-900/70 to-green-700/30', // Arts
-  '4': 'from-orange-900/70 to-orange-700/30', // Food & Drink
-  '5': 'from-red-900/70 to-red-700/30', // Sports
+  ART: 'from-blue-900/70 to-blue-700/30',
+  MUSIC: 'from-purple-900/70 to-purple-700/30',
+  TECHNOLOGY: 'from-green-900/70 to-green-700/30',
+  BUSINESS: 'from-orange-900/70 to-orange-700/30',
+  SPORTS: 'from-red-900/70 to-red-700/30',
+  FOOD: 'from-amber-900/70 to-amber-700/30',
+  EDUCATION: 'from-cyan-900/70 to-cyan-700/30',
+  HEALTH: 'from-emerald-900/70 to-emerald-700/30',
+  TRAVEL: 'from-indigo-900/70 to-indigo-700/30',
+  ENTERTAINMENT: 'from-pink-900/70 to-pink-700/30',
   default: 'from-gray-900/70 to-gray-700/30'
 };
+
 interface EventStatusBadgeProps {
   event: Event;
 }
+
 const EventStatusBadge = ({ event }: EventStatusBadgeProps) => {
   if (!event) return null;
 
@@ -34,7 +45,7 @@ const EventStatusBadge = ({ event }: EventStatusBadgeProps) => {
 
   if (now.isBefore(startDate)) {
     return (
-      <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+      <Badge variant="outline" className="bg-primary/10 text-primary border-primary">
         Upcoming
       </Badge>
     );
@@ -47,7 +58,7 @@ const EventStatusBadge = ({ event }: EventStatusBadgeProps) => {
     );
   }
   return (
-    <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/20">
+    <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-600">
       Happening Now
     </Badge>
   );
@@ -64,47 +75,51 @@ export const EventHero = ({ event }: EventHeroProps) => {
       title: event.title,
       text: `Check out this event: ${event.title}`,
       url: window.location.href
+    }).then(() => {
+      toast.success('Event link copied to clipboard');
     });
   };
 
-  const formatDate = (dateString: string) => {
+  const handleSaveToggle = () => {
+    setIsSaved(!isSaved);
+    toast.success(isSaved ? 'Event removed from saved events' : 'Event saved to your list');
+  };
+
+  const formatDate = (dateString: string | Date | Dayjs) => {
     return dayjs(dateString).format('dddd, MMMM D, YYYY');
   };
 
   // Get a color based on category for the gradient overlay
   const getCategoryColor = () => {
-    return event.category?.id ? categoryColors[event.category.id] || categoryColors.default : categoryColors.default;
+    if (!event.themes || event.themes.length === 0) return categoryColors.default;
+    return categoryColors[event.themes[0]] || categoryColors.default;
   };
 
   return (
     <div className="relative w-full h-[50vh] md:h-[60vh] overflow-hidden">
       <div className={`absolute inset-0 bg-gradient-to-t ${getCategoryColor()} z-10`}></div>
-      <img
-        src={event.poster || '/placeholder.svg?height=600&width=1200'}
-        alt={event.title}
-        className="w-full h-full object-cover object-center scale-105 animate-subtle-zoom"
-      />
+      <Image src={event.posterUrl} alt={event.title} className="w-full h-full object-cover object-center " />
 
       {/* Hero Content */}
       <div className="absolute bottom-0 left-0 right-0 z-20 p-6 md:p-10 text-white">
         <div className="container mx-auto">
           <div className="flex flex-wrap items-center gap-2 mb-3">
-            {event.category && (
-              <Badge className="bg-white/20 hover:bg-white/30 text-white border-transparent backdrop-blur-sm">
-                {event.category.name}
+            {event.themes && event.themes.length > 0 && (
+              <Badge className="bg-white/20 hover:bg-white/30 text-white border-transparent backdrop-blur-sm capitalize">
+                {event.themes[0].replace(/_/g, ' ').toLowerCase()}
               </Badge>
             )}
             <EventStatusBadge event={event} />
             {event.format && (
-              <Badge variant="outline" className="bg-white/10 text-white border-white/20">
-                {event.format.toLowerCase()}
+              <Badge variant="outline" className="bg-white/10 text-white border-white/20 capitalize">
+                {event.format.replace(/_/g, ' ').toLowerCase()}
               </Badge>
             )}
           </div>
           <h1 className="text-3xl md:text-5xl font-bold mb-4 drop-shadow-md line-clamp-2">{event.title}</h1>
 
           <div className="flex flex-wrap gap-x-6 gap-y-2 text-white/90">
-            <div className="flex items-center  mr-6 space-x-2">
+            <div className="flex items-center mr-6 space-x-2">
               <FiCalendar className="mr-2" />
               <span>{formatDate(event.startDate)}</span>
               {event.endDate && event.endDate !== event.startDate && (
@@ -138,17 +153,17 @@ export const EventHero = ({ event }: EventHeroProps) => {
         <Button
           variant="ghost"
           size={'icon'}
-          className="text-white/90 hover:text-red-700/80 hover:bg-red-500/30  transition-colors duration-300 hover:border-red-700/80"
-          onClick={() => setIsSaved(!isSaved)}
+          className="text-white/90 hover:text-red-700/80 hover:bg-red-500/30 transition-colors duration-300 hover:border-red-700/80"
+          onClick={handleSaveToggle}
           aria-pressed={isSaved}
           aria-label="Like event">
-          <FiHeart className="size-6" />
+          <FiHeart className="size-6" fill={isSaved ? 'currentColor' : 'none'} />
         </Button>
         <Button
           variant="ghost"
           size={'icon'}
           onClick={handleShare}
-          className=" text-white/90 hover:text-primary hover:bg-primary/30 transition-colors duration-300"
+          className="text-white/90 hover:text-primary hover:bg-primary/30 transition-colors duration-300"
           aria-label="Share event">
           <FiShare2 className="size-6" />
         </Button>

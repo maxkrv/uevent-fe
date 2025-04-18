@@ -1,4 +1,6 @@
-import { FC, useEffect, useState } from 'react';
+'use client';
+
+import { type FC, useEffect, useState } from 'react';
 import {
   FaBasketballBall,
   FaBook,

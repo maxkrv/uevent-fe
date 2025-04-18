@@ -1,3 +1,5 @@
+'use client';
+
 import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { CgSpinner } from 'react-icons/cg';

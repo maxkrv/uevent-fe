@@ -1,3 +1,5 @@
+'use client';
+
 import dayjs from 'dayjs';
 import { CalendarIcon } from 'lucide-react';
 
@@ -28,7 +30,7 @@ export const DateInput = ({ id, value, onSelect, placeholder = 'Pick a date', mi
           <CalendarIcon className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
         </div>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="start">
+      <PopoverContent className="w-auto p-0">
         <Calendar
           mode="single"
           selected={value}

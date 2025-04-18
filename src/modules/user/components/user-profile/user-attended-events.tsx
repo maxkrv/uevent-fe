@@ -5,9 +5,11 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import type { Event } from '@/modules/event/interfaces/event.interface';
+import { Pagination } from '@/shared/components/common/pagination';
 import { Badge } from '@/shared/components/ui/badge';
-import { Pagination } from '@/shared/components/ui/pagination';
 import dayjs from '@/shared/lib/dayjs';
+
+import { Image } from '../../../../shared/components/common/image';
 
 interface UserAttendedEventsProps {
   events: Event[];
@@ -31,7 +33,6 @@ export const UserAttendedEvents = ({ events }: UserAttendedEventsProps) => {
   if (pastEvents.length === 0) {
     return (
       <div className="bg-card rounded-lg border p-8 text-center flex flex-col items-center justify-center min-h-screen-no-header">
-        {' '}
         <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
         <h3 className="text-lg font-medium mb-2">No Events Attended</h3>
         <p className="text-muted-foreground">This user hasn&apos;t attended any events yet.</p>
@@ -49,10 +50,11 @@ export const UserAttendedEvents = ({ events }: UserAttendedEventsProps) => {
             className="bg-card rounded-lg border p-4 hover:border-primary transition-colors group">
             <div className="flex gap-4">
               <div className="h-24 w-24 rounded-md overflow-hidden flex-shrink-0">
-                <img
-                  src={event.poster || `/placeholder.svg?height=96&width=96&query=${encodeURIComponent(event.title)}`}
+                <Image
+                  src={event.posterUrl}
                   alt={event.title}
-                  className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  wrapperClassName="group-hover:scale-110 transition-transform duration-300"
+                  className="h-full w-full object-cover"
                 />
               </div>
 
@@ -76,9 +78,9 @@ export const UserAttendedEvents = ({ events }: UserAttendedEventsProps) => {
                     {event.price ? `$${event.price.toFixed(2)}` : 'Free'}
                   </Badge>
 
-                  {event.category && (
+                  {event.themes && event.themes.length > 0 && (
                     <Badge variant="secondary" className="text-xs">
-                      {event.category.name}
+                      {event.themes[0].replace(/_/g, ' ').toLowerCase()}
                     </Badge>
                   )}
                 </div>
