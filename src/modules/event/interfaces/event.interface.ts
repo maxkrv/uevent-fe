@@ -4,7 +4,6 @@ import type { Ticket } from '../../ticket/interfaces/ticket.interface';
 import type { User } from '../../user/interfaces/user.interface';
 
 export interface Location {
-  id: string;
   address: string;
   lat: number;
   lng: number;
