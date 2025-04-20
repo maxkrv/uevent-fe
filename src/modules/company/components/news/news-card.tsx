@@ -12,20 +12,19 @@ import { CompanyNews } from '../../interfaces/news.interface';
 
 interface NewsCardProps extends Partial<ComponentProps<typeof Link>> {
   item: CompanyNews;
-  companyId: string;
   onLike: () => void;
   onShare: () => void;
 }
 
 // Update the NewsCard component to use imageUrl instead of image
-export const NewsCard = ({ item, companyId, onLike, onShare, className, ...props }: NewsCardProps) => {
+export const NewsCard = ({ item, onLike, onShare, className, ...props }: NewsCardProps) => {
   const formattedDate = dayjs(item.createdAt).format('MMM D, YYYY');
   const isLiked = false; // Replace with actual logic to determine if the item is liked
 
   return (
     <Link
       unstyled
-      to={`/companies/${companyId}/news/${item.id}`}
+      to={`/companies/news/${item.id}`}
       {...props}
       className={cn(
         'border rounded-lg overflow-hidden bg-card hover:border-primary transition-colors duration-300 flex group',

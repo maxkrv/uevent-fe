@@ -1,10 +1,10 @@
 import { Library } from '@googlemaps/js-api-loader/dist/index.d';
 import { useJsApiLoader } from '@react-google-maps/api';
 
-import { config } from '../../config/config';
+import { config } from '@/config/config';
 
 // Define the libraries we'll need
-const libraries: Library[] = ['places', 'geometry'];
+const libraries: Library[] = ['places', 'geometry', 'places'];
 
 /**
  * Custom hook to load the Google Maps JavaScript API

@@ -109,7 +109,7 @@ const router = createBrowserRouter([
         element: <CompanyDetailPage />
       },
       {
-        path: 'companies/:companyId/news/:newsId',
+        path: 'companies/news/:newsId',
         element: <CompanyNewsDetailPage />
       },
       {

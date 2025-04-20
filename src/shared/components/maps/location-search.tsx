@@ -1,10 +1,8 @@
-'use client';
-
 import { Autocomplete } from '@react-google-maps/api';
 import { Search } from 'lucide-react';
 import { useCallback, useRef, useState } from 'react';
 
-import { useGoogleMaps } from '../../hooks/use-google-maps';
+import { useGoogleMaps } from '../../hooks/maps/use-google-maps';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 

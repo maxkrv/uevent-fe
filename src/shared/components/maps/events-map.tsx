@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 import { Calendar } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { useGoogleMaps } from '../../hooks/use-google-maps';
+import { useGoogleMaps } from '../../hooks/maps/use-google-maps';
 import { Link } from '../common/link';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardTitle } from '../ui/card';
