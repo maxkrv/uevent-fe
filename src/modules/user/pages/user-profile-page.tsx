@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 
 import { useAuth } from '@/modules/auth/queries/use-auth.query';
 import { Skeleton } from '@/shared/components/ui/skeleton';
@@ -22,7 +22,7 @@ export const UserProfilePage = () => {
   const { id } = useParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState('upcoming');
   const { data: currentUser } = useAuth();
-
+  const [searchParams] = useSearchParams();
   const isOwnProfile = currentUser?.id === id;
 
   // Fetch user data
@@ -45,12 +45,11 @@ export const UserProfilePage = () => {
 
   // Get tab from URL query param
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const tabParam = urlParams.get('tab');
+    const tabParam = searchParams.get('tab');
     if (tabParam && ['upcoming', 'past', 'following', 'tickets'].includes(tabParam)) {
       setActiveTab(tabParam);
     }
-  }, []);
+  }, [searchParams]);
 
   // Update URL when tab changes
   const handleTabChange = (value: string) => {

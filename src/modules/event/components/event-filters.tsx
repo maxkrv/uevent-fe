@@ -9,11 +9,11 @@ import { z } from 'zod';
 
 import { Button } from '@/shared/components/ui/button';
 import { Checkbox } from '@/shared/components/ui/checkbox';
-import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 import { Separator } from '@/shared/components/ui/separator';
 import { Slider } from '@/shared/components/ui/slider';
 
+import LocationSearch from '../../../shared/components/maps/location-search';
 import { EventFormatType, EventThemeType } from '../interfaces/event.interface';
 import type { EventGetManyDto } from '../services/event.service';
 import { DateRangeFilter } from './date-range-filter';
@@ -52,11 +52,7 @@ export const EventFilters = ({ onFilterChange }: EventFiltersProps) => {
     defaultValues: {
       themes: [],
       format: [],
-      location: {
-        address: '',
-        lat: 1,
-        lng: 1
-      },
+      location: undefined,
       priceRange: [0, MAX_PRICE],
       dateRange: {
         from: undefined,
@@ -283,22 +279,10 @@ export const EventFilters = ({ onFilterChange }: EventFiltersProps) => {
             <h3 className="font-semibold">Location</h3>
           </div>
           <Controller
-            name="location.address"
+            name="location"
             control={control}
             render={({ field }) => (
-              <Input
-                placeholder="City or address"
-                value={field.value || ''}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  field.onChange(value);
-                  setValue(
-                    'location',
-                    value.trim() === '' ? { address: '', lat: 1, lng: 1 } : { address: value, lat: 1, lng: 1 }
-                  );
-                }}
-                className="mb-2"
-              />
+              <LocationSearch placeholder="Search for a location" onPlaceSelect={field.onChange} />
             )}
           />
         </div>
