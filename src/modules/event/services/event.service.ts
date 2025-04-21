@@ -1,5 +1,3 @@
-import dayjs from 'dayjs';
-
 import { mockEvents } from '../../../__mock__/events';
 import { mockUsers } from '../../../__mock__/users';
 import { apiClient } from '../../../shared/api/api';
@@ -10,12 +8,13 @@ import type { Event, EventFormatType, EventThemeType, Location } from '../interf
 
 export interface EventGetManyDto extends PaginationDto {
   search?: string;
+  userId?: string;
   location?: Omit<Location, 'id'>;
   companyId?: string;
   format?: EventFormatType[];
   themes?: EventThemeType[];
-  startDate?: Date;
-  endDate?: Date;
+  fromDate?: Date;
+  toDate?: Date;
   sortOrder?: SortOrder;
   priceFrom?: number;
   priceTo?: number;
@@ -55,88 +54,19 @@ export class EventService {
     // return apiClient.get(`/events/${id}`).json<Event>();
   }
 
-  static getMany(opt: EventGetManyDto): Promise<Paginated<Event>> {
+  static getMany(_opt: EventGetManyDto): Promise<Paginated<Event>> {
     // In a real implementation, this would be:
     // return apiClient.get('/events', { json: opt }).json<Paginated<Event>>();
 
     return new Promise((resolve) => {
       setTimeout(() => {
-        // Apply filters to the mock data
-        let filteredEvents = [...mockEvents];
-
-        // Apply search filter
-        if (opt.search) {
-          const searchLower = opt.search.toLowerCase();
-          filteredEvents = filteredEvents.filter(
-            (event) =>
-              event.title.toLowerCase().includes(searchLower) ||
-              event.description.toLowerCase().includes(searchLower) ||
-              event.location?.address.toLowerCase().includes(searchLower) ||
-              event.company?.name.toLowerCase().includes(searchLower)
-          );
-        }
-
-        // Filter by company
-        if (opt.companyId) {
-          filteredEvents = filteredEvents.filter((event) => event.company?.id === opt.companyId);
-        }
-
-        // Filter by format
-        if (opt.format && opt.format.length > 0) {
-          filteredEvents = filteredEvents.filter((event) => opt.format?.includes(event.format));
-        }
-
-        // Filter by themes
-        if (opt.themes && opt.themes.length > 0) {
-          filteredEvents = filteredEvents.filter((event) => event.themes.some((theme) => opt.themes?.includes(theme)));
-        }
-
-        // Filter by date range
-        if (opt.startDate) {
-          filteredEvents = filteredEvents.filter((event) => dayjs(event.startDate).isAfter(dayjs(opt.startDate)));
-        }
-
-        if (opt.endDate) {
-          filteredEvents = filteredEvents.filter((event) => dayjs(event.startDate).isBefore(dayjs(opt.endDate)));
-        }
-
-        // Filter by price range
-        if (opt.priceFrom !== undefined) {
-          filteredEvents = filteredEvents.filter((event) => event.price >= opt.priceFrom!);
-        }
-
-        if (opt.priceTo !== undefined) {
-          filteredEvents = filteredEvents.filter((event) => event.price <= opt.priceTo!);
-        }
-
-        // Apply sorting
-        if (opt.sortOrder) {
-          filteredEvents.sort((a, b) => {
-            // Default sort by date
-            const dateComparison = new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
-
-            if (opt.sortOrder === 'asc') {
-              return dateComparison;
-            } else {
-              return -dateComparison;
-            }
-          });
-        }
-
-        // Apply pagination
-        const page = opt.page || 1;
-        const limit = opt.limit || 10;
-        const startIndex = (page - 1) * limit;
-        const endIndex = startIndex + limit;
-        const paginatedEvents = filteredEvents.slice(startIndex, endIndex);
-
         resolve({
-          items: paginatedEvents,
+          items: mockEvents,
           meta: {
-            currentPage: page,
-            totalItemsCount: filteredEvents.length,
-            itemsPerPage: limit,
-            totalPages: Math.ceil(filteredEvents.length / limit)
+            currentPage: 4,
+            totalItemsCount: mockEvents.length,
+            itemsPerPage: 10,
+            totalPages: 12
           }
         });
       }, 1000);

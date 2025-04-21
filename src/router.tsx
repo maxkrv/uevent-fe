@@ -13,8 +13,13 @@ import { CompanyDetailPage } from './modules/company/pages/company-details-page'
 import { EventPage } from './modules/event/pages/event-page';
 import { EventsPage } from './modules/event/pages/events-page';
 import { HomePage } from './modules/home/pages/home.page';
+import { UserProfileLayout } from './modules/user/layouts/user-profile-layout';
 import { UserPage } from './modules/user/pages/user.page';
-import { UserProfilePage } from './modules/user/pages/user-profile-page';
+import { UserFollowingPage } from './modules/user/pages/user-following-page';
+import { UserPastEventsPage } from './modules/user/pages/user-past-events-page';
+import { UserSettingsPage } from './modules/user/pages/user-settings-page';
+import { UserTicketsPage } from './modules/user/pages/user-tickets-page';
+import { UserUpcomingEventsPage } from './modules/user/pages/user-upcoming-events-page';
 import { NotFoundPage } from './shared/pages/not-found-page';
 
 const router = createBrowserRouter([
@@ -58,7 +63,33 @@ const router = createBrowserRouter([
       },
       {
         path: 'users/:id',
-        element: <UserProfilePage />
+        element: <UserProfileLayout />,
+        children: [
+          {
+            index: true,
+            element: <Navigate to="upcoming" replace />
+          },
+          {
+            path: 'upcoming',
+            element: <UserUpcomingEventsPage />
+          },
+          {
+            path: 'past',
+            element: <UserPastEventsPage />
+          },
+          {
+            path: 'following',
+            element: <UserFollowingPage />
+          },
+          {
+            path: 'tickets',
+            element: <UserTicketsPage />
+          },
+          {
+            path: 'settings',
+            element: <UserSettingsPage />
+          }
+        ]
       },
       { path: 'events', element: <EventsPage /> },
       {

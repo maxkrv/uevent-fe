@@ -1,100 +1,59 @@
 import { mockCompanies } from '../../../__mock__/companies';
 import { mockData } from '../../../__mock__/data';
-import { mockEvents } from '../../../__mock__/events';
-import { mockUsers } from '../../../__mock__/users';
 import { apiClient } from '../../../shared/api/api';
-import type { Paginated } from '../../../shared/types/pagination';
+import type { Paginated, PaginationDto } from '../../../shared/types/pagination';
 import type { Company } from '../../company/interfaces/company.interface';
-import type { Event } from '../../event/interfaces/event.interface';
 import { Ticket } from '../../ticket/interfaces/ticket.interface';
 import type { User } from '../interfaces/user.interface';
 
 export class UserService {
   static async me() {
-    // In a real implementation, this would be:
     return apiClient.get<User>('users/me').json();
-
-    // return new Promise<User>((resolve) => {
-    //   setTimeout(() => {
-    //     resolve(mockUsers[0]);
-    //   }, 500);
-    // });
   }
 
   static async getById(id: string): Promise<User> {
-    // In a real implementation, this would be:
-    // return apiClient.get<User>(`users/${id}`).json()
-
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const user = mockUsers.find((u) => u.id === id);
-        if (user) {
-          resolve(user);
-        } else {
-          reject(new Error('User not found'));
-        }
-      }, 800);
-    });
+    return apiClient.get<User>(`users/${id}`).json();
   }
 
-  static async getAttendedEvents(userId: string): Promise<Paginated<Event>> {
-    // In a real implementation, this would be:
-    // return apiClient.get<Paginated<Event>>(`users/${userId}/events`).json()
+  static async getFollowedCompanies(userId: string, dto?: PaginationDto): Promise<Paginated<Company>> {
+    const searchParams = new URLSearchParams();
+
+    Object.entries(dto || {}).forEach(([key, value]) => {
+      if (value) {
+        searchParams.append(key, value.toString());
+      }
+    });
+
+    return apiClient
+      .get<Paginated<Company>>(`users/${userId}/companies/following`, {
+        searchParams
+      })
+      .json();
+  }
+
+  static async getOwnedCompanies(_opt: PaginationDto): Promise<Paginated<Company>> {
+    // return apiClient
+    //   .get<Paginated<Company>>(`companies/my`, {
+    //     searchParams: Object.entries(opt).reduce((acc, [key, value]) => {
+    //       if (value) {
+    //         acc.append(key, value.toString());
+    //       }
+    //       return acc;
+    //     }, new URLSearchParams())
+    //   })
+    //   .json();
 
     return new Promise((resolve) => {
       setTimeout(() => {
-        // Find events this user is attending
-        const attendedEvents = mockEvents.filter((event) =>
-          event.attendees?.some((attendee) => attendee.userId === userId)
-        );
-
         resolve({
-          items: attendedEvents,
+          items: mockCompanies,
           meta: {
+            totalItemsCount: 100,
+            totalPages: 15,
             currentPage: 1,
-            totalItemsCount: attendedEvents.length,
-            itemsPerPage: attendedEvents.length,
-            totalPages: 1
+            itemsPerPage: 12
           }
         });
-      }, 800);
-    });
-  }
-
-  static async getFollowedCompanies(userId: string): Promise<Paginated<Company>> {
-    // In a real implementation, this would be:
-    // return apiClient.get<Paginated<Company>>(`users/${userId}/companies`).json()
-
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // Find companies this user is following
-        const followedCompanies = mockCompanies.filter((company) =>
-          company.subscribers?.some((sub) => sub.userId === userId)
-        );
-
-        resolve({
-          items: followedCompanies,
-          meta: {
-            currentPage: 1,
-            totalItemsCount: followedCompanies.length,
-            itemsPerPage: followedCompanies.length,
-            totalPages: 1
-          }
-        });
-      }, 800);
-    });
-  }
-
-  static async getOwnedCompanies(userId: string): Promise<Company[]> {
-    // In a real implementation, this would be:
-    // return apiClient.get<Company[]>(`users/${userId}/owned-companies`).json()
-
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // Find companies owned by this user
-        const ownedCompanies = mockCompanies.filter((company) => company.ownerId === userId);
-
-        resolve(ownedCompanies);
       }, 500);
     });
   }
@@ -111,5 +70,20 @@ export class UserService {
         resolve(tickets);
       }, 800);
     });
+  }
+  // New methods for user settings
+  static async updateUserData(data: { name?: string; bio?: string }): Promise<User> {
+    return apiClient.patch<User>('users/me', { json: data }).json();
+  }
+
+  static async updateUserSettings(data: Partial<User['settings']>): Promise<User> {
+    return apiClient.patch<User>('users/me/settings', { json: data }).json();
+  }
+
+  static async updateAvatar(file: File): Promise<User> {
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    return apiClient.patch<User>('users/me/avatar', { body: formData }).json();
   }
 }

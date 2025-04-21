@@ -1,24 +1,17 @@
 'use client';
 
-import { CalendarClock, Mail, MapPin } from 'lucide-react';
+import dayjs from 'dayjs';
+import { CalendarClock, Mail } from 'lucide-react';
 
 import type { User } from '@/modules/user/interfaces/user.interface';
 import { UserAvatar } from '@/shared/components/common/user-avatar';
 import { Badge } from '@/shared/components/ui/badge';
-import { Button } from '@/shared/components/ui/button';
 
 interface UserProfileHeaderProps {
   user: User;
-  isOwnProfile: boolean;
 }
 
-export const UserProfileHeader = ({ user, isOwnProfile }: UserProfileHeaderProps) => {
-  // Calculate member since date - in a real app, use the user's createdAt date
-  const memberSince = new Date(user.createdAt).getFullYear();
-
-  // Get location from user data or mock it if not available
-  const userLocation = user.location || 'No location provided';
-
+export const UserProfileHeader = ({ user }: UserProfileHeaderProps) => {
   return (
     <div className="bg-card rounded-lg border p-6">
       <div className="flex flex-col gap-6">
@@ -46,12 +39,7 @@ export const UserProfileHeader = ({ user, isOwnProfile }: UserProfileHeaderProps
           <div className="w-full space-y-2 mb-4">
             <div className="flex items-center text-sm text-muted-foreground">
               <CalendarClock className="h-4 w-4 mr-2 text-primary" />
-              <span>Member since {memberSince}</span>
-            </div>
-
-            <div className="flex items-center text-sm text-muted-foreground">
-              <MapPin className="h-4 w-4 mr-2 text-primary" />
-              <span>{userLocation}</span>
+              <span>Member since {dayjs(user.createdAt).format('MMMM YYYY')}</span>
             </div>
 
             <div className="flex items-center text-sm text-muted-foreground">
@@ -59,13 +47,6 @@ export const UserProfileHeader = ({ user, isOwnProfile }: UserProfileHeaderProps
               <span>{user.email}</span>
             </div>
           </div>
-
-          {/* Action button */}
-          {isOwnProfile && (
-            <Button className="w-full" variant="outline">
-              Edit Profile
-            </Button>
-          )}
         </div>
       </div>
     </div>

@@ -1,54 +1,81 @@
 'use client';
 
+import { useQuery } from '@tanstack/react-query';
 import { Calendar } from 'lucide-react';
 import { useState } from 'react';
 
-import type { Event } from '@/modules/event/interfaces/event.interface';
 import { Pagination } from '@/shared/components/common/pagination';
-import dayjs from '@/shared/lib/dayjs';
 
+import { Skeleton } from '../../../../shared/components/ui/skeleton';
+import { QueryKeys } from '../../../../shared/constants/query-keys';
 import { ShortEventCard } from '../../../event/components/short-event-card';
+import { EventService } from '../../../event/services/event.service';
+import { UserNoItems } from './user-no-items';
 
 interface UserUpcomingEventsProps {
-  events: Event[];
+  userId: string;
 }
+const ITEMS_PER_PAGE = 10;
 
-export const UserUpcomingEvents = ({ events }: UserUpcomingEventsProps) => {
+export const UserUpcomingEvents = ({ userId }: UserUpcomingEventsProps) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 4;
 
-  // Filter only upcoming events (events with start date in the future)
-  const upcomingEvents = events.filter((event) => dayjs(event.startDate).isAfter(dayjs()));
+  // Fetch user's attended events
+  const { data: attendedEventsData, isLoading } = useQuery({
+    queryKey: [QueryKeys.USER_EVENTS, userId, currentPage],
+    queryFn: () =>
+      EventService.getMany({
+        page: currentPage,
+        limit: ITEMS_PER_PAGE,
+        userId,
+        fromDate: new Date()
+      }),
+    enabled: !!userId
+  });
 
-  // Sort events by date (soonest first)
-  const sortedEvents = [...upcomingEvents].sort(
-    (a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
-  );
-
-  const totalPages = Math.ceil(sortedEvents.length / itemsPerPage);
-  const paginatedEvents = sortedEvents.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-  if (upcomingEvents.length === 0) {
+  if (isLoading) {
     return (
-      <div className="bg-card rounded-lg border p-8 text-center flex flex-col items-center justify-center min-h-screen-no-header">
-        <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-        <h3 className="text-lg font-medium mb-2">No Upcoming Events</h3>
-        <p className="text-muted-foreground">This user hasn&apos;t registered for any upcoming events.</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {Array.from({ length: 8 }, (_data, i) => (
+          <div key={i} className="bg-card rounded-lg border p-4">
+            <div className="flex gap-4">
+              <Skeleton className="h-16 w-16 rounded-full flex-shrink-0" />
+              <div className="flex-1">
+                <Skeleton className="h-5 w-3/4 mb-2" />
+                <Skeleton className="h-4 w-1/2 mb-2" />
+                <Skeleton className="h-8 w-24" />
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
+    );
+  }
+  if (!attendedEventsData || attendedEventsData.items.length === 0) {
+    return (
+      <UserNoItems
+        icon={Calendar}
+        title="No Upcoming Events"
+        description="This user hasn't registered for any upcoming events yet."
+      />
     );
   }
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {paginatedEvents.map((event) => (
+        {attendedEventsData.items.map((event) => (
           <ShortEventCard event={event} key={event.id} />
         ))}
       </div>
 
-      {totalPages > 1 && (
+      {attendedEventsData.meta.totalPages > 1 && (
         <div className="flex justify-center mt-6">
-          <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+          <Pagination
+            currentPage={attendedEventsData.meta.currentPage}
+            totalPages={attendedEventsData.meta.totalPages}
+            onPageChange={setCurrentPage}
+          />
         </div>
       )}
     </div>
