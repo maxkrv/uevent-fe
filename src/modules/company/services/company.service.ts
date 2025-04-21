@@ -1,11 +1,15 @@
+import { Success } from '@/modules/auth/interfaces/auth.interface';
+import { apiClient } from '@/shared/api/api';
+import { UrlResponse } from '@/shared/types/url';
+
 import { mockCompanies } from '../../../__mock__/companies';
 import { mockData } from '../../../__mock__/data';
 import { mockEvents } from '../../../__mock__/events';
 import type { SortOrder } from '../../../shared/types/interfaces';
 import type { Paginated, PaginationDto } from '../../../shared/types/pagination';
 import { Event } from '../../event/interfaces/event.interface';
-import type { Company } from '../interfaces/company.interface';
-import type { CompanyNews } from '../interfaces/news.interface';
+import type { Company, CompanyDto, CompanyPromoCode, CompanyPromoCodeDto } from '../interfaces/company.interface';
+import type { CompanyNews, CompanyNewsDto } from '../interfaces/news.interface';
 
 export interface CompanyGetManyDto extends PaginationDto {
   search?: string;
@@ -14,19 +18,34 @@ export interface CompanyGetManyDto extends PaginationDto {
 }
 
 export class CompanyService {
-  static getById(id: string): Promise<Company> {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const company = mockCompanies.find((company) => company.id === id);
-        if (company) {
-          resolve(company);
-        } else {
-          reject(new Error('Company not found'));
-        }
-      }, 1000);
-    });
-    // In a real implementation, this would be:
-    // return apiClient.get(`/companies/${id}`).json<Company>();
+  static create(dto: CompanyDto) {
+    return apiClient.post('companies', { json: dto }).json<Company>();
+  }
+
+  static update(id: string, dto: Partial<CompanyDto>) {
+    return apiClient.patch(`companies/${id}`, { json: dto }).json<Company>();
+  }
+
+  static updateLogo(id: string, file: File) {
+    const dto = new FormData();
+    dto.append('logo', file);
+
+    return apiClient.patch(`companies/${id}/logo`, { body: dto }).json<Success>();
+  }
+
+  static updateCover(id: string, file: File) {
+    const dto = new FormData();
+    dto.append('cover', file);
+
+    return apiClient.patch(`companies/${id}/cover`, { body: dto }).json<Success>();
+  }
+
+  static getById(id: string) {
+    return apiClient.get(`companies/${id}`).json<Company>();
+  }
+
+  static delete(id: string) {
+    return apiClient.delete(`companies/${id}`);
   }
 
   static getMany(opt: CompanyGetManyDto): Promise<Paginated<Company>> {
@@ -132,45 +151,37 @@ export class CompanyService {
     });
   }
 
-  static getCompanyNews(companyId: string): Promise<Paginated<CompanyNews>> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const companyNews = mockData.companyNews.filter((news) => news.companyId === companyId);
-
-        // Sort by date (newest first)
-        companyNews.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
-        resolve({
-          items: companyNews,
-          meta: {
-            currentPage: 1,
-            totalItemsCount: companyNews.length,
-            itemsPerPage: companyNews.length,
-            totalPages: 1
-          }
-        });
-      }, 800);
-    });
+  static createNewsItem(dto: CompanyNewsDto) {
+    return apiClient.post('companies-news', { json: dto }).json<CompanyNews>();
   }
 
-  static getNewsItem(newsId: string, companyId: string): Promise<CompanyNews> {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const newsItem = mockData.companyNews.find((news) => news.id === newsId && news.companyId === companyId);
+  static updateNewsItem(id: string, dto: CompanyNewsDto) {
+    return apiClient.patch(`companies-news/${id}`, { json: dto }).json<CompanyNews>();
+  }
 
-        if (newsItem) {
-          resolve(newsItem);
-        } else {
-          reject(new Error('News item not found'));
-        }
-      }, 800);
-    });
+  static updateNewsItemCover(id: string, file: File) {
+    const dto = new FormData();
+    dto.append('cover', file);
+
+    return apiClient.patch(`companies-news/${id}/cover`, { body: dto }).json<Success>();
+  }
+
+  static deleteNewsItem(id: string) {
+    return apiClient.delete(`companies-news/${id}`);
+  }
+
+  static getCompanyNews(companyId: string): Promise<Paginated<CompanyNews>> {
+    return apiClient.get(`companies-news/company/${companyId}`).json<Paginated<CompanyNews>>();
+  }
+
+  static getNewsItem(newsId: string): Promise<CompanyNews> {
+    return apiClient.get(`companies-news/${newsId}`).json<CompanyNews>();
   }
 
   static getRelatedNews(companyId: string, excludeId?: string): Promise<CompanyNews[]> {
     return new Promise((resolve) => {
       setTimeout(() => {
-        let relatedNews = mockData.companyNews.filter((news) => news.companyId === companyId);
+        let relatedNews = mockData.companyNews.filter((news) => news.company.id === companyId);
 
         // Exclude the current news item if provided
         if (excludeId) {
@@ -197,5 +208,43 @@ export class CompanyService {
         resolve(similarCompanies);
       }, 500);
     });
+  }
+
+  static getMyCompanies(page = 1) {
+    const params = new URLSearchParams();
+    params.set('page', page.toString());
+
+    return apiClient
+      .get('companies/my', {
+        searchParams: params
+      })
+      .json<Paginated<Company>>();
+  }
+
+  static verify(id: string) {
+    return apiClient.post(`companies/${id}/onboarding-link`).json<UrlResponse>();
+  }
+
+  static openDashboard(id: string) {
+    return apiClient.post(`companies/${id}/dashboard-link`).json<UrlResponse>();
+  }
+
+  static createPromoCode(id: string, dto: CompanyPromoCodeDto) {
+    return apiClient.post(`companies/${id}/promo-code`, { json: dto }).json<CompanyPromoCodeDto>();
+  }
+
+  static getPromoCodes(id: string, page = 1) {
+    const params = new URLSearchParams();
+    params.set('page', page.toString());
+
+    return apiClient
+      .get(`companies/${id}/promo-code`, {
+        searchParams: params
+      })
+      .json<Paginated<CompanyPromoCode>>();
+  }
+
+  static deletePromoCode(companyId: string, id: string) {
+    return apiClient.delete(`companies/${companyId}/promo-code/${id}`);
   }
 }

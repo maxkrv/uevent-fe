@@ -16,6 +16,7 @@ interface UserFollowingProps {
   userId: string;
 }
 const ITEMS_PER_PAGE = 10;
+
 export const UserFollowing = ({ userId }: UserFollowingProps) => {
   const [currentPage, setCurrentPage] = useState(1);
 

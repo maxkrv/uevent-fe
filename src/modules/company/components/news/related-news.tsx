@@ -18,7 +18,7 @@ export const RelatedNews = ({ companyId, relatedNews }: RelatedNewsProps) => {
         {relatedNews.map((item) => (
           <Link
             key={item.id}
-            to={`/companies/${companyId}/news/${item.id}`}
+            to={`/companies/news/${item.id}`}
             className="flex gap-3 group hover:bg-muted p-2 rounded-md transition-colors">
             <div className="h-14 w-14 rounded-md overflow-hidden flex-shrink-0">
               <Image

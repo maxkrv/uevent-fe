@@ -1,4 +1,3 @@
-import { mockCompanies } from '../../../__mock__/companies';
 import { mockData } from '../../../__mock__/data';
 import { apiClient } from '../../../shared/api/api';
 import type { Paginated, PaginationDto } from '../../../shared/types/pagination';
@@ -29,33 +28,6 @@ export class UserService {
         searchParams
       })
       .json();
-  }
-
-  static async getOwnedCompanies(_opt: PaginationDto): Promise<Paginated<Company>> {
-    // return apiClient
-    //   .get<Paginated<Company>>(`companies/my`, {
-    //     searchParams: Object.entries(opt).reduce((acc, [key, value]) => {
-    //       if (value) {
-    //         acc.append(key, value.toString());
-    //       }
-    //       return acc;
-    //     }, new URLSearchParams())
-    //   })
-    //   .json();
-
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          items: mockCompanies,
-          meta: {
-            totalItemsCount: 100,
-            totalPages: 15,
-            currentPage: 1,
-            itemsPerPage: 12
-          }
-        });
-      }, 500);
-    });
   }
 
   static async getTickets(userId: string): Promise<Ticket[]> {

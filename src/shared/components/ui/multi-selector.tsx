@@ -3,7 +3,7 @@
 import { Command as CommandPrimitive, useCommandState } from 'cmdk';
 import { X } from 'lucide-react';
 import * as React from 'react';
-import { forwardRef, useEffect } from 'react';
+import { forwardRef, useEffect, useState } from 'react';
 
 import { cn } from '@/shared/lib/utils';
 
@@ -89,18 +89,22 @@ export interface MultipleSelectorRef {
   reset: () => void;
 }
 
-export function useDebounce<T>(value: T, delay?: number): T {
-  const [debouncedValue, setDebouncedValue] = React.useState<T>(value);
+export function useDebounce<T>(value: T, delay = 500): [T, boolean] {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+  const [isPending, setIsPending] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setDebouncedValue(value), delay || 500);
+    setIsPending(true);
 
-    return () => {
-      clearTimeout(timer);
-    };
+    const timer = setTimeout(() => {
+      setDebouncedValue(value);
+      setIsPending(false);
+    }, delay);
+
+    return () => clearTimeout(timer);
   }, [value, delay]);
 
-  return debouncedValue;
+  return [debouncedValue, isPending];
 }
 
 function transToGroupOption(options: Option[], groupBy?: string) {
@@ -202,7 +206,7 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
     const [selected, setSelected] = React.useState<Option[]>(value || []);
     const [options, setOptions] = React.useState<GroupOption>(transToGroupOption(arrayDefaultOptions, groupBy));
     const [inputValue, setInputValue] = React.useState('');
-    const debouncedSearchTerm = useDebounce(inputValue, delay || 500);
+    const [debouncedSearchTerm] = useDebounce(inputValue, delay || 500);
 
     React.useImperativeHandle(
       ref,

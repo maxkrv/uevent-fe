@@ -1,8 +1,8 @@
-'use client';
-
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 
+import { CreateCompanyModal } from '@/modules/company/components/modal/create-company-modal';
+import { CompanyService } from '@/modules/company/services/company.service';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 import { QueryKeys } from '@/shared/constants/query-keys';
@@ -10,23 +10,18 @@ import { QueryKeys } from '@/shared/constants/query-keys';
 import { Pagination } from '../../../../shared/components/common/pagination';
 import { Button } from '../../../../shared/components/ui/button';
 import { ShortCompanyCard } from '../../../company/components/short-company-card';
-import { UserService } from '../../services/user.service';
 
 interface UserCompaniesProps {
   userId: string;
 }
-const ITEMS_PER_PAGE = 10;
 
 export const UserCompanies = ({ userId }: UserCompaniesProps) => {
   const [currentPage, setCurrentPage] = useState(1);
-  // Fetch companies owned by the user
+  const [open, setOpen] = useState(false);
+
   const { data: userCompanies, isLoading } = useQuery({
     queryKey: [QueryKeys.USER_COMPANIES, userId, currentPage],
-    queryFn: () =>
-      UserService.getOwnedCompanies({
-        page: currentPage,
-        limit: ITEMS_PER_PAGE
-      }),
+    queryFn: () => CompanyService.getMyCompanies(currentPage),
     enabled: !!userId
   });
 
@@ -53,31 +48,37 @@ export const UserCompanies = ({ userId }: UserCompaniesProps) => {
   }
 
   return (
-    <Card>
-      <CardHeader className="flex justify-between items-center">
-        <CardTitle className="text-2xl">Companies</CardTitle>
-        <Button variant="outline">Create Company</Button>
-      </CardHeader>
-      {(!userCompanies || userCompanies?.items.length === 0) && (
-        <CardContent className="flex items-center justify-center min-h-20">
-          <p className="text-muted-foreground">No companies found.</p>
-        </CardContent>
-      )}
-      <CardContent className="space-y-4">
-        {userCompanies?.items.map((company) => (
-          <ShortCompanyCard key={company.id} company={company} className="border-transparent" />
-        ))}
-        {userCompanies && userCompanies?.meta.totalPages > 1 && (
-          <div className="flex justify-center mt-4">
-            <Pagination
-              compact
-              currentPage={userCompanies?.meta.currentPage}
-              totalPages={userCompanies?.meta.totalPages}
-              onPageChange={setCurrentPage}
-            />
-          </div>
+    <>
+      <Card>
+        <CardHeader className="flex justify-between items-center">
+          <CardTitle className="text-2xl">Companies</CardTitle>
+          <Button variant="outline" onClick={() => setOpen(true)}>
+            Create Company
+          </Button>
+        </CardHeader>
+        {(!userCompanies || userCompanies?.items.length === 0) && (
+          <CardContent className="flex items-center justify-center min-h-20">
+            <p className="text-muted-foreground">No companies found.</p>
+          </CardContent>
         )}
-      </CardContent>
-    </Card>
+        <CardContent className="space-y-4">
+          {userCompanies?.items.map((company) => (
+            <ShortCompanyCard key={company.id} company={company} className="border-transparent" />
+          ))}
+          {userCompanies && userCompanies?.meta.totalPages > 1 && (
+            <div className="flex justify-center mt-4">
+              <Pagination
+                compact
+                currentPage={userCompanies?.meta.currentPage}
+                totalPages={userCompanies?.meta.totalPages}
+                onPageChange={setCurrentPage}
+              />
+            </div>
+          )}
+        </CardContent>
+
+        <CreateCompanyModal open={open} setOpen={setOpen} />
+      </Card>
+    </>
   );
 };

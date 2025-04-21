@@ -1,5 +1,3 @@
-'use client';
-
 import { ExternalLink, MapPin, Star, Users } from 'lucide-react';
 import type React from 'react';
 import { useState } from 'react';
@@ -16,9 +14,10 @@ import { CompanyLogo } from './company-logo';
 interface CompanyCardProps {
   company: Company;
   isFeatured?: boolean;
+  hasFollow?: boolean;
 }
 
-export const CompanyCard: React.FC<CompanyCardProps> = ({ company, isFeatured = false }) => {
+export const CompanyCard: React.FC<CompanyCardProps> = ({ company, isFeatured = false, hasFollow = true }) => {
   const [isFollowing, setIsFollowing] = useState(false);
 
   const handleFollowClick = (e: React.MouseEvent) => {
@@ -44,10 +43,12 @@ export const CompanyCard: React.FC<CompanyCardProps> = ({ company, isFeatured = 
               <CompanyLogo company={company} className="size-full" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-lg truncate text-white ">{company.name}</h3>
+              <h3 className="font-bold text-lg truncate text-white">
+                {company.name} {!company.isVerified && '(unverified)'}
+              </h3>
               <div className="flex items-center text-sm text-white/90">
                 <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
-                <span className="truncate ">{company.location.address}</span>
+                <span className="truncate">{company.location.address}</span>
               </div>
             </div>
           </div>
@@ -72,30 +73,35 @@ export const CompanyCard: React.FC<CompanyCardProps> = ({ company, isFeatured = 
           <p className="text-sm text-muted-foreground line-clamp-2 h-10">
             {company.description || 'No description available'}
           </p>
-          <Separator className="border-2 rounded" />
-          <div className="flex gap-2">
-            <Button
-              variant={isFollowing ? 'outline' : 'default'}
-              size="sm"
-              onClick={handleFollowClick}
-              className="flex-1">
-              {isFollowing ? 'Following' : 'Follow'}
-            </Button>
 
-            {company.website && (
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-9 w-9"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  window.open(company.website, '_blank');
-                }}>
-                <ExternalLink className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
+          {hasFollow && (
+            <>
+              <Separator className="border-2 rounded" />
+              <div className="flex gap-2">
+                <Button
+                  variant={isFollowing ? 'outline' : 'default'}
+                  size="sm"
+                  onClick={handleFollowClick}
+                  className="flex-1">
+                  {isFollowing ? 'Following' : 'Follow'}
+                </Button>
+
+                {company.website && (
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-9 w-9"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      window.open(company.website, '_blank');
+                    }}>
+                    <ExternalLink className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            </>
+          )}
         </CardContent>
       </Link>
     </Card>

@@ -45,7 +45,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const Comp = asChild ? Slot : 'button';
 
     return (
-      <Comp ref={ref} data-slot="button" className={cn(buttonVariants({ variant, size, className }))} {...props}>
+      <Comp ref={ref} className={cn(buttonVariants({ variant, size, className }))} {...props}>
         {isLoading && <CgSpinner className="animate-spin" />}
         {children}
       </Comp>

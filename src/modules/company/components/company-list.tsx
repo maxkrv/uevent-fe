@@ -15,9 +15,19 @@ interface CompanyListProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  hasHeader?: boolean;
+  hasFollow?: boolean;
 }
 
-export const CompanyList = ({ companies, isLoading, currentPage, totalPages, onPageChange }: CompanyListProps) => {
+export const CompanyList = ({
+  companies,
+  isLoading,
+  currentPage,
+  totalPages,
+  onPageChange,
+  hasHeader = true,
+  hasFollow = true
+}: CompanyListProps) => {
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -48,16 +58,18 @@ export const CompanyList = ({ companies, isLoading, currentPage, totalPages, onP
 
   return (
     <>
-      <h2 className="text-2xl font-bold mb-6 flex items-center">
-        <span className="bg-primary/10 text-primary p-1 rounded-md mr-2">
-          <Building2 className="h-5 w-5" />
-        </span>
-        All Companies
-      </h2>
+      {hasHeader && (
+        <h2 className="text-2xl font-bold mb-6 flex items-center">
+          <span className="bg-primary/10 text-primary p-1 rounded-md mr-2">
+            <Building2 className="h-5 w-5" />
+          </span>
+          All Companies
+        </h2>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {companies.map((company) => (
-          <CompanyCard key={company.id} company={company} isFeatured={false} />
+          <CompanyCard key={company.id} company={company} isFeatured={false} hasFollow={hasFollow} />
         ))}
       </div>
 

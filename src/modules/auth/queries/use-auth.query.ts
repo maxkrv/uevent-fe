@@ -1,16 +1,13 @@
-'use client';
-
 import { queryOptions, useQuery } from '@tanstack/react-query';
 
 import { QueryKeys } from '../../../shared/constants/query-keys';
-import { TimeUtils } from '../../../shared/utils/time.utils';
 import { UserService } from '../../user/services/user.service';
 
 export function userGroupOptions() {
   return queryOptions({
     queryKey: [QueryKeys.USERS_ME],
     queryFn: UserService.me,
-    retryDelay: TimeUtils.ONE_MINUTE
+    staleTime: Infinity
   });
 }
 

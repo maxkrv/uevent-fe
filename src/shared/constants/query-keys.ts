@@ -13,6 +13,8 @@ export enum QueryKeys {
   COMPANY_EVENTS = 'company-events',
   COMPANY_SUBSCRIBERS = 'company-subscribers',
   COMPANY_NEWS = 'company-news',
+  MY_COMPANIES = 'my-companies',
+  COMPANY_PROMO_CODES = 'company-promo-codes',
   COMMENTS = 'comments',
   COMMENT_REACTIONS = 'comment-reactions',
   NOTIFICATIONS = 'notifications'

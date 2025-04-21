@@ -1,8 +1,7 @@
-'use client';
-
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 
+import { useAuth } from '@/modules/auth/queries/use-auth.query';
 import { Comments } from '@/modules/comments/components/comments';
 
 import { QueryKeys } from '../../../shared/constants/query-keys';
@@ -15,49 +14,46 @@ import { RelatedNews } from '../components/news/related-news';
 import { CompanyService } from '../services/company.service';
 
 export const CompanyNewsDetailPage = () => {
-  const { companyId, newsId } = useParams<{ companyId: string; newsId: string }>();
+  const { newsId } = useParams<{ companyId: string; newsId: string }>();
 
-  // Fetch company data
-  const { data: company, isLoading: isCompanyLoading } = useQuery({
-    queryKey: [QueryKeys.COMPANIES, companyId],
-    queryFn: () => CompanyService.getById(companyId!),
-    enabled: !!companyId
-  });
+  const { data: user } = useAuth();
 
   // Fetch news item
   const { data: newsItem, isLoading: isNewsLoading } = useQuery({
-    queryKey: [QueryKeys.COMPANY_NEWS, companyId, newsId],
-    queryFn: () => CompanyService.getNewsItem(newsId!, companyId!),
-    enabled: !!companyId && !!newsId
+    queryKey: [QueryKeys.COMPANY_NEWS, newsId],
+    queryFn: () => CompanyService.getNewsItem(newsId!),
+    enabled: !!newsId && !!newsId
   });
 
   // Fetch related news
   const { data: relatedNews, isLoading: isRelatedLoading } = useQuery({
-    queryKey: [QueryKeys.COMPANY_NEWS, companyId, 'related', newsId],
-    queryFn: () => CompanyService.getRelatedNews(companyId!, newsId),
-    enabled: !!companyId && !!newsId
+    queryKey: [QueryKeys.COMPANY_NEWS, newsItem?.company.id, 'related', newsId],
+    queryFn: () => CompanyService.getRelatedNews(newsItem!.company.id, newsId),
+    enabled: !!newsItem?.company.id && !!newsId
   });
 
-  const isLoading = isCompanyLoading || isNewsLoading || isRelatedLoading;
+  const isLoading = isNewsLoading || isRelatedLoading;
 
   if (isLoading) {
     return <NewsDetailSkeleton />;
   }
 
-  if (!newsItem || !company) {
+  if (!newsItem) {
     return <NewsNotFound />;
   }
+
+  const isOwner = newsItem.company.ownerId === user?.id;
 
   return (
     <div className="bg-background min-h-screen-no-header">
       {/* Hero Section */}
-      <NewsHero newsItem={newsItem} />
+      <NewsHero newsItem={newsItem} isOwner={isOwner} />
 
       <div className="container mx-auto px-4 py-8 relative -mt-20 z-20">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
-            <NewsContent newsItem={newsItem} company={company} />
+            <NewsContent newsItem={newsItem} company={newsItem.company} isOwner={isOwner} />
 
             {/* Comments Section */}
             <Comments newsId={newsItem.id} />
@@ -66,10 +62,12 @@ export const CompanyNewsDetailPage = () => {
           {/* Sidebar */}
           <div className="space-y-8">
             {/* Company Info */}
-            <CompanyCard company={company} />
+            <CompanyCard company={newsItem.company} />
 
             {/* Related News */}
-            {relatedNews && relatedNews.length > 0 && <RelatedNews companyId={company.id} relatedNews={relatedNews} />}
+            {relatedNews && relatedNews.length > 0 && (
+              <RelatedNews companyId={newsItem.company.id} relatedNews={relatedNews} />
+            )}
           </div>
         </div>
       </div>

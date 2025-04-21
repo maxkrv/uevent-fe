@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import { Location } from '../../../modules/event/interfaces/event.interface';
-import { useGoogleMaps } from '../../hooks/use-google-maps';
+import { useGoogleMaps } from '../../hooks/maps/use-google-maps';
 import { Button } from '../ui/button';
 import { Skeleton } from '../ui/skeleton';
 
