@@ -23,7 +23,7 @@ const getInitials = (fullName?: string) => {
 export const UserAvatar: FC<UserAvatarProps> = ({ className, user }) => {
   return (
     <Avatar className={cn('bg-muted border-2', className)}>
-      <AvatarImage src={user?.avatar || ''} />
+      <AvatarImage src={user?.avatar || ''} className="object-cover object-center" />
       <AvatarFallback className="uppercase">{!user?.avatar && `${getInitials(user?.name)}`}</AvatarFallback>
     </Avatar>
   );

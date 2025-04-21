@@ -15,6 +15,13 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/sh
 
 import { UserAvatar } from './user-avatar';
 
+const USER_MENU_OPTIONS = [
+  { name: 'My Profile', icon: UserIcon, path: '' },
+  { name: 'My Events', icon: CalendarClock, path: '/upcoming' },
+  { name: 'My Tickets', icon: Ticket, path: '/tickets' },
+  { name: 'Settings', icon: Settings, path: '/settings' }
+];
+
 export const UserMenuSheet = () => {
   const [open, setOpen] = useState(false);
   const { data: user } = useAuth();
@@ -63,38 +70,25 @@ export const UserMenuSheet = () => {
           </div>
         </SheetHeader>
         <div className="flex flex-col gap-2">
-          <Button variant="ghost" className="justify-start" onClick={() => navigateTo(`/users/${user.id}`)}>
-            <UserIcon className="mr-2 h-5 w-5" />
-            My Profile
-          </Button>
-
+          {USER_MENU_OPTIONS.map((option) => (
+            <Button
+              key={option.name}
+              variant="ghost"
+              className="justify-start text-muted-foreground hover:text-primary hover:bg-primary/10"
+              onClick={() => navigateTo(`/users/${user.id}${option.path}`)}>
+              <option.icon className="mr-2 h-5 w-5" />
+              {option.name}
+            </Button>
+          ))}
+          <Separator className="my-2" />
           <Button
             variant="ghost"
-            className="justify-start"
-            onClick={() => navigateTo(`/users/${user.id}?tab=upcoming`)}>
-            <CalendarClock className="mr-2 h-5 w-5" />
-            My Events
+            className="justify-start text-muted-foreground hover:text-primary hover:bg-primary/10"
+            onClick={() => navigateTo('/admin')}>
+            <UserCog className="mr-2 h-5 w-5" />
+            Admin Panel
           </Button>
-
-          <Button variant="ghost" className="justify-start" onClick={() => navigateTo(`/users/${user.id}?tab=tickets`)}>
-            <Ticket className="mr-2 h-5 w-5" />
-            My Tickets
-          </Button>
-
-          {user.role === 'ADMIN' && (
-            <Button variant="ghost" className="justify-start" onClick={() => navigateTo('/admin')}>
-              <UserCog className="mr-2 h-5 w-5" />
-              Admin Panel
-            </Button>
-          )}
-
-          <Button variant="ghost" className="justify-start" onClick={() => navigateTo('/settings')}>
-            <Settings className="mr-2 h-5 w-5" />
-            Settings
-          </Button>
-
           <Separator className="my-2" />
-
           <Button
             variant="ghost"
             className="justify-start text-destructive hover:text-destructive hover:bg-destructive/10"

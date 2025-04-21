@@ -28,20 +28,14 @@ export const Pagination = ({
   className,
   compact = false
 }: PaginationProps) => {
-  const isMobile = useIsMobile();
+  const isSmall = useIsMobile() || compact;
 
   // Adjust sibling count for mobile
-  const effectiveSiblingCount = isMobile ? 0 : siblingCount;
+  const effectiveSiblingCount = isSmall ? 0 : siblingCount;
 
   const paginationRange = useMemo(() => {
-    // For very small screens or compact mode, show minimal pagination
-    if ((isMobile && compact) || totalPages <= 1) {
+    if (totalPages <= 1) {
       return [];
-    }
-
-    // For compact mode on mobile, show only current page with prev/next
-    if (isMobile && compact) {
-      return [currentPage];
     }
 
     const totalPageNumbers = effectiveSiblingCount * 2 + 5;
@@ -77,43 +71,9 @@ export const Pagination = ({
     }
 
     return [];
-  }, [currentPage, totalPages, effectiveSiblingCount, isMobile, compact]);
+  }, [currentPage, totalPages, effectiveSiblingCount]);
 
   if (totalPages <= 1) return null;
-
-  // Super compact view for very small screens
-  if (isMobile && compact) {
-    return (
-      <nav
-        role="navigation"
-        aria-label="Pagination"
-        className={cn('flex justify-center items-center space-x-1', className)}>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onPageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-          aria-label="Previous page"
-          className="h-8 w-8 p-0">
-          <ChevronLeft className="h-4 w-4" />
-        </Button>
-
-        <span className="text-sm font-medium">
-          {currentPage} / {totalPages}
-        </span>
-
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onPageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          aria-label="Next page"
-          className="h-8 w-8 p-0">
-          <ChevronRight className="h-4 w-4" />
-        </Button>
-      </nav>
-    );
-  }
 
   return (
     <nav
@@ -122,11 +82,11 @@ export const Pagination = ({
       className={cn('flex justify-center items-center space-x-1 sm:space-x-2', className)}>
       <Button
         variant="outline"
-        size={isMobile ? 'sm' : 'icon'}
+        size={isSmall ? 'sm' : 'icon'}
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
         aria-label="Previous page"
-        className={isMobile ? 'h-8 w-8 p-0' : ''}>
+        className={isSmall ? 'h-8 w-8 p-0' : ''}>
         <ChevronLeft className="h-4 w-4" />
       </Button>
 
@@ -146,11 +106,11 @@ export const Pagination = ({
           <Button
             key={pageNumber}
             variant={isActive ? 'default' : 'outline'}
-            size={isMobile ? 'sm' : 'icon'}
+            size={isSmall ? 'sm' : 'icon'}
             onClick={() => onPageChange(pageNumber)}
             aria-label={`Page ${pageNumber}`}
             aria-current={isActive ? 'page' : undefined}
-            className={isMobile ? 'h-8 w-8 p-0' : ''}>
+            className={isSmall ? 'h-8 w-8 p-0' : ''}>
             {pageNumber}
           </Button>
         );
@@ -158,11 +118,11 @@ export const Pagination = ({
 
       <Button
         variant="outline"
-        size={isMobile ? 'sm' : 'icon'}
+        size={isSmall ? 'sm' : 'icon'}
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
         aria-label="Next page"
-        className={isMobile ? 'h-8 w-8 p-0' : ''}>
+        className={isSmall ? 'h-8 w-8 p-0' : ''}>
         <ChevronRight className="h-4 w-4" />
       </Button>
     </nav>

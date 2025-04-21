@@ -1,31 +1,34 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { Building2 } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 import { useState } from 'react';
 
 import { Pagination } from '@/shared/components/common/pagination';
-import { Skeleton } from '@/shared/components/ui/skeleton';
-import { QueryKeys } from '@/shared/constants/query-keys';
 
-import { ShortCompanyCard } from '../../../company/components/short-company-card';
-import { UserService } from '../../services/user.service';
+import { Skeleton } from '../../../../shared/components/ui/skeleton';
+import { QueryKeys } from '../../../../shared/constants/query-keys';
+import { ShortEventCard } from '../../../event/components/short-event-card';
+import { EventService } from '../../../event/services/event.service';
 import { UserNoItems } from './user-no-items';
 
-interface UserFollowingProps {
+interface UserPastEventsProps {
   userId: string;
 }
 const ITEMS_PER_PAGE = 10;
-export const UserFollowing = ({ userId }: UserFollowingProps) => {
+
+export const UserPastEvents = ({ userId }: UserPastEventsProps) => {
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Fetch companies the user is following
-  const { data: followedCompaniesData, isLoading } = useQuery({
-    queryKey: [QueryKeys.USER_COMPANIES, userId, 'following', currentPage],
+  // Fetch user's attended events
+  const { data: attendedEventsData, isLoading } = useQuery({
+    queryKey: [QueryKeys.USER_EVENTS, userId, currentPage],
     queryFn: () =>
-      UserService.getFollowedCompanies(userId, {
+      EventService.getMany({
         page: currentPage,
-        limit: ITEMS_PER_PAGE
+        limit: ITEMS_PER_PAGE,
+        userId,
+        toDate: new Date()
       }),
     enabled: !!userId
   });
@@ -48,13 +51,12 @@ export const UserFollowing = ({ userId }: UserFollowingProps) => {
       </div>
     );
   }
-
-  if (!followedCompaniesData || followedCompaniesData?.items.length === 0) {
+  if (!attendedEventsData || attendedEventsData.items.length === 0) {
     return (
       <UserNoItems
-        icon={Building2}
-        title="No Companies Followed"
-        description="This user hasn't followed any companies yet."
+        icon={Calendar}
+        title="No Upcoming Events"
+        description="This user hasn't registered for any upcoming events yet."
       />
     );
   }
@@ -62,16 +64,16 @@ export const UserFollowing = ({ userId }: UserFollowingProps) => {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {followedCompaniesData.items.map((company) => (
-          <ShortCompanyCard company={company} key={company.id} />
+        {attendedEventsData.items.map((event) => (
+          <ShortEventCard event={event} key={event.id} />
         ))}
       </div>
 
-      {followedCompaniesData.meta.totalPages > 1 && (
+      {attendedEventsData.meta.totalPages > 1 && (
         <div className="flex justify-center mt-6">
           <Pagination
-            currentPage={followedCompaniesData.meta.currentPage}
-            totalPages={followedCompaniesData.meta.totalPages}
+            currentPage={attendedEventsData.meta.currentPage}
+            totalPages={attendedEventsData.meta.totalPages}
             onPageChange={setCurrentPage}
           />
         </div>

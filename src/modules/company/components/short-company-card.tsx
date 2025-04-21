@@ -1,4 +1,4 @@
-import { ArrowRight, Building2, MapPin } from 'lucide-react';
+import { Building2, MapPin } from 'lucide-react';
 import type { ComponentProps, FC } from 'react';
 
 import { Link } from '../../../shared/components/common/link';
@@ -39,9 +39,6 @@ export const ShortCompanyCard: FC<ShortCompanyCardProps> = ({ company, className
             {company.subscribers?.length || 0} followers
           </Badge>
         </div>
-      </div>
-      <div className="self-center opacity-0 group-hover:opacity-100 transition-opacity">
-        <ArrowRight className="h-4 w-4 text-primary" />
       </div>
     </Link>
   );

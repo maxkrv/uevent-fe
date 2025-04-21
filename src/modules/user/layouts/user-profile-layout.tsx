@@ -1,123 +1,83 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { NavLink, Outlet, useParams } from 'react-router-dom';
 
 import { useAuth } from '@/modules/auth/queries/use-auth.query';
 import { Skeleton } from '@/shared/components/ui/skeleton';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
 import { QueryKeys } from '@/shared/constants/query-keys';
 import { NotFoundPage } from '@/shared/pages/not-found-page';
 
-import { UserAttendedEvents } from '../components/user-profile/user-attended-events';
+import { cn } from '../../../shared/lib/utils';
 import { UserCompanies } from '../components/user-profile/user-companies';
-import { UserFollowing } from '../components/user-profile/user-following';
 import { UserProfileHeader } from '../components/user-profile/user-profile-header';
-import { UserTickets } from '../components/user-profile/user-tickets';
-import { UserUpcomingEvents } from '../components/user-profile/user-upcoming-events';
 import { UserService } from '../services/user.service';
 
-export const UserProfilePage = () => {
-  const { id } = useParams<{ id: string }>();
-  const [activeTab, setActiveTab] = useState('upcoming');
-  const { data: currentUser } = useAuth();
-  const [searchParams] = useSearchParams();
-  const isOwnProfile = currentUser?.id === id;
+const USER_PROFILE_LINKS = [
+  { name: 'Upcoming', link: '/upcoming', isProtected: false },
+  { name: 'Past Events', link: '/past', isProtected: false },
+  { name: 'Following', link: '/following', isProtected: false },
+  { name: 'Tickets', link: '/tickets', isProtected: true },
+  { name: 'Settings', link: '/settings', isProtected: true }
+];
 
+export const UserProfileLayout = () => {
+  const { id } = useParams<{ id: string }>();
+  const { data: currentUser, isLoading } = useAuth();
+  const isOwnProfile = currentUser?.id === id;
   // Fetch user data
   const {
-    data: user,
+    data: userData,
     isLoading: isUserLoading,
     error: userError
   } = useQuery({
-    queryKey: [QueryKeys.USERS, id],
-    queryFn: () => UserService.getById(id!),
-    enabled: !!id
+    queryKey: [QueryKeys.USERS, id, isOwnProfile, currentUser],
+    queryFn: () => (isOwnProfile ? currentUser : UserService.getById(id!)),
+    enabled: !!id && !isLoading
   });
 
-  // Fetch user's attended events
-  const { data: attendedEventsData, isLoading: isEventsLoading } = useQuery({
-    queryKey: [QueryKeys.USER_EVENTS, id],
-    queryFn: () => UserService.getAttendedEvents(id!),
-    enabled: !!id && !!user
-  });
-
-  // Get tab from URL query param
-  useEffect(() => {
-    const tabParam = searchParams.get('tab');
-    if (tabParam && ['upcoming', 'past', 'following', 'tickets'].includes(tabParam)) {
-      setActiveTab(tabParam);
-    }
-  }, [searchParams]);
-
-  // Update URL when tab changes
-  const handleTabChange = (value: string) => {
-    setActiveTab(value);
-    const url = new URL(window.location.href);
-    url.searchParams.set('tab', value);
-    window.history.pushState({}, '', url);
-  };
-
-  const isLoading = isUserLoading || isEventsLoading;
-
-  if (isLoading) {
+  if (isUserLoading || isLoading) {
     return <UserProfileSkeleton />;
   }
+  const user = isOwnProfile ? currentUser : userData;
 
   if (userError || !user) {
     return <NotFoundPage />;
   }
-
-  const attendedEvents = attendedEventsData?.items || [];
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Sidebar */}
         <div className="space-y-6">
-          <UserProfileHeader user={user} isOwnProfile={isOwnProfile} />
+          <UserProfileHeader user={user} />
           <UserCompanies userId={user.id} />
         </div>
 
         {/* Main Content */}
         <div className="lg:col-span-2">
-          <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-            <TabsList className="w-full mb-6">
-              <TabsTrigger value="upcoming" className="flex-1">
-                Upcoming
-              </TabsTrigger>
-              <TabsTrigger value="past" className="flex-1">
-                Past Events
-              </TabsTrigger>
-              <TabsTrigger value="following" className="flex-1">
-                Following
-              </TabsTrigger>
-              {isOwnProfile && (
-                <TabsTrigger value="tickets" className="flex-1">
-                  Tickets
-                </TabsTrigger>
-              )}
-            </TabsList>
-
-            <TabsContent value="upcoming">
-              <UserUpcomingEvents events={attendedEvents} />
-            </TabsContent>
-
-            <TabsContent value="past">
-              <UserAttendedEvents events={attendedEvents} />
-            </TabsContent>
-
-            <TabsContent value="following">
-              <UserFollowing userId={user.id} />
-            </TabsContent>
-
-            {isOwnProfile && (
-              <TabsContent value="tickets">
-                <UserTickets userId={user.id} />
-              </TabsContent>
+          <ul className="flex w-full mb-6 border-b">
+            {USER_PROFILE_LINKS.map(
+              (link) =>
+                (!link.isProtected || (link.isProtected && isOwnProfile)) && (
+                  <li key={link.name} className="flex-1 m-auto flex">
+                    <NavLink
+                      to={`/users/${id}${link.link}`}
+                      className={({ isActive }) =>
+                        cn(
+                          'flex-1 py-2 px-4 text-center font-medium transition-colors hover:text-primary',
+                          isActive ? 'border-b-2 border-primary text-primary' : 'text-muted-foreground'
+                        )
+                      }>
+                      {link.name}
+                    </NavLink>
+                  </li>
+                )
             )}
-          </Tabs>
+          </ul>
+          <div>
+            <Outlet />
+          </div>
         </div>
       </div>
     </div>

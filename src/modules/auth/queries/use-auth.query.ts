@@ -8,7 +8,7 @@ import { UserService } from '../../user/services/user.service';
 
 export function userGroupOptions() {
   return queryOptions({
-    queryKey: [QueryKeys.USERS, 'me'],
+    queryKey: [QueryKeys.USERS_ME],
     queryFn: UserService.me,
     retryDelay: TimeUtils.ONE_MINUTE
   });

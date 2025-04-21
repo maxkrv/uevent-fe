@@ -13,6 +13,7 @@ import dayjs from '@/shared/lib/dayjs';
 
 import { Image } from '../../../../shared/components/common/image';
 import { UserService } from '../../services/user.service';
+import { UserNoItems } from './user-no-items';
 
 interface UserTicketsProps {
   userId: string;
@@ -32,37 +33,39 @@ export const UserTickets = ({ userId }: UserTicketsProps) => {
   if (isLoading) {
     return (
       <div className="space-y-4">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="bg-card rounded-lg border p-4">
-            <div className="flex flex-col md:flex-row gap-4">
-              <Skeleton className="h-24 w-full md:w-24 rounded-md flex-shrink-0" />
-              <div className="flex-1 space-y-2">
-                <Skeleton className="h-6 w-3/4" />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-full" />
-                </div>
-                <div className="flex justify-between items-center">
-                  <Skeleton className="h-5 w-20" />
-                  <Skeleton className="h-5 w-24" />
+        {Array.from({ length: 4 })
+          .fill(0)
+          .map((_data, i) => (
+            <div key={i} className="bg-card rounded-lg border p-4">
+              <div className="flex flex-col md:flex-row gap-4">
+                <Skeleton className="h-24 w-full md:w-24 rounded-md flex-shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-6 w-3/4" />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-full" />
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <Skeleton className="h-5 w-20" />
+                    <Skeleton className="h-5 w-24" />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
       </div>
     );
   }
 
   if (!tickets || tickets.length === 0) {
     return (
-      <div className="bg-card rounded-lg border p-8 text-center flex flex-col items-center justify-center min-h-screen-no-header">
-        <Ticket className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-        <h3 className="text-lg font-medium mb-2">No Tickets Found</h3>
-        <p className="text-muted-foreground">You haven&apos;t purchased any tickets yet.</p>
-      </div>
+      <UserNoItems
+        icon={Ticket}
+        title="No Tickets Purchased"
+        description="This user hasn't purchased any tickets yet."
+      />
     );
   }
 
