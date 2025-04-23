@@ -1,5 +1,3 @@
-'use client';
-
 import { FiCalendar } from 'react-icons/fi';
 
 import { Button } from '@/shared/components/ui/button';

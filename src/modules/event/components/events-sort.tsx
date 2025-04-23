@@ -1,17 +1,15 @@
-'use client';
-
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select';
 
-export type SortOption = 'date' | 'price-low' | 'price-high' | 'name';
+import { EventSortOption } from '../services/event.service';
 
 interface EventsSortProps {
-  sortOption: SortOption;
-  onSortChange: (option: SortOption) => void;
+  sortOption: EventSortOption;
+  onSortChange: (option: EventSortOption) => void;
 }
 
 export const EventsSort = ({ sortOption, onSortChange }: EventsSortProps) => {
   return (
-    <Select value={sortOption} onValueChange={(value) => onSortChange(value as SortOption)}>
+    <Select value={sortOption} onValueChange={(value) => onSortChange(value as EventSortOption)}>
       <SelectTrigger className="min-w-45 grow">
         <SelectValue placeholder="Sort by" />
       </SelectTrigger>

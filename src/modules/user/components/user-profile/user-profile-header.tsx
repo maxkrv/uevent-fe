@@ -1,5 +1,3 @@
-'use client';
-
 import dayjs from 'dayjs';
 import { CalendarClock, Mail } from 'lucide-react';
 

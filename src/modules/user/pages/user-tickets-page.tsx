@@ -1,5 +1,3 @@
-'use client';
-
 import { useParams } from 'react-router-dom';
 
 import { useAuth } from '@/modules/auth/queries/use-auth.query';

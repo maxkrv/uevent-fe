@@ -1,5 +1,3 @@
-'use client';
-
 import { useEffect, useState } from 'react';
 
 import { EventsMap as EventsMapComponent, type MapEvent } from '../../../shared/components/maps/events-map';

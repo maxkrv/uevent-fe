@@ -1,5 +1,3 @@
-'use client';
-
 import type React from 'react';
 import type { ElementType } from 'react';
 import { FiArrowLeft, FiArrowRight } from 'react-icons/fi';

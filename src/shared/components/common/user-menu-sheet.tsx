@@ -1,5 +1,3 @@
-'use client';
-
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { CalendarClock, LogOut, Settings, Ticket, UserCog, UserIcon } from 'lucide-react';
 import { useState } from 'react';

@@ -1,5 +1,3 @@
-'use client';
-
 import { DialogTrigger } from '@radix-ui/react-dialog';
 import type React from 'react';
 import { useEffect, useState } from 'react';

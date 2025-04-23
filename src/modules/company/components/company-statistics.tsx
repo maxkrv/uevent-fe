@@ -1,5 +1,3 @@
-'use client';
-
 import { Building2, TrendingUp, Users } from 'lucide-react';
 
 import type { Company } from '../interfaces/company.interface';

@@ -1,5 +1,3 @@
-'use client';
-
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { MessageSquare } from 'lucide-react';
 import { useState } from 'react';

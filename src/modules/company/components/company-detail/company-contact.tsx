@@ -1,5 +1,3 @@
-'use client';
-
 import { ExternalLink, Mail, MapPin } from 'lucide-react';
 
 import { Button } from '@/shared/components/ui/button';

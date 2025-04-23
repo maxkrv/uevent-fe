@@ -1,5 +1,3 @@
-'use client';
-
 import { Check, Loader2 } from 'lucide-react';
 import { type CSSProperties, type FC, useCallback, useEffect, useRef, useState } from 'react';
 

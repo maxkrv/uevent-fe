@@ -1,5 +1,3 @@
-'use client';
-
 import type { InfiniteData, UseInfiniteQueryResult } from '@tanstack/react-query';
 import { type ComponentProps, Fragment, type JSX, useEffect } from 'react';
 import { useIntersectionObserver } from 'usehooks-ts';

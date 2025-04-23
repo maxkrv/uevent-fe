@@ -1,5 +1,3 @@
-'use client';
-
 import { FiX } from 'react-icons/fi';
 
 import { Badge } from '@/shared/components/ui/badge';

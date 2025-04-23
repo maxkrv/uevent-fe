@@ -1,5 +1,3 @@
-'use client';
-
 import { formatDistanceToNow } from 'date-fns';
 import { ChevronDown, ChevronUp, MessageSquare, MoreHorizontal, Reply, Trash2 } from 'lucide-react';
 import { useRef, useState } from 'react';

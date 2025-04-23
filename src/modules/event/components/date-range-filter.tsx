@@ -1,5 +1,3 @@
-'use client';
-
 import dayjs from 'dayjs';
 import { useMemo, useState } from 'react';
 import { FiCalendar } from 'react-icons/fi';
@@ -27,7 +25,7 @@ const QUICK_OPTIONS: { label: string; value: QuickDateOption; getRange: (base: d
   {
     label: 'Today',
     value: 'today',
-    getRange: (base) => ({ from: base.toDate(), to: base.toDate() })
+    getRange: (base) => ({ from: base.toDate(), to: base.endOf('day').toDate() })
   },
   {
     label: 'Tomorrow',
@@ -88,7 +86,8 @@ export const DateRangeFilter = ({ dateRange, onDateRangeChange, className }: Dat
             key={value}
             variant={quickDateFilter === value ? 'default' : 'outline'}
             className="cursor-pointer"
-            onClick={() => handleQuickDateSelect(value)}>
+            onClick={() => handleQuickDateSelect(value)}
+            type="button">
             {label}
           </Button>
         ))}

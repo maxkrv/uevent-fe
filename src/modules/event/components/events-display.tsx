@@ -1,5 +1,3 @@
-'use client';
-
 import { useMemo } from 'react';
 
 import { EventCard } from '@/modules/event/components/event.card';

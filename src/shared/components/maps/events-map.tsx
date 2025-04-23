@@ -1,5 +1,3 @@
-'use client';
-
 import { GoogleMap, InfoWindow, Marker } from '@react-google-maps/api';
 import dayjs from 'dayjs';
 import { Calendar } from 'lucide-react';

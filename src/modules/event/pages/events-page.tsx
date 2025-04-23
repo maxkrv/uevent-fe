@@ -1,11 +1,17 @@
-'use client';
-
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import {
+  parseAsArrayOf,
+  parseAsInteger,
+  parseAsIsoDate,
+  parseAsString,
+  parseAsStringLiteral,
+  useQueryStates
+} from 'nuqs';
+import { useState } from 'react';
 import { FiSliders } from 'react-icons/fi';
 
 import { Button } from '@/shared/components/ui/button';
-import { cn } from '@/shared/lib/utils';
+import { cn, getPagesAmount } from '@/shared/lib/utils';
 
 import { QueryKeys } from '../../../shared/constants/query-keys';
 import { ActiveFilters } from '../components/active-filters';
@@ -14,52 +20,80 @@ import { EventFilters } from '../components/event-filters';
 import { EventsView, EventViewToggle } from '../components/event-view-toggle';
 import { EventsDisplay } from '../components/events-display';
 import { EventsSearch } from '../components/events-search';
-import { EventsSort, type SortOption } from '../components/events-sort';
-import { type EventGetManyDto, EventService } from '../services/event.service';
+import { EventsSort } from '../components/events-sort';
+import { EventFormatType, EventThemeType } from '../interfaces/event.interface';
+import { EventGetManyDto, EventService, EventSortOption } from '../services/event.service';
 
 const EVENTS_PER_PAGE = 10;
 
 export const EventsPage = () => {
   const [viewMode, setViewMode] = useState<EventsView>(EventsView.GRID);
-  const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [sortOption, setSortOption] = useState<SortOption>('date');
-  const [filters, setFilters] = useState<EventGetManyDto>({});
+  const [filters, setFilters] = useQueryStates({
+    format: parseAsArrayOf(parseAsStringLiteral(Object.values(EventFormatType))).withDefault([]),
+    search: parseAsString.withDefault(''),
+    themes: parseAsArrayOf(parseAsStringLiteral(Object.values(EventThemeType))).withDefault([]),
+    fromDate: parseAsIsoDate,
+    toDate: parseAsIsoDate,
+    priceTo: parseAsInteger,
+    priceFrom: parseAsInteger,
+    sort: parseAsStringLiteral(['date', 'price-low', 'price-high', 'name'] as const).withDefault('date'),
+    page: parseAsInteger.withDefault(1)
+  });
 
   // Combine search query with filters
-  const queryFilters = {
+  const queryFilters: EventGetManyDto = {
     ...filters,
-    search: searchQuery || undefined,
-    page: currentPage,
-    limit: EVENTS_PER_PAGE,
-    sortOrder: getSortOrder(sortOption)
+    priceTo: (filters?.priceTo || 0) >= 300 ? undefined : filters.priceTo!,
+    limit: EVENTS_PER_PAGE
   };
 
   const { data: events, isLoading } = useQuery({
     queryKey: [QueryKeys.EVENTS, queryFilters],
     queryFn: () => EventService.getMany(queryFilters)
   });
-  // Reset to page 1 when filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, filters, sortOption]);
 
-  const handleSearchChange = (query: string) => {
-    setSearchQuery(query);
+  const handleFilterChange = (filter: EventGetManyDto) => {
+    console.log('🚀 ~ handleFilterChange ~ filter:', filter);
+    setFilters({
+      ...filter,
+      page: 1
+    });
   };
 
-  const handleSortChange = (option: SortOption) => {
-    setSortOption(option);
+  const handleSearchChange = (query: string) => {
+    setFilters((value) => ({ ...value, search: query, page: 1 }));
+  };
+
+  const handleSortChange = (option: EventSortOption) => {
+    setFilters((value) => ({ ...value, sort: option, page: 1 }));
   };
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+    setFilters((value) => ({ ...value, page }));
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleClearSearch = () => {
-    setSearchQuery('');
+    setFilters((value) => ({ ...value, search: '', page: 1 }));
+  };
+  const handleClearFilters = () => {
+    console.log(123123);
+    setFilters((value) => {
+      // convert all to null
+      const obj = Object.fromEntries(
+        Object.entries(value).map(([key, value]) => {
+          if (key === 'page' || key === 'sort' || key === 'search') {
+            return [key, value];
+          }
+
+          return [key, null];
+        })
+      );
+
+      return obj;
+    });
   };
 
   const handleToggleFilters = () => {
@@ -84,10 +118,10 @@ export const EventsPage = () => {
       <div className="grid gap-2">
         {/* Search and View Controls */}
         <div className="flex flex-col md:flex-row gap-4">
-          <EventsSearch searchQuery={searchQuery} onSearchChange={handleSearchChange} />
+          <EventsSearch searchQuery={filters.search} onSearchChange={handleSearchChange} />
 
           <div className="flex gap-2 justify-between items-center flex-wrap">
-            <EventsSort sortOption={sortOption} onSortChange={handleSortChange} />
+            <EventsSort sortOption={filters.sort} onSortChange={handleSortChange} />
 
             <EventViewToggle view={viewMode} setView={setViewMode} />
 
@@ -103,7 +137,7 @@ export const EventsPage = () => {
 
         {/* Active Filters */}
         <ActiveFilters
-          searchQuery={searchQuery}
+          searchQuery={filters.search}
           onClearSearch={handleClearSearch}
           showFilters={showFilters}
           onToggleFilters={handleToggleFilters}
@@ -115,7 +149,7 @@ export const EventsPage = () => {
             showFilters ? 'block' : 'hidden'
           )}>
           {/* Filters */}
-          <EventFilters onFilterChange={setFilters} />
+          <EventFilters filters={filters} onFilterChange={handleFilterChange} onReset={handleClearFilters} />
         </div>
       </div>
       {/* Events Display */}
@@ -123,27 +157,11 @@ export const EventsPage = () => {
         events={events?.items || []}
         isLoading={isLoading}
         viewMode={viewMode}
-        currentPage={currentPage}
-        totalPages={events?.meta.totalPages || 1}
+        currentPage={filters.page || 1}
+        totalPages={getPagesAmount(events?.meta.totalItemsCount || 0, EVENTS_PER_PAGE) || 1}
         pageSize={events?.meta.itemsPerPage || EVENTS_PER_PAGE}
         onPageChange={handlePageChange}
       />
     </div>
   );
 };
-
-// Helper function to convert sort option to sort order
-function getSortOrder(sortOption: SortOption): 'asc' | 'desc' | undefined {
-  switch (sortOption) {
-    case 'date':
-      return 'asc'; // Soonest first
-    case 'price-low':
-      return 'asc';
-    case 'price-high':
-      return 'desc';
-    case 'name':
-      return 'asc';
-    default:
-      return undefined;
-  }
-}

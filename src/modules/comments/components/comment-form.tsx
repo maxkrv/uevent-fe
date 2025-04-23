@@ -1,5 +1,3 @@
-'use client';
-
 import { Send, Smile } from 'lucide-react';
 import type React from 'react';
 import { useRef, useState } from 'react';
