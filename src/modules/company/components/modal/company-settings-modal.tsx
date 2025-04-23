@@ -1,5 +1,3 @@
-'use client';
-
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AlertTriangle, Building, Code, Settings, Trash } from 'lucide-react';
 import { type FC, useState } from 'react';

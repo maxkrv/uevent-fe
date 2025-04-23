@@ -1,5 +1,3 @@
-'use client';
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 
 import type { Company } from '../../interfaces/company.interface';

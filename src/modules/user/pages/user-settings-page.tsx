@@ -1,5 +1,3 @@
-'use client';
-
 import { useState } from 'react';
 
 import { useAuth } from '@/modules/auth/queries/use-auth.query';

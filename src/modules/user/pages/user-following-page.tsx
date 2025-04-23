@@ -1,5 +1,3 @@
-'use client';
-
 import { useParams } from 'react-router-dom';
 
 import { NotFoundPage } from '../../../shared/pages/not-found-page';

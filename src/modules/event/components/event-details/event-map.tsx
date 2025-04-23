@@ -1,5 +1,3 @@
-'use client';
-
 import { ExternalLink, MapPin } from 'lucide-react';
 
 import { StaticMap } from '@/shared/components/maps/static-map';

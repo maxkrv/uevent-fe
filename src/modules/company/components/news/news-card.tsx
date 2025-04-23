@@ -1,5 +1,3 @@
-'use client';
-
 import dayjs from 'dayjs';
 import { ChevronRight, MessageSquare, Share2, ThumbsUp } from 'lucide-react';
 import type { ComponentProps } from 'react';

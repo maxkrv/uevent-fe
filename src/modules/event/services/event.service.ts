@@ -1,24 +1,26 @@
+import { z } from 'zod';
+
 import { mockEvents } from '../../../__mock__/events';
 import { mockUsers } from '../../../__mock__/users';
 import { apiClient } from '../../../shared/api/api';
-import type { SortOrder } from '../../../shared/types/interfaces';
 import type { Paginated, PaginationDto } from '../../../shared/types/pagination';
 import type { User } from '../../user/interfaces/user.interface';
-import type { Event, EventFormatType, EventThemeType, Location } from '../interfaces/event.interface';
+import { Event, EventFormatType, EventThemeType } from '../interfaces/event.interface';
 
-export interface EventGetManyDto extends PaginationDto {
-  search?: string;
-  userId?: string;
-  location?: Omit<Location, 'id'>;
-  companyId?: string;
-  format?: EventFormatType[];
-  themes?: EventThemeType[];
-  fromDate?: Date;
-  toDate?: Date;
-  sortOrder?: SortOrder;
-  priceFrom?: number;
-  priceTo?: number;
-}
+export type EventSortOption = 'date' | 'price-low' | 'price-high' | 'name';
+
+export const EventGetManySchema = z.object({
+  search: z.string().optional(),
+  companyId: z.string().optional(),
+  format: z.array(z.nativeEnum(EventFormatType)).optional(),
+  themes: z.array(z.nativeEnum(EventThemeType)).optional(),
+  fromDate: z.date().optional().nullable(),
+  toDate: z.date().optional().nullable(),
+  priceFrom: z.number().optional().nullable(),
+  priceTo: z.number().optional().nullable(),
+  sort: z.enum(['date', 'price-low', 'price-high', 'name']).optional()
+});
+export type EventGetManyDto = z.infer<typeof EventGetManySchema> & PaginationDto;
 
 interface CreateEventDto {
   title: string;
@@ -54,23 +56,24 @@ export class EventService {
     // return apiClient.get(`/events/${id}`).json<Event>();
   }
 
-  static getMany(_opt: EventGetManyDto): Promise<Paginated<Event>> {
-    // In a real implementation, this would be:
-    // return apiClient.get('/events', { json: opt }).json<Paginated<Event>>();
+  static getMany(dto: EventGetManyDto) {
+    const searchParams = new URLSearchParams();
 
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          items: mockEvents,
-          meta: {
-            currentPage: 4,
-            totalItemsCount: mockEvents.length,
-            itemsPerPage: 10,
-            totalPages: 12
-          }
-        });
-      }, 1000);
+    Object.entries(dto).forEach(([key, value]) => {
+      if (value) {
+        if (Array.isArray(value)) {
+          value.forEach((val) => searchParams.append(key, val));
+        } else if (value instanceof Date) {
+          searchParams.append(key, value.toISOString());
+        } else {
+          searchParams.append(key, value.toString());
+        }
+      }
     });
+
+    console.log('🚀 ~ EventService ~ getMany ~ searchParams.toString():', searchParams.toString());
+
+    return apiClient.get('events', { searchParams }).json<Paginated<Event>>();
   }
 
   static create(dto: CreateEventDto): Promise<Event> {

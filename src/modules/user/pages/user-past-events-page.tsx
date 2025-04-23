@@ -1,5 +1,3 @@
-'use client';
-
 import { useParams } from 'react-router-dom';
 
 import { UserPastEvents } from '../components/user-profile/user-past-events';

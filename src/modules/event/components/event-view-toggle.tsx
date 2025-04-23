@@ -1,5 +1,3 @@
-'use client';
-
 import type { FC } from 'react';
 import { FiGrid, FiList, FiMapPin } from 'react-icons/fi';
 

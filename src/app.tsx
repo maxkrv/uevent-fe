@@ -1,5 +1,3 @@
-'use client';
-
 import { Outlet } from 'react-router-dom';
 
 import { Header } from './shared/components/common/header';

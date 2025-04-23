@@ -1,5 +1,3 @@
-'use client';
-
 import { GoogleMap, Marker } from '@react-google-maps/api';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';

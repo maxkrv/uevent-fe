@@ -1,5 +1,3 @@
-'use client';
-
 import dayjs, { Dayjs } from 'dayjs';
 import { ArrowLeft } from 'lucide-react';
 import { useState } from 'react';
