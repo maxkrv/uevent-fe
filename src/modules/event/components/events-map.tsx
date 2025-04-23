@@ -1,19 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import { EventsMap as EventsMapComponent, type MapEvent } from '../../../shared/components/maps/events-map';
 import type { Event } from '../interfaces/event.interface';
 
 interface EventsMapComponentProps {
   events: Event[];
-  highlightedEventId?: string | null;
 }
 
-export const EventsMap = ({ events, highlightedEventId }: EventsMapComponentProps) => {
+export const EventsMap = ({ events }: EventsMapComponentProps) => {
   const [mapEvents, setMapEvents] = useState<MapEvent[]>([]);
-  const navigate = useNavigate();
 
   // Convert events to map events format
   useEffect(() => {
@@ -37,24 +34,9 @@ export const EventsMap = ({ events, highlightedEventId }: EventsMapComponentProp
     setMapEvents(convertedEvents);
   }, [events]);
 
-  const handleMarkerClick = (event: MapEvent) => {
-    navigate(`/events/${event.id}`);
-  };
-
-  // Handle highlighted event
-  useEffect(() => {
-    if (highlightedEventId) {
-      const highlightedEvent = mapEvents.find((event) => event.id === highlightedEventId);
-      if (highlightedEvent) {
-        // Simulate a click on the highlighted event
-        handleMarkerClick(highlightedEvent);
-      }
-    }
-  }, [highlightedEventId, mapEvents]);
-
   return (
     <div className="h-150 rounded-lg overflow-hidden">
-      <EventsMapComponent events={mapEvents} onMarkerClick={handleMarkerClick} />
+      <EventsMapComponent events={mapEvents} />
     </div>
   );
 };

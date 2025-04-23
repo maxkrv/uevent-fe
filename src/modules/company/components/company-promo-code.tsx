@@ -1,19 +1,22 @@
+'use client';
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Trash } from 'lucide-react';
-import { FC, useState } from 'react';
+import { type FC, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { Pagination } from '@/shared/components/common/pagination';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
+import { ScrollArea } from '@/shared/components/ui/scroll-area';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/components/ui/table';
 import { QueryKeys } from '@/shared/constants/query-keys';
 import { getPagesAmount } from '@/shared/lib/utils';
 
-import { CompanyPromoCodeDto, CompanyPromoCodeSchema } from '../interfaces/company.interface';
+import { type CompanyPromoCodeDto, CompanyPromoCodeSchema } from '../interfaces/company.interface';
 import { CompanyService } from '../services/company.service';
 
 interface Props {
@@ -63,17 +66,13 @@ export const CompanyPromoCode: FC<Props> = ({ companyId }) => {
     }
   });
 
-  const onSubmit = (data: CompanyPromoCodeDto) => {
-    mutate(data);
-  };
-
   const isLoading = isFetching || isPending;
 
   return (
-    <div>
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mb-4">
+    <div className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 sm:grid-cols-2">
         <div className="grid gap-1">
-          <Label htmlFor="discount">Discount</Label>
+          <Label htmlFor="discount">Discount (%)</Label>
           <Input
             {...register('discount', { valueAsNumber: true })}
             id="discount"
@@ -97,50 +96,55 @@ export const CompanyPromoCode: FC<Props> = ({ companyId }) => {
           />
         </div>
 
-        <Button type="submit" className="self-start" disabled={!isValid || isLoading} isLoading={isPending}>
-          Create
-        </Button>
+        <div className="sm:col-span-2">
+          <Button type="submit" className="w-full sm:w-auto" disabled={!isValid || isLoading} isLoading={isPending}>
+            Create Promo Code
+          </Button>
+        </div>
       </form>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[100px]">Code</TableHead>
-            <TableHead className="w-[100px]">Discount</TableHead>
-            <TableHead>Uses</TableHead>
-            <TableHead className="text-right"></TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {isLoadingCodes && <TableSkeleton />}
-          {data?.items.map((code) => (
-            <TableRow key={code.id}>
-              <TableCell>{code.code}</TableCell>
-              <TableCell>{code.discount}%</TableCell>
-              <TableCell>
-                {code.uses}/{code.maxUses}
-              </TableCell>
-              <TableCell className="text-right">
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => deletePromoCode(code.id)}
-                  disabled={isDeleting && variables === code.id}>
-                  <Trash />
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-
-          {!isLoadingCodes && data?.items.length === 0 && (
+      <ScrollArea className="h-[300px] w-full">
+        <Table>
+          <TableHeader>
             <TableRow>
-              <TableCell colSpan={4} className="text-center">
-                No codes found
-              </TableCell>
+              <TableHead className="w-[100px]">Code</TableHead>
+              <TableHead className="w-[100px]">Discount</TableHead>
+              <TableHead>Uses</TableHead>
+              <TableHead className="text-right"></TableHead>
             </TableRow>
-          )}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {isLoadingCodes && <TableSkeleton />}
+            {data?.items.map((code) => (
+              <TableRow key={code.id}>
+                <TableCell className="font-medium">{code.code}</TableCell>
+                <TableCell>{code.discount}%</TableCell>
+                <TableCell>
+                  {code.uses}/{code.maxUses}
+                </TableCell>
+                <TableCell className="text-right">
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => deletePromoCode(code.id)}
+                    disabled={isDeleting && variables === code.id}>
+                    <Trash className="h-4 w-4" />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+
+            {!isLoadingCodes && data?.items.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center">
+                  No codes found
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </ScrollArea>
+
       <Pagination
         totalPages={getPagesAmount(data?.meta.totalItemsCount || 1, data?.meta.itemsPerPage || 0)}
         currentPage={page}
@@ -148,6 +152,10 @@ export const CompanyPromoCode: FC<Props> = ({ companyId }) => {
       />
     </div>
   );
+
+  function onSubmit(data: CompanyPromoCodeDto) {
+    mutate(data);
+  }
 };
 
 const TableSkeleton = () => {
@@ -158,9 +166,14 @@ const TableSkeleton = () => {
           <TableCell>
             <Skeleton className="h-[1rem]" />
           </TableCell>
-
           <TableCell>
             <Skeleton className="h-[1rem] w-[80px]" />
+          </TableCell>
+          <TableCell>
+            <Skeleton className="h-[1rem]" />
+          </TableCell>
+          <TableCell>
+            <Skeleton className="h-[1rem] w-[40px]" />
           </TableCell>
         </TableRow>
       ))}

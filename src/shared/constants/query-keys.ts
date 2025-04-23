@@ -5,6 +5,7 @@ export enum QueryKeys {
   USER_COMPANIES = 'user-companies',
   USER_TICKETS = 'user-tickets',
   USER_EVENTS = 'user-events',
+  USER_GEOLOCATION = 'user-geolocation',
   EVENTS = 'events',
   EVENT_ATTENDEES = 'event-attendees',
   EVENT_SUBSCRIBERS = 'event-subscribers',

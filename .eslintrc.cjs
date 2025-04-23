@@ -33,7 +33,10 @@ module.exports = {
     'react/prop-types': 'off',
     'simple-import-sort/imports': 'error',
     'simple-import-sort/exports': 'error',
-    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }]
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrors: 'none' }
+    ]
   },
   settings: {
     react: {
