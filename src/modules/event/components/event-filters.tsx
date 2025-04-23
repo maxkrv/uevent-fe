@@ -13,7 +13,7 @@ import { Label } from '@/shared/components/ui/label';
 import { Separator } from '@/shared/components/ui/separator';
 import { Slider } from '@/shared/components/ui/slider';
 
-import LocationSearch from '../../../shared/components/maps/location-search';
+import { AddressAutocomplete } from '../../../shared/components/maps/address-autocomplete';
 import { EventFormatType, EventThemeType } from '../interfaces/event.interface';
 import type { EventGetManyDto } from '../services/event.service';
 import { DateRangeFilter } from './date-range-filter';
@@ -101,11 +101,11 @@ export const EventFilters = ({ onFilterChange }: EventFiltersProps) => {
 
     // Add date range if either from or to is defined
     if (debouncedFormValues.dateRange.from) {
-      filters.startDate = debouncedFormValues.dateRange.from;
+      filters.fromDate = debouncedFormValues.dateRange.from;
     }
 
     if (debouncedFormValues.dateRange.to) {
-      filters.endDate = debouncedFormValues.dateRange.to;
+      filters.toDate = debouncedFormValues.dateRange.to;
     }
 
     // Add price range
@@ -282,7 +282,7 @@ export const EventFilters = ({ onFilterChange }: EventFiltersProps) => {
             name="location"
             control={control}
             render={({ field }) => (
-              <LocationSearch placeholder="Search for a location" onPlaceSelect={field.onChange} />
+              <AddressAutocomplete placeholder="Search for a location" onAddressSelect={field.onChange} />
             )}
           />
         </div>

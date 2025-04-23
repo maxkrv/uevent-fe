@@ -3,9 +3,10 @@
 import { GoogleMap, InfoWindow, Marker } from '@react-google-maps/api';
 import dayjs from 'dayjs';
 import { Calendar } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { FC, useCallback, useEffect, useRef, useState } from 'react';
 
 import { useGoogleMaps } from '../../hooks/maps/use-google-maps';
+import { Image } from '../common/image';
 import { Link } from '../common/link';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardTitle } from '../ui/card';
@@ -36,15 +37,14 @@ interface EventsMapProps {
   onMarkerClick?: (event: MapEvent) => void;
 }
 
-export const EventsMap = ({
+export const EventsMap: FC<EventsMapProps> = ({
   events,
   height = '600px',
   width = '100%',
   initialCenter,
   zoom = 12,
-  className,
-  onMarkerClick
-}: EventsMapProps) => {
+  className
+}) => {
   const { isLoaded, isError, errorMessage } = useGoogleMaps();
   const [selectedEvent, setSelectedEvent] = useState<MapEvent | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
@@ -73,7 +73,6 @@ export const EventsMap = ({
   const onMapLoad = useCallback(
     (map: google.maps.Map) => {
       mapRef.current = map;
-
       // If we have events, fit the map to show all markers
       if (events.length > 0) {
         const bounds = new window.google.maps.LatLngBounds();
@@ -81,35 +80,6 @@ export const EventsMap = ({
           bounds.extend(new window.google.maps.LatLng(event.position.lat, event.position.lng));
         });
         map.fitBounds(bounds);
-
-        // Adjust zoom level to prevent showing multiple world copies
-        // and to ensure proper view of markers
-        window.google.maps.event.addListenerOnce(map, 'idle', () => {
-          const currentZoom = map.getZoom() || 0;
-
-          // Don't zoom in too far
-          if (currentZoom > 15) {
-            map.setZoom(15);
-          }
-
-          // Don't zoom out too far
-          if (currentZoom < 2) {
-            map.setZoom(2);
-          }
-
-          // Restrict to one world view
-          map.setOptions({
-            restriction: {
-              latLngBounds: {
-                north: 85,
-                south: -85,
-                west: -180,
-                east: 180
-              },
-              strictBounds: true
-            }
-          });
-        });
       }
     },
     [events]
@@ -118,7 +88,7 @@ export const EventsMap = ({
   // Handle marker click
   const handleMarkerClick = (event: MapEvent) => {
     setSelectedEvent(event);
-    onMarkerClick?.(event);
+    // onMarkerClick?.(event);
   };
 
   // Close info window
@@ -139,26 +109,24 @@ export const EventsMap = ({
   }
 
   return (
-    <div className={`${className} w-full h-full aspect-video relative`}>
+    <div className={`${className} w-full h-full relative`}>
       <GoogleMap
         mapContainerStyle={{
           width: width,
-          height: height,
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0
+          height: height
         }}
         center={center}
         zoom={zoom}
         onLoad={onMapLoad}
         options={{
           streetViewControl: false,
-          mapTypeControl: true,
+          mapTypeControl: false,
           fullscreenControl: true,
-          zoomControl: true,
-          // Restrict to one world view
+          zoomControl: false,
+          minZoom: 1,
+          disableDoubleClickZoom: true,
+          clickableIcons: false,
+          keyboardShortcuts: false,
           restriction: {
             latLngBounds: {
               north: 85,
@@ -175,20 +143,23 @@ export const EventsMap = ({
             position={event.position}
             onClick={() => handleMarkerClick(event)}
             icon={{
-              url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+              url: '/map-pin-icon.png',
               scaledSize: new window.google.maps.Size(40, 40)
             }}
           />
         ))}
 
         {selectedEvent && (
-          <InfoWindow position={selectedEvent.position} onCloseClick={handleInfoWindowClose}>
-            <Card className="w-64 shadow-none border-0">
+          <InfoWindow
+            position={selectedEvent.position}
+            onCloseClick={handleInfoWindowClose}
+            options={{ headerDisabled: true }}>
+            <Card className="w-64 shadow-none border-0 p-0">
               <CardContent className="p-2 space-y-2">
                 {selectedEvent.imageUrl && (
                   <div className="h-32 w-full overflow-hidden rounded-md">
-                    <img
-                      src={selectedEvent.imageUrl || '/placeholder.svg'}
+                    <Image
+                      src={selectedEvent.imageUrl}
                       alt={selectedEvent.title}
                       className="w-full h-full object-cover"
                     />
@@ -208,7 +179,7 @@ export const EventsMap = ({
                 )}
 
                 {selectedEvent.url && (
-                  <Link to={selectedEvent.url} className="w-full">
+                  <Link to={selectedEvent.url} className="w-full p-0">
                     <Button variant="outline" size="sm" className="w-full">
                       View Details
                     </Button>

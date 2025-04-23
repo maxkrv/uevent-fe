@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 
 import { getStaticMapImageUrl } from '../../utils/maps.utils';
+import { Image } from '../common/image';
 
 interface StaticMapProps {
   center: { lat: number; lng: number };
@@ -37,14 +38,5 @@ export const StaticMap = ({
     });
   }, [center, zoom, width, height, markers]);
 
-  return (
-    <img
-      src={mapUrl || '/placeholder.svg'}
-      alt={alt}
-      width={width}
-      height={height}
-      className={className}
-      loading="lazy"
-    />
-  );
+  return <Image src={mapUrl} alt={alt} width={width} height={height} className={className} />;
 };

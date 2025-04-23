@@ -1,11 +1,13 @@
 'use client';
 
 import { GoogleMap, Marker } from '@react-google-maps/api';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { Location } from '../../../modules/event/interfaces/event.interface';
+import type { Location } from '../../../modules/event/interfaces/event.interface';
 import { useGoogleMaps } from '../../hooks/maps/use-google-maps';
+import { useReverseGeocoding } from '../../hooks/maps/use-reverse-geocoding';
+import { useUserGeolocation } from '../../hooks/maps/use-user-geolocation';
 import { Button } from '../ui/button';
 import { Skeleton } from '../ui/skeleton';
 
@@ -18,9 +20,10 @@ interface LocationPickerProps {
   className?: string;
 }
 
-type MapLocation = {
-  lat: number;
-  lng: number;
+const defaultCenter = {
+  address: '',
+  lat: 51.5072,
+  lng: -0.128092 // London as default
 };
 
 export const LocationPicker = ({
@@ -28,108 +31,62 @@ export const LocationPicker = ({
   onLocationChange,
   height = '400px',
   width = '100%',
-  zoom = 14,
+  zoom = 12,
   className
 }: LocationPickerProps) => {
-  // Default to a central location if none provided
-  const [location, setLocation] = useState<MapLocation>(initialLocation || { lat: 37.7749, lng: -122.4194 });
-  const [address, setAddress] = useState<string>(initialLocation?.address || '');
-  const mapRef = useRef<google.maps.Map | null>(null);
-  const geocoderRef = useRef<google.maps.Geocoder | null>(null);
   const { isLoaded, isError, errorMessage } = useGoogleMaps();
+  const userLocation = useUserGeolocation();
+  const [map, setMap] = useState<google.maps.Map | null>(null);
+  const [currentLocation, setCurrentLocation] = useState<Location | undefined>(
+    initialLocation || (userLocation.location ?? undefined)
+  );
+  const { mutate: reverseGeocode } = useReverseGeocoding((newAddress) => {
+    if (!currentLocation) return;
+    const updatedLocation = { ...currentLocation, address: newAddress.address };
+    setCurrentLocation(updatedLocation);
+    onLocationChange?.(updatedLocation);
+  });
 
-  // Initialize geocoder when map is loaded
   useEffect(() => {
-    if (isLoaded && !geocoderRef.current) {
-      geocoderRef.current = new window.google.maps.Geocoder();
-
-      // If we have an initial location, try to get its address
+    if (isLoaded) {
       if (initialLocation && !initialLocation.address) {
-        geocodePosition(initialLocation);
+        setCurrentLocation(initialLocation);
+        reverseGeocode(initialLocation);
       }
     }
-  }, [isLoaded, initialLocation]);
+  }, [isLoaded, initialLocation, reverseGeocode]);
 
-  // Handle map load
-  const onMapLoad = useCallback((map: google.maps.Map) => {
-    mapRef.current = map;
-  }, []);
-
-  // Geocode a position to get the address
-  const geocodePosition = useCallback(
-    (pos: MapLocation) => {
-      if (!geocoderRef.current) return;
-
-      geocoderRef.current.geocode({ location: pos }, (results, status) => {
-        if (status === window.google.maps.GeocoderStatus.OK && results && results[0]) {
-          const newAddress = results[0].formatted_address;
-          setAddress(newAddress);
-
-          // Update location with address
-          const updatedLocation = { ...pos, address: newAddress };
-          setLocation(updatedLocation);
-          onLocationChange?.(updatedLocation);
-        }
-      });
-    },
-    [onLocationChange]
-  );
-
-  // Handle marker drag end
-  const onMarkerDragEnd = useCallback(
-    (e: google.maps.MapMouseEvent) => {
-      if (e.latLng) {
-        const newPos = {
-          lat: e.latLng.lat(),
-          lng: e.latLng.lng()
-        };
-
-        setLocation(newPos);
-        geocodePosition(newPos);
-      }
-    },
-    [geocodePosition]
-  );
-
-  // Handle map click
   const onMapClick = useCallback(
     (e: google.maps.MapMouseEvent) => {
-      if (e.latLng) {
-        const newPos = {
-          lat: e.latLng.lat(),
-          lng: e.latLng.lng()
-        };
+      if (!e.latLng) return;
 
-        setLocation(newPos);
-        geocodePosition(newPos);
-      }
+      const newPos = {
+        lat: e.latLng.lat(),
+        lng: e.latLng.lng()
+      };
+
+      const updatedLocation = { address: '', ...currentLocation, ...newPos };
+      setCurrentLocation(updatedLocation);
+      reverseGeocode(newPos);
     },
-    [geocodePosition]
+    [currentLocation, reverseGeocode]
   );
 
-  // Center map on current location
   const handleUseCurrentLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const pos = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          };
+    if (userLocation.isLoading) {
+      toast.error('Loading your location...');
+      return;
+    }
 
-          setLocation(pos);
-          geocodePosition(pos);
+    if (userLocation.error) {
+      toast.error('Failed to get your location');
+      return;
+    }
 
-          if (mapRef.current) {
-            mapRef.current.panTo(pos);
-          }
-        },
-        () => {
-          toast.error('The Geolocation service failed.');
-        }
-      );
-    } else {
-      toast.error("Your browser doesn't support geolocation.");
+    if (userLocation.location) {
+      const updatedLocation = { ...currentLocation, ...userLocation.location };
+      setCurrentLocation(updatedLocation);
+      onLocationChange?.(updatedLocation);
     }
   };
 
@@ -142,7 +99,7 @@ export const LocationPicker = ({
   }
 
   if (!isLoaded) {
-    return <Skeleton className="w-full h-[400px] rounded-md" />;
+    return <Skeleton className="w-full h-[300px] rounded-md" />;
   }
 
   return (
@@ -150,17 +107,50 @@ export const LocationPicker = ({
       <div className="relative">
         <GoogleMap
           mapContainerStyle={{ width, height }}
-          center={location}
+          center={currentLocation || defaultCenter}
           zoom={zoom}
+          onLoad={setMap}
           onClick={onMapClick}
-          onLoad={onMapLoad}
           options={{
             streetViewControl: false,
             mapTypeControl: false,
-            fullscreenControl: true,
-            zoomControl: true
+            fullscreenControl: false,
+            zoomControl: false,
+            minZoom: 1,
+            disableDoubleClickZoom: true,
+            keyboardShortcuts: false,
+            restriction: {
+              latLngBounds: {
+                north: 85,
+                south: -85,
+                west: -180,
+                east: 180
+              },
+              strictBounds: true
+            }
           }}>
-          <Marker position={location} draggable={true} onDragEnd={onMarkerDragEnd} />
+          <Marker
+            options={{ map }}
+            key={currentLocation?.address}
+            position={{
+              lat: currentLocation?.lat || defaultCenter.lat,
+              lng: currentLocation?.lng || defaultCenter.lng
+            }}
+            onClick={(e) => {
+              if (map) {
+                map.setZoom(zoom);
+                map.panTo({
+                  lat: currentLocation?.lat || defaultCenter.lat,
+                  lng: currentLocation?.lng || defaultCenter.lng
+                });
+                onMapClick(e);
+              }
+            }}
+            icon={{
+              url: '/map-pin-icon.png',
+              scaledSize: new window.google.maps.Size(40, 40)
+            }}
+          />
         </GoogleMap>
 
         <div className="absolute top-4 right-4 z-10">
@@ -169,12 +159,6 @@ export const LocationPicker = ({
           </Button>
         </div>
       </div>
-
-      {address && (
-        <div className="mt-2 p-2 bg-muted rounded-md text-sm">
-          <strong>Selected Address:</strong> {address}
-        </div>
-      )}
     </div>
   );
 };
