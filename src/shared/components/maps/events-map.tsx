@@ -83,16 +83,17 @@ export const EventsMap: FC<EventsMapProps> = ({
     [events]
   );
 
-  // Handle marker click
-  const handleMarkerClick = (event: MapEvent) => {
-    setSelectedEvent(event);
-    // onMarkerClick?.(event);
-  };
+  const handleMarkerClick = useCallback(
+    (event: MapEvent) => {
+      setSelectedEvent(event);
+    },
+    [setSelectedEvent]
+  );
 
   // Close info window
-  const handleInfoWindowClose = () => {
+  const handleInfoWindowClose = useCallback(() => {
     setSelectedEvent(null);
-  };
+  }, [setSelectedEvent]);
 
   if (isError) {
     return (
@@ -139,6 +140,7 @@ export const EventsMap: FC<EventsMapProps> = ({
           <Marker
             key={event.id}
             position={event.position}
+            options={{ map: mapRef.current }}
             onClick={() => handleMarkerClick(event)}
             icon={{
               url: '/map-pin-icon.png',

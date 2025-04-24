@@ -16,6 +16,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { LocationPicker } from './location-picker';
 
 interface AddressAutocompleteProps {
+  value?: LocationDto;
   onAddressSelect?: (address: LocationDto) => void;
   defaultValue?: LocationDto;
   placeholder?: string;
@@ -24,6 +25,7 @@ interface AddressAutocompleteProps {
 }
 
 export const AddressAutocomplete: FC<AddressAutocompleteProps> = ({
+  value,
   onAddressSelect,
   defaultValue,
   placeholder = 'Search for an address...',
@@ -40,7 +42,7 @@ export const AddressAutocomplete: FC<AddressAutocompleteProps> = ({
   const autocompleteService = useRef<google.maps.places.AutocompleteService | null>(null);
   const placesService = useRef<google.maps.places.PlacesService | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
-
+  const [isLoading, setIsLoading] = useState(true);
   const { isLoaded } = useGoogleMaps();
   const [debouncedValue, isTyping] = useDebounce(inputValue, 500);
 
@@ -57,6 +59,13 @@ export const AddressAutocomplete: FC<AddressAutocompleteProps> = ({
     }
   }, [isLoaded]);
 
+  useEffect(() => {
+    if (value === undefined) return;
+
+    setSelectedAddress(value || null);
+    setInputValue(value?.address || '');
+  }, [value, selectedAddress]);
+
   const { mutate: getPlaceDetails, isPending: isFetchingDetails } = usePlaceDetails((newAddress) => {
     setSelectedAddress(newAddress);
     setInputValue(newAddress.address);
@@ -69,7 +78,7 @@ export const AddressAutocomplete: FC<AddressAutocompleteProps> = ({
     onAddressSelect?.(newAddress);
   });
 
-  const { data: suggestions, isFetching } = useAddressSuggestions(
+  const { data: suggestions, isLoading: isFetching } = useAddressSuggestions(
     debouncedValue,
     debouncedValue.length >= 3,
     autocompleteService.current
@@ -86,10 +95,14 @@ export const AddressAutocomplete: FC<AddressAutocompleteProps> = ({
     }
   }, [suggestions, isFetching, isTyping, getPlaceDetails]);
 
-  const handleSuggestionOpen = () => {
+  useEffect(() => {
+    setIsLoading(isFetching || isReverseGeocoding || isFetchingDetails || isTyping);
+  }, [isFetching, isReverseGeocoding, isFetchingDetails, isTyping]);
+
+  const handleSuggestionOpen = useCallback(() => {
     setOpen(true);
     inputRef.current?.focus();
-  };
+  }, [setOpen, inputRef]);
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -102,7 +115,6 @@ export const AddressAutocomplete: FC<AddressAutocompleteProps> = ({
     [open]
   );
 
-  console.log('suggestions', suggestions);
   if (!isLoaded) {
     return (
       <div className="flex items-center justify-center p-4">
@@ -111,8 +123,6 @@ export const AddressAutocomplete: FC<AddressAutocompleteProps> = ({
       </div>
     );
   }
-
-  const isLoading = isFetching || isReverseGeocoding || isFetchingDetails || isTyping;
 
   return (
     <div className={cn('space-y-4', className)}>
@@ -142,20 +152,22 @@ export const AddressAutocomplete: FC<AddressAutocompleteProps> = ({
               }}
               showArrow={false}>
               <CommandList className="w-full min-w-full">
-                {!isLoading && (!inputValue || (suggestions?.length || 0) === 1) && (
-                  <div className="rounded-md border overflow-hidden">
-                    <LocationPicker
-                      initialLocation={selectedAddress || undefined}
-                      onLocationChange={(newAddress) => {
-                        setSelectedAddress(newAddress);
-                        setInputValue(newAddress.address);
-                        onAddressSelect?.(newAddress);
-                      }}
-                      height={mapContainerStyle.height}
-                      width={mapContainerStyle.width}
-                    />
-                  </div>
-                )}
+                <div
+                  className={cn(
+                    'rounded-md border overflow-hidden hidden',
+                    !isLoading && (!inputValue || (suggestions?.length || 0) === 1) && 'block'
+                  )}>
+                  <LocationPicker
+                    initialLocation={selectedAddress || undefined}
+                    onLocationChange={(newAddress) => {
+                      setSelectedAddress(newAddress);
+                      setInputValue(newAddress.address);
+                      onAddressSelect?.(newAddress);
+                    }}
+                    height={mapContainerStyle.height}
+                    width={mapContainerStyle.width}
+                  />
+                </div>
                 {suggestions?.length === 0 && !isLoading && inputValue && (
                   <p className="px-4 py-2 text-sm text-muted-foreground text-center"> No address found.</p>
                 )}

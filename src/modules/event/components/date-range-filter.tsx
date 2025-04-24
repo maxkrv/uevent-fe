@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FiCalendar } from 'react-icons/fi';
 
 import { Label } from '@/shared/components/ui/label';
@@ -56,22 +56,31 @@ const QUICK_OPTIONS: { label: string; value: QuickDateOption; getRange: (base: d
 ];
 
 export const DateRangeFilter = ({ dateRange, onDateRangeChange, className }: DateRangeFilterProps) => {
-  const [quickDateFilter, setQuickDateFilter] = useState<QuickDateOption>(null);
+  const [quickDateFilter, setQuickDateFilter] = useState<QuickDateOption>(dateRange.from ? null : 'today');
   const today = useMemo(() => dayjs().startOf('day'), []);
 
-  const handleQuickDateSelect = (option: QuickDateOption) => {
-    if (option === quickDateFilter) {
-      setQuickDateFilter(null);
-      onDateRangeChange({ from: undefined, to: undefined });
-      return;
-    }
+  const handleQuickDateSelect = useCallback(
+    (option: QuickDateOption) => {
+      if (option === quickDateFilter) {
+        setQuickDateFilter(null);
+        onDateRangeChange({ from: undefined, to: undefined });
+        return;
+      }
 
-    setQuickDateFilter(option);
-    const selected = QUICK_OPTIONS.find((o) => o.value === option);
-    if (selected) {
-      onDateRangeChange(selected.getRange(today));
+      setQuickDateFilter(option);
+      const selected = QUICK_OPTIONS.find((o) => o.value === option);
+      if (selected) {
+        onDateRangeChange(selected.getRange(today));
+      }
+    },
+    [quickDateFilter, onDateRangeChange, today]
+  );
+
+  useEffect(() => {
+    if (!dateRange.from || !dateRange.to) {
+      setQuickDateFilter(null);
     }
-  };
+  }, [dateRange, today]);
 
   return (
     <div className={cn('space-y-4', className)}>

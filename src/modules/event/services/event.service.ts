@@ -14,11 +14,17 @@ export const EventGetManySchema = z.object({
   companyId: z.string().optional(),
   format: z.array(z.nativeEnum(EventFormatType)).optional(),
   themes: z.array(z.nativeEnum(EventThemeType)).optional(),
-  fromDate: z.date().optional().nullable(),
-  toDate: z.date().optional().nullable(),
+  fromDate: z.coerce.date().optional().nullable(),
+  toDate: z.coerce.date().optional().nullable(),
   priceFrom: z.number().optional().nullable(),
   priceTo: z.number().optional().nullable(),
-  sort: z.enum(['date', 'price-low', 'price-high', 'name']).optional()
+  sort: z.enum(['date', 'price-low', 'price-high', 'name']).optional(),
+  lat: z.number().nullable().optional(),
+  lng: z.number().nullable().optional(),
+  //ignore address for now it is FE only
+  address: z.string().nullable().optional(),
+  page: z.coerce.number().optional(),
+  limit: z.coerce.number().optional()
 });
 export type EventGetManyDto = z.infer<typeof EventGetManySchema> & PaginationDto;
 
@@ -70,8 +76,6 @@ export class EventService {
         }
       }
     });
-
-    console.log('🚀 ~ EventService ~ getMany ~ searchParams.toString():', searchParams.toString());
 
     return apiClient.get('events', { searchParams }).json<Paginated<Event>>();
   }

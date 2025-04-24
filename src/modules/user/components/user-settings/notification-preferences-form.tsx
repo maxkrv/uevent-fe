@@ -66,7 +66,6 @@ export const NotificationPreferencesForm = ({ currentUser }: NotificationPrefere
   });
 
   const onSubmit = (data: NotificationFormValues) => {
-    console.log(data);
     updateUserSettings.mutate(data);
   };
 

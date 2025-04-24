@@ -1,4 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+// import { AddressAutocomplete } from '../../../shared/components/maps/address-autocomplete';
+import { useCallback } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { FiDollarSign, FiMapPin, FiTag } from 'react-icons/fi';
 
@@ -8,7 +10,7 @@ import { Label } from '@/shared/components/ui/label';
 import { Separator } from '@/shared/components/ui/separator';
 import { Slider } from '@/shared/components/ui/slider';
 
-// import { AddressAutocomplete } from '../../../shared/components/maps/address-autocomplete';
+import { AddressAutocomplete } from '../../../shared/components/maps/address-autocomplete';
 import { EventFormatType, EventThemeType } from '../interfaces/event.interface';
 import { type EventGetManyDto, EventGetManySchema } from '../services/event.service';
 import { DateRangeFilter } from './date-range-filter';
@@ -34,26 +36,32 @@ export const EventFilters = ({ onFilterChange, filters, onReset }: EventFiltersP
     }
   });
 
-  const onSubmit = (data: EventGetManyDto) => {
-    const dto = structuredClone(data);
+  const onSubmit = useCallback(
+    (data: EventGetManyDto) => {
+      const dto = structuredClone(data);
 
-    if (dto.priceTo === MAX_PRICE) {
-      dto.priceTo = null;
-    }
+      if (dto.priceTo === MAX_PRICE) {
+        dto.priceTo = null;
+      }
 
-    if (dto.priceFrom === 0) {
-      dto.priceFrom = null;
-    }
+      if (dto.priceFrom === 0) {
+        dto.priceFrom = null;
+      }
 
-    onFilterChange(dto);
-  };
+      onFilterChange(dto);
+    },
+    [onFilterChange]
+  );
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     reset();
-    onReset?.();
-  };
+    onReset();
+  }, [onReset, reset]);
 
-  // Watch for form value changes
+  const lat = watch('lat');
+  const lng = watch('lng');
+  const address = watch('address');
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Left Column: Categories, Format, and Date Range */}
@@ -178,13 +186,23 @@ export const EventFilters = ({ onFilterChange, filters, onReset }: EventFiltersP
             <FiMapPin className="mr-2 text-primary" />
             <h3 className="font-semibold">Location</h3>
           </div>
-          {/* <Controller
-            name="location"
-            control={control}
-            render={({ field }) => (
-              <AddressAutocomplete placeholder="Search for a location" onAddressSelect={field.onChange} />
-            )}
-          /> */}
+          <AddressAutocomplete
+            placeholder="Search for a location"
+            value={
+              lat && lng && address
+                ? {
+                    lat,
+                    lng,
+                    address
+                  }
+                : undefined
+            }
+            onAddressSelect={(loc) => {
+              setValue('lat', loc.lat);
+              setValue('lng', loc.lng);
+              setValue('address', loc.address);
+            }}
+          />
         </div>
 
         <Separator className="my-4" />

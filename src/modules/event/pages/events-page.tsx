@@ -1,13 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 import {
   parseAsArrayOf,
+  parseAsFloat,
   parseAsInteger,
   parseAsIsoDate,
   parseAsString,
   parseAsStringLiteral,
   useQueryStates
 } from 'nuqs';
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { FiSliders } from 'react-icons/fi';
 
 import { Button } from '@/shared/components/ui/button';
@@ -38,67 +39,80 @@ export const EventsPage = () => {
     priceTo: parseAsInteger,
     priceFrom: parseAsInteger,
     sort: parseAsStringLiteral(['date', 'price-low', 'price-high', 'name'] as const).withDefault('date'),
-    page: parseAsInteger.withDefault(1)
+    page: parseAsInteger.withDefault(1),
+    lat: parseAsFloat,
+    lng: parseAsFloat,
+    address: parseAsString
   });
 
-  // Combine search query with filters
-  const queryFilters: EventGetManyDto = {
-    ...filters,
-    priceTo: (filters?.priceTo || 0) >= 300 ? undefined : filters.priceTo!,
-    limit: EVENTS_PER_PAGE
-  };
+  const queryFilters: EventGetManyDto = useMemo(
+    () => ({
+      ...filters,
+      priceTo: (filters?.priceTo || 0) >= 300 ? undefined : filters.priceTo!,
+      page: viewMode !== EventsView.MAP ? filters.page : undefined,
+      limit: viewMode !== EventsView.MAP ? EVENTS_PER_PAGE : undefined
+    }),
+    [filters, viewMode]
+  );
 
   const { data: events, isLoading } = useQuery({
     queryKey: [QueryKeys.EVENTS, queryFilters],
     queryFn: () => EventService.getMany(queryFilters)
   });
 
-  const handleFilterChange = (filter: EventGetManyDto) => {
-    console.log('🚀 ~ handleFilterChange ~ filter:', filter);
-    setFilters({
-      ...filter,
-      page: 1
-    });
-  };
+  const handleFilterChange = useCallback(
+    (filter: EventGetManyDto) => {
+      setFilters({
+        ...filter,
+        page: 1
+      });
+    },
+    [setFilters]
+  );
 
-  const handleSearchChange = (query: string) => {
-    setFilters((value) => ({ ...value, search: query, page: 1 }));
-  };
+  const handleSearchChange = useCallback(
+    (query: string) => {
+      setFilters((value) => ({ ...value, search: query, page: 1 }));
+    },
+    [setFilters]
+  );
 
-  const handleSortChange = (option: EventSortOption) => {
-    setFilters((value) => ({ ...value, sort: option, page: 1 }));
-  };
+  const handleSortChange = useCallback(
+    (option: EventSortOption) => {
+      setFilters((value) => ({ ...value, sort: option, page: 1 }));
+    },
+    [setFilters]
+  );
 
-  const handlePageChange = (page: number) => {
-    setFilters((value) => ({ ...value, page }));
+  const handlePageChange = useCallback(
+    (page: number) => {
+      setFilters((value) => ({ ...value, page }));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    },
+    [setFilters]
+  );
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleClearSearch = () => {
+  const handleClearSearch = useCallback(() => {
     setFilters((value) => ({ ...value, search: '', page: 1 }));
-  };
-  const handleClearFilters = () => {
-    console.log(123123);
+  }, [setFilters]);
+
+  const handleClearFilters = useCallback(() => {
     setFilters((value) => {
-      // convert all to null
       const obj = Object.fromEntries(
         Object.entries(value).map(([key, value]) => {
           if (key === 'page' || key === 'sort' || key === 'search') {
             return [key, value];
           }
-
           return [key, null];
         })
       );
-
       return obj;
     });
-  };
+  }, [setFilters]);
 
-  const handleToggleFilters = () => {
-    setShowFilters(!showFilters);
-  };
+  const handleToggleFilters = useCallback(() => {
+    setShowFilters((prev) => !prev);
+  }, []);
 
   return (
     <div className="container mx-auto md:p-8 p-4 grid gap-6">
@@ -106,25 +120,22 @@ export const EventsPage = () => {
         <h1 className="text-3xl font-bold mb-2 text-center">Discover Events</h1>
         <p className="text-muted-foreground">Find and join exciting events happening around you</p>
       </div>
-      {/* Featured Event */}
-      {events?.items.length && (
+
+      {!!events?.items.length && (
         <div className="grid gap-2">
           <h1 className="text-2xl font-bold">Featured Event</h1>
           <p className="text-muted-foreground">Find and join exciting events happening around you</p>
-
           <EventCard event={events.items[0]} />
         </div>
       )}
+
       <div className="grid gap-2">
-        {/* Search and View Controls */}
         <div className="flex flex-col md:flex-row gap-4">
           <EventsSearch searchQuery={filters.search} onSearchChange={handleSearchChange} />
 
           <div className="flex gap-2 justify-between items-center flex-wrap">
             <EventsSort sortOption={filters.sort} onSortChange={handleSortChange} />
-
             <EventViewToggle view={viewMode} setView={setViewMode} />
-
             <Button
               variant="outline"
               size="icon"
@@ -135,7 +146,6 @@ export const EventsPage = () => {
           </div>
         </div>
 
-        {/* Active Filters */}
         <ActiveFilters
           searchQuery={filters.search}
           onClearSearch={handleClearSearch}
@@ -148,11 +158,10 @@ export const EventsPage = () => {
             'p-4 bg-accent rounded-lg animate-in fade-in-0 zoom-in-95 duration-200',
             showFilters ? 'block' : 'hidden'
           )}>
-          {/* Filters */}
           <EventFilters filters={filters} onFilterChange={handleFilterChange} onReset={handleClearFilters} />
         </div>
       </div>
-      {/* Events Display */}
+
       <EventsDisplay
         events={events?.items || []}
         isLoading={isLoading}
