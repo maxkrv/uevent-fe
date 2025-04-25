@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Upload } from 'lucide-react';
+import { Upload, X } from 'lucide-react';
 import type React from 'react';
 import type { FC } from 'react';
 import { useEffect, useState } from 'react';
@@ -9,7 +9,6 @@ import Dropzone from 'shadcn-dropzone';
 import { toast } from 'sonner';
 
 import { AddressAutocomplete } from '@/shared/components/maps/address-autocomplete';
-import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
 import { Button, buttonVariants } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
@@ -19,8 +18,10 @@ import { QueryKeys } from '@/shared/constants/query-keys';
 import { cn } from '@/shared/lib/utils';
 import type { LocationDto } from '@/shared/types/maps';
 
+import { Image } from '../../../../shared/components/common/image';
 import { type Company, type CompanyDto, CompanySchema } from '../../interfaces/company.interface';
 import { CompanyService } from '../../services/company.service';
+import { CompanyLogo } from '../company-logo';
 
 interface Props {
   company: Company;
@@ -31,7 +32,6 @@ export const EditCompanyForm: FC<Props> = ({ company, onSuccess }) => {
   const queryClient = useQueryClient();
   const [avatar, setAvatar] = useState<File | null>(null);
   const [cover, setCover] = useState<File | null>(null);
-  const [avatarPreview, setAvatarPreview] = useState<string>(company.logo || '');
   const [coverPreview, setCoverPreview] = useState<string>(company.coverImage || '');
   const [isMediaChanged, setIsMediaChanged] = useState(false);
 
@@ -54,7 +54,6 @@ export const EditCompanyForm: FC<Props> = ({ company, onSuccess }) => {
 
   useEffect(() => {
     // Reset previews if company changes
-    setAvatarPreview(company.logo || '');
     setCoverPreview(company.coverImage || '');
   }, [company]);
 
@@ -108,7 +107,6 @@ export const EditCompanyForm: FC<Props> = ({ company, onSuccess }) => {
     const file = e.target.files?.[0] || null;
     if (file) {
       setAvatar(file);
-      setAvatarPreview(URL.createObjectURL(file));
       setIsMediaChanged(true);
     }
   };
@@ -185,10 +183,7 @@ export const EditCompanyForm: FC<Props> = ({ company, onSuccess }) => {
             <Label>Logo</Label>
             <div className="grid gap-2 w-fit">
               <div className="relative">
-                <Avatar className="bg-muted border-2 size-20">
-                  <AvatarImage src={avatarPreview || '/placeholder.svg'} />
-                  <AvatarFallback className="bg-muted text-lg">{company.name.charAt(0)}</AvatarFallback>
-                </Avatar>
+                <CompanyLogo company={company} className="h-20 w-20" />
 
                 <div className="absolute -bottom-1 right-0">
                   <Label
@@ -213,22 +208,18 @@ export const EditCompanyForm: FC<Props> = ({ company, onSuccess }) => {
             <div className="relative overflow-hidden rounded-md border-2 border-dashed border-muted-foreground/25 bg-muted/50">
               {coverPreview ? (
                 <div className="relative w-full h-20">
-                  <img
-                    src={coverPreview || '/placeholder.svg'}
-                    alt="Cover preview"
-                    className="h-full w-full object-cover"
-                  />
+                  <Image src={coverPreview} alt="Cover preview" className="h-full w-full object-cover" />
                   <Button
                     type="button"
-                    variant="outline"
-                    size="sm"
-                    className="absolute bottom-2 right-2 bg-background/80 backdrop-blur-sm"
+                    variant="destructive"
+                    size="icon"
+                    className="absolute right-2 top-2 h-8 w-8 rounded-full shadow-lg"
                     onClick={() => {
                       setCover(null);
-                      setCoverPreview(company.coverImage || '');
-                      setIsMediaChanged(company.coverImage !== '');
+                      setCoverPreview('');
+                      setIsMediaChanged(false);
                     }}>
-                    Reset
+                    <X className="h-4 w-4" />
                   </Button>
                 </div>
               ) : (

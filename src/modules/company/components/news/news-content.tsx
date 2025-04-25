@@ -1,14 +1,16 @@
-import { Calendar, Settings, Share2, ThumbsUp } from 'lucide-react';
+'use client';
+
+import { Calendar, Settings, Share2 } from 'lucide-react';
 import { useState } from 'react';
-import { toast } from 'sonner';
 
 import { Link } from '@/shared/components/common/link';
 import { Button } from '@/shared/components/ui/button';
 import { useShare } from '@/shared/hooks/use-share';
 import dayjs from '@/shared/lib/dayjs';
 
+import { Reactions } from '../../../comments/components/reactions';
 import type { Company } from '../../interfaces/company.interface';
-import { CompanyNews } from '../../interfaces/news.interface';
+import type { CompanyNews } from '../../interfaces/news.interface';
 import { CompanyLogo } from '../company-logo';
 import { NewsSettingModal } from './modal/news-setting-modal';
 
@@ -19,16 +21,8 @@ interface NewsContentProps {
 }
 
 export const NewsContent = ({ newsItem, company, isOwner }: NewsContentProps) => {
-  const [isLiked, setIsLiked] = useState(false);
-  const [likes] = useState(0);
   const [open, setOpen] = useState(false);
   const share = useShare();
-
-  const handleLike = () => {
-    setIsLiked(!isLiked);
-
-    toast.success(isLiked ? 'Like removed' : 'News liked');
-  };
 
   const handleShare = () => {
     share({
@@ -62,24 +56,15 @@ export const NewsContent = ({ newsItem, company, isOwner }: NewsContentProps) =>
         </div>
 
         <div className="flex items-center gap-4 mt-8 pt-4 border-t">
-          <Button
-            variant={isLiked ? 'default' : 'outline'}
-            size="sm"
-            onClick={handleLike}
-            className={isLiked ? 'bg-primary/20 hover:bg-primary/30 text-primary' : ''}>
-            <ThumbsUp className="h-4 w-4 mr-2" />
-            {isLiked ? 'Liked' : 'Like'} ({likes})
-          </Button>
+          <Reactions newsId={newsItem.id} small={false} />
 
-          <Button variant="outline" size="sm" onClick={handleShare}>
-            <Share2 className="h-4 w-4 mr-2" />
-            Share
+          <Button variant="outline" size="icon" onClick={handleShare} className="ml-auto">
+            <Share2 />
           </Button>
 
           {isOwner && (
-            <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
+            <Button variant="outline" size="icon" onClick={() => setOpen(true)}>
               <Settings />
-              Settings
             </Button>
           )}
         </div>

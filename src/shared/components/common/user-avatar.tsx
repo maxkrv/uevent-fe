@@ -2,7 +2,7 @@ import type { FC } from 'react';
 
 import type { User } from '../../../modules/user/interfaces/user.interface';
 import { cn } from '../../lib/utils';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { Image } from './image';
 
 interface UserAvatarProps {
   user: User | null;
@@ -20,11 +20,23 @@ const getInitials = (fullName?: string) => {
       .join('') || ''
   ); // Join into initials
 };
+
+const AvatarFallback = ({ user }: { user: User | null }) => {
+  return (
+    <div className="bg-muted flex items-center justify-center w-full h-full">
+      <span className="text-muted-foreground text-sm font-semibold">{getInitials(user?.name)}</span>
+    </div>
+  );
+};
 export const UserAvatar: FC<UserAvatarProps> = ({ className, user }) => {
   return (
-    <Avatar className={cn('bg-muted border-2', className)}>
-      <AvatarImage src={user?.avatar || ''} className="object-cover object-center" />
-      <AvatarFallback className="uppercase">{!user?.avatar && `${getInitials(user?.name)}`}</AvatarFallback>
-    </Avatar>
+    <Image
+      src={user?.avatar || ''}
+      alt={user?.name || ''}
+      className={cn('rounded-full w-full h-full object-cover object-center', className)}
+      noImageComponent={<AvatarFallback user={user} />}
+      fallbackComponent={<AvatarFallback user={user} />}
+      wrapperClassName={cn('rounded-full overflow-hidden border-2 aspect-square', className)}
+    />
   );
 };

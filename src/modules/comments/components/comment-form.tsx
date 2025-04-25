@@ -1,6 +1,8 @@
+'use client';
+
 import { Send, Smile } from 'lucide-react';
 import type React from 'react';
-import { useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 import { useAuth } from '@/modules/auth/queries/use-auth.query';
 import { UserAvatar } from '@/shared/components/common/user-avatar';
@@ -19,7 +21,7 @@ const EMOJI_CATEGORIES = [
 ];
 
 interface CommentFormProps {
-  onSubmit: (content: string) => void;
+  onSubmit: (content: string) => Promise<void>;
   onCancel?: () => void;
   placeholder?: string;
   autoFocus?: boolean;
@@ -40,6 +42,11 @@ export const CommentForm = ({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
 
+  const insertEmoji = useCallback((emoji: string) => {
+    setContent((prev) => prev + emoji);
+    textareaRef.current?.focus();
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -51,11 +58,6 @@ export const CommentForm = ({
     } catch (error) {
       console.error('Error submitting comment:', error);
     }
-  };
-
-  const insertEmoji = (emoji: string) => {
-    setContent((prev) => prev + emoji);
-    textareaRef.current?.focus();
   };
 
   if (!user) {
@@ -72,7 +74,7 @@ export const CommentForm = ({
   return (
     <form onSubmit={handleSubmit} className={`${isReply ? 'mt-2' : 'mt-6'}`}>
       <div className="flex gap-3">
-        <UserAvatar user={user} className={cn('size-10 flex-shrink-0 mt-1', isReply && 'size-8')} />
+        <UserAvatar user={user} className={cn('size-10', isReply && 'size-8')} />
         <div className="flex-1 space-y-2">
           <div className="relative">
             <Textarea
@@ -83,12 +85,20 @@ export const CommentForm = ({
               className="min-h-[80px] resize-none"
               autoFocus={autoFocus}
               disabled={isSubmitting}
+              maxLength={1000}
             />
+            <div className="absolute bottom-2 right-2 text-xs text-muted-foreground">{content.length}/1000</div>
           </div>
           <div className="flex justify-between items-center gap-2">
             <Popover open={isEmojiPickerOpen} onOpenChange={setIsEmojiPickerOpen}>
               <PopoverTrigger asChild>
-                <Button type="button" variant="outline" size="sm" className="h-8 rounded-full" disabled={isSubmitting}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-8 rounded-full"
+                  disabled={isSubmitting}
+                  aria-label="Add emoji">
                   <Smile className="h-4 w-4 mr-1" />
                   Add Emoji
                 </Button>
@@ -107,7 +117,16 @@ export const CommentForm = ({
                             onClick={() => {
                               insertEmoji(emoji);
                               setIsEmojiPickerOpen(false);
-                            }}>
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                insertEmoji(emoji);
+                                setIsEmojiPickerOpen(false);
+                              }
+                            }}
+                            tabIndex={0}
+                            aria-label={`${category.name} emoji: ${emoji}`}
+                            title={category.name.toLowerCase()}>
                             {emoji}
                           </button>
                         ))}

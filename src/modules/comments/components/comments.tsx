@@ -1,6 +1,9 @@
-import { useInfiniteQuery } from '@tanstack/react-query';
+'use client';
+
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { MessageSquare } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
+import { toast } from 'sonner';
 
 import { useAuth } from '@/modules/auth/queries/use-auth.query';
 import { Card, CardContent, CardTitle } from '@/shared/components/ui/card';
@@ -12,18 +15,30 @@ import { infiniteQueryOptions } from '../../../shared/query/infinite-query-optio
 import { CommentService } from '../services/comment.service';
 import { CommentForm } from './comment-form';
 import { CommentList } from './comment-list';
-type SortOption = 'newest' | 'oldest' | 'popular';
 
-interface EventCommentsProps {
+type SortOption = 'newest' | 'oldest' | 'popular';
+type FilterOption = 'all' | 'mine';
+
+interface CommentsProps {
   eventId?: string;
   newsId?: string;
   parentId?: string;
+  title?: string;
 }
 
-export const Comments = ({ eventId, newsId, parentId }: EventCommentsProps) => {
-  const [showOnlyMyComments, setShowOnlyMyComments] = useState(false);
+export const Comments = ({ eventId, newsId, parentId, title = 'Comments' }: CommentsProps) => {
+  const [activeFilter, setActiveFilter] = useState<FilterOption>('all');
   const [sortBy, setSortBy] = useState<SortOption>('newest');
   const { data: currentUser } = useAuth();
+  const queryClient = useQueryClient();
+
+  const showOnlyMyComments = activeFilter === 'mine';
+
+  const commentsQueryKey = [
+    QueryKeys.COMMENTS,
+    { eventId, newsId, parentId, showOnlyMyComments, sortBy, userId: currentUser?.id }
+  ];
+
   const {
     data: comments,
     isLoading,
@@ -32,17 +47,56 @@ export const Comments = ({ eventId, newsId, parentId }: EventCommentsProps) => {
     fetchNextPage
   } = useInfiniteQuery(
     infiniteQueryOptions({
-      queryKey: [QueryKeys.COMMENTS, eventId, newsId, parentId, showOnlyMyComments, sortBy],
-      queryFn: ({ pageParam }) => CommentService.getMany({ newsId, parentId, eventId, page: pageParam, limit: 10 })
+      queryKey: commentsQueryKey,
+      queryFn: ({ pageParam = 1 }) =>
+        CommentService.getMany({
+          newsId,
+          parentId,
+          eventId,
+          page: pageParam,
+          limit: 10,
+          userId: showOnlyMyComments ? currentUser?.id : undefined,
+          sortBy: sortBy === 'popular' ? 'popularity' : 'date',
+          sortOrder: sortBy === 'oldest' ? 'asc' : 'desc'
+        }),
+      maxPages: undefined
     })
   );
 
-  // Handle loading more comments
-  const handleLoadMore = async () => {
-    if (!hasNextPage) return;
+  const createCommentMutation = useMutation({
+    mutationFn: (content: string) => {
+      return CommentService.create({
+        content,
+        eventId,
+        newsId,
+        parentId
+      });
+    },
+    onSuccess: () => {
+      toast.success('Comment posted successfully');
+      queryClient.invalidateQueries({ queryKey: commentsQueryKey });
+    }
+  });
 
+  const handleSubmitComment = useCallback(
+    async (content: string) => {
+      if (!currentUser) {
+        toast.error('You must be logged in to comment');
+        return;
+      }
+
+      await createCommentMutation.mutateAsync(content);
+    },
+    [currentUser]
+  );
+
+  // Handle loading more comments
+  const handleLoadMore = useCallback(async () => {
+    if (!hasNextPage) return;
     fetchNextPage();
-  };
+  }, [hasNextPage, fetchNextPage]);
+
+  const totalComments = comments?.pages.at(0)?.meta.totalItemsCount || 0;
 
   return (
     <Card className="max-sm:py-0 order-last">
@@ -50,21 +104,24 @@ export const Comments = ({ eventId, newsId, parentId }: EventCommentsProps) => {
         <div className="flex flex-row items-center gap-4 flex-wrap">
           <CardTitle className="flex items-center gap-2 grow">
             <MessageSquare className="h-5 w-5 text-primary" />
-            Comments
+            {title}
+            {totalComments > 0 && (
+              <span className="text-sm font-normal text-muted-foreground ml-2">({totalComments})</span>
+            )}
           </CardTitle>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 justify-end">
               <Toggle
                 pressed={showOnlyMyComments}
-                onPressedChange={setShowOnlyMyComments}
+                onPressedChange={() => setActiveFilter((prev) => (prev === 'all' ? 'mine' : 'all'))}
                 className="min-w-30 rounded-full"
                 disabled={!currentUser}>
                 {showOnlyMyComments ? 'My Only' : 'All Comments'}
               </Toggle>
             </div>
 
-            <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
-              <SelectTrigger className="w-45">
+            <Select value={sortBy} onValueChange={(value: SortOption) => setSortBy(value)}>
+              <SelectTrigger className="w-[140px]">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
@@ -75,15 +132,17 @@ export const Comments = ({ eventId, newsId, parentId }: EventCommentsProps) => {
             </Select>
           </div>
         </div>
-        <CommentForm onSubmit={() => {}} />
+
+        <CommentForm
+          onSubmit={handleSubmitComment}
+          isSubmitting={createCommentMutation.isPending}
+          placeholder={eventId ? 'Share your thoughts about this event...' : 'Write a comment...'}
+        />
 
         <div className="mt-6">
           <CommentList
             comments={comments?.pages.flatMap((page) => page.items) || []}
             isLoading={isLoading}
-            onReply={() => {}}
-            onDelete={() => {}}
-            onReaction={() => {}}
             hasMore={hasNextPage}
             onLoadMore={handleLoadMore}
             isLoadingMore={isFetchingNextPage}

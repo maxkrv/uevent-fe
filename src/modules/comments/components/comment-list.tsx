@@ -1,19 +1,16 @@
+'use client';
+
 import { MessageSquare } from 'lucide-react';
-import { useEffect, useState } from 'react';
 
 import { Button } from '@/shared/components/ui/button';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 
 import type { Comment } from '../interfaces/comment.interface';
-import type { ReactionType } from '../interfaces/reaction.interface';
 import { CommentItem } from './comment-item';
 
 interface CommentListProps {
   comments: Comment[];
   isLoading: boolean;
-  onReply: (content: string, replyToId: string) => void;
-  onDelete: (commentId: string) => void;
-  onReaction: (commentId: string, reactionType: ReactionType) => void;
   hasMore: boolean;
   onLoadMore: () => void;
   isLoadingMore: boolean;
@@ -23,47 +20,14 @@ interface CommentListProps {
 export const CommentList = ({
   comments,
   isLoading,
-  onReply,
-  onDelete,
-  onReaction,
   hasMore,
   onLoadMore,
   isLoadingMore,
   currentUserId
 }: CommentListProps) => {
-  const [rootComments, setRootComments] = useState<Comment[]>([]);
-  const [repliesMap, setRepliesMap] = useState<Record<string, Comment[]>>({});
-
-  // Process comments to separate root comments and replies
-  useEffect(() => {
-    const roots: Comment[] = [];
-    const replies: Record<string, Comment[]> = {};
-
-    comments.forEach((comment) => {
-      if (!comment.parentId) {
-        // This is a root comment
-        roots.push(comment);
-      } else {
-        // This is a reply
-        if (!replies[comment.parentId]) {
-          replies[comment.parentId] = [];
-        }
-        replies[comment.parentId].push(comment);
-      }
-    });
-
-    // Sort replies by date (newest first)
-    Object.keys(replies).forEach((key) => {
-      replies[key].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    });
-
-    setRootComments(roots);
-    setRepliesMap(replies);
-  }, [comments]);
-
   if (isLoading) {
     return (
-      <div className="space-y-6 mt-6">
+      <div className="space-y-2 mt-6">
         {Array.from({ length: 3 }).map((_, i) => (
           <div key={i} className="flex gap-4">
             <Skeleton className="h-10 w-10 rounded-full" />
@@ -78,7 +42,7 @@ export const CommentList = ({
     );
   }
 
-  if (comments.length === 0) {
+  if (!comments || comments.length === 0) {
     return (
       <div className="text-center py-12 bg-muted/30 rounded-lg mt-6">
         <MessageSquare className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
@@ -89,17 +53,9 @@ export const CommentList = ({
   }
 
   return (
-    <div className="space-y-6">
-      {rootComments.map((comment) => (
-        <CommentItem
-          key={comment.id}
-          comment={comment}
-          onReply={onReply}
-          onDelete={onDelete}
-          onReaction={onReaction}
-          replies={repliesMap[comment.id] || []}
-          currentUserId={currentUserId}
-        />
+    <div className="space-y-2">
+      {comments.map((comment) => (
+        <CommentItem key={comment.id} comment={comment} currentUserId={currentUserId} />
       ))}
 
       {hasMore && (

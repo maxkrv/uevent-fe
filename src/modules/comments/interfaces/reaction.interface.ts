@@ -10,6 +10,10 @@ export enum ReactionType {
   SAD = 'SAD',
   ANGRY = 'ANGRY'
 }
+export interface ReactionIdRelationField {
+  commentId?: string;
+  newsId?: string;
+}
 
 export interface Reaction {
   id: string;
@@ -24,4 +28,4 @@ export interface Reaction {
   user: User;
 }
 
-export type ReactionCount = Record<ReactionType, number>;
+export type ReactionCount = Array<{ type: ReactionType; count: number }>;

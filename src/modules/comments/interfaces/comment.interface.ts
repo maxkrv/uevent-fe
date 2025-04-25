@@ -18,4 +18,8 @@ export interface Comment {
   replies?: Comment[];
   replyTo?: Comment;
   reactions?: Reaction[];
+  _count?: {
+    replies?: number;
+    reactions?: number;
+  };
 }
