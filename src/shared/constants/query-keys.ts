@@ -17,6 +17,7 @@ export enum QueryKeys {
   MY_COMPANIES = 'my-companies',
   COMPANY_PROMO_CODES = 'company-promo-codes',
   COMMENTS = 'comments',
-  COMMENT_REACTIONS = 'comment-reactions',
+  REACTIONS = 'reactions',
+  MY_REACTIONS = 'my-reactions',
   NOTIFICATIONS = 'notifications'
 }

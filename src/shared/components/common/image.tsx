@@ -1,3 +1,5 @@
+'use client';
+
 import { Loader2 } from 'lucide-react';
 import * as React from 'react';
 
@@ -14,6 +16,7 @@ export interface ImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   loadingClassName?: string;
   loadingComponent?: React.ReactNode;
   noImageComponent?: React.ReactNode;
+  fallbackComponent?: React.ReactNode;
   wrapperClassName?: string;
   showLoader?: boolean;
   showNoImage?: boolean;
@@ -36,6 +39,7 @@ export const Image = React.forwardRef<HTMLImageElement, ImageProps>(
       blurAmount = '0.5rem',
       loadingComponent = <DefaultLoader />,
       noImageComponent = <ImagePlaceholder />,
+      fallbackComponent = <ImagePlaceholder />,
       wrapperClassName,
       showNoImage = true,
       style,
@@ -43,8 +47,10 @@ export const Image = React.forwardRef<HTMLImageElement, ImageProps>(
     },
     ref
   ) => {
-    const [isLoading, setIsLoading] = React.useState(true);
+    const [isLoading, setIsLoading] = React.useState(false);
     const [error, setError] = React.useState(false);
+    const imageRef = React.useRef<HTMLImageElement>(null);
+    const [fallbackFailed, setFallbackFailed] = React.useState(false);
 
     // Check if src is provided
     const isSrcProvided = Boolean(src && src !== '');
@@ -52,14 +58,26 @@ export const Image = React.forwardRef<HTMLImageElement, ImageProps>(
     // Determine the actual source to use
     const actualSrc = error && fallbackSrc ? fallbackSrc : src;
 
+    React.useEffect(() => {
+      if (!isSrcProvided) return;
+
+      if (imageRef.current) {
+        if (!imageRef.current.complete) {
+          setIsLoading(true);
+        }
+      }
+    }, [isSrcProvided, actualSrc]);
+
     const handleLoad = (event: React.SyntheticEvent<HTMLImageElement>) => {
       setIsLoading(false);
       props.onLoad?.(event);
     };
 
     const handleError = (event: React.SyntheticEvent<HTMLImageElement>) => {
-      if (fallbackSrc && src !== fallbackSrc) {
+      if (fallbackSrc && src !== fallbackSrc && !error) {
         setError(true);
+      } else {
+        setFallbackFailed(true);
       }
       props.onError?.(event);
     };
@@ -70,25 +88,36 @@ export const Image = React.forwardRef<HTMLImageElement, ImageProps>(
       transition: 'filter 0.3s ease-in-out'
     };
 
-    // Wrap everything in a div for positioning
     return (
       <div className={cn('relative w-full h-full', wrapperClassName)}>
-        <img
-          ref={ref}
-          src={actualSrc || fallbackSrc}
-          loading="lazy"
-          alt={alt}
-          style={imageStyle}
-          className={cn(className, !isSrcProvided && showNoImage && 'hidden')}
-          onLoad={handleLoad}
-          onError={handleError}
-          {...props}
-        />
+        {!fallbackFailed && (
+          <img
+            ref={(node) => {
+              imageRef.current = node;
+              if (typeof ref === 'function') ref(node);
+              else if (ref) ref.current = node;
+            }}
+            src={actualSrc || '/placeholder.svg'}
+            alt={alt}
+            style={imageStyle}
+            className={cn(className)}
+            onLoad={handleLoad}
+            onError={handleError}
+            {...props}
+          />
+        )}
+
+        {/* Show fallback component when both original and fallback src fail */}
+        {fallbackFailed && <div className="absolute inset-0 flex items-center justify-center">{fallbackComponent}</div>}
+
+        {/* Show no image component when no src is provided */}
         {!isSrcProvided && showNoImage && (
           <div className="absolute inset-0 flex items-center justify-center">{noImageComponent}</div>
         )}
-        {isLoading && isSrcProvided && (
-          <div className="absolute inset-0  flex items-center justify-center">{loadingComponent}</div>
+
+        {/* Show loading component when image is loading */}
+        {isLoading && isSrcProvided && !fallbackFailed && (
+          <div className="absolute inset-0 flex items-center justify-center">{loadingComponent}</div>
         )}
       </div>
     );

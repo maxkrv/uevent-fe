@@ -8,7 +8,6 @@ import Dropzone from 'shadcn-dropzone';
 import { toast } from 'sonner';
 
 import { AddressAutocomplete } from '@/shared/components/maps/address-autocomplete';
-import { Avatar, AvatarImage } from '@/shared/components/ui/avatar';
 import { Button, buttonVariants } from '@/shared/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/components/ui/dialog';
 import { Input } from '@/shared/components/ui/input';
@@ -21,8 +20,10 @@ import { QueryKeys } from '@/shared/constants/query-keys';
 import { cn } from '@/shared/lib/utils';
 import type { LocationDto } from '@/shared/types/maps';
 
+import { Image } from '../../../../shared/components/common/image';
 import { type CompanyDto, CompanySchema } from '../../interfaces/company.interface';
 import { CompanyService } from '../../services/company.service';
+import { CompanyLogo } from '../company-logo';
 
 interface Props {
   open: boolean;
@@ -128,7 +129,7 @@ export const CreateCompanyModal: FC<Props> = ({ open, setOpen }) => {
 
   const isLoading = isPending || isPendingMedia;
   const formData = watch();
-  const isBasicInfoComplete = formData.name && formData.email;
+  const isBasicInfoComplete = formData.name && formData.email && formData.description && formData.website;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -139,7 +140,9 @@ export const CreateCompanyModal: FC<Props> = ({ open, setOpen }) => {
           </DialogHeader>
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="basic">Basic Info</TabsTrigger>
-            <TabsTrigger value="media">Media</TabsTrigger>
+            <TabsTrigger value="media" disabled={!isBasicInfoComplete}>
+              Media
+            </TabsTrigger>
             <TabsTrigger value="location" disabled={!isBasicInfoComplete}>
               Location
             </TabsTrigger>
@@ -225,9 +228,13 @@ export const CreateCompanyModal: FC<Props> = ({ open, setOpen }) => {
 
                   <div className="grid gap-2 w-fit">
                     <div className="relative">
-                      <Avatar className="bg-muted border-2 h-16 w-16">
-                        <AvatarImage src={avatarPreview ? URL.createObjectURL(avatar!) : ''} />
-                      </Avatar>
+                      <CompanyLogo
+                        className="bg-muted border-2 h-16 w-16"
+                        company={{
+                          logo: avatarPreview && avatar ? URL.createObjectURL(avatar) : undefined,
+                          name: formData.name
+                        }}
+                      />
 
                       <div className="absolute -bottom-1 right-0">
                         <Label
@@ -267,11 +274,7 @@ export const CreateCompanyModal: FC<Props> = ({ open, setOpen }) => {
                   <div className="relative overflow-hidden rounded-md border-2 border-dashed border-muted-foreground/25 bg-muted/50">
                     {coverPreview ? (
                       <div className="relative aspect-[3/1] w-full">
-                        <img
-                          src={coverPreview || '/placeholder.svg'}
-                          alt="Cover preview"
-                          className="h-full w-full object-cover"
-                        />
+                        <Image src={coverPreview} alt="Cover preview" className="h-full w-full object-cover" />
                         <Button
                           variant="destructive"
                           size="icon"

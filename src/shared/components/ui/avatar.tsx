@@ -3,6 +3,8 @@ import * as React from 'react';
 
 import { cn } from '@/shared/lib/utils';
 
+import { Image } from '../common/image';
+
 function Avatar({ className, ...props }: React.ComponentProps<typeof AvatarPrimitive.Root>) {
   return (
     <AvatarPrimitive.Root
@@ -15,7 +17,19 @@ function Avatar({ className, ...props }: React.ComponentProps<typeof AvatarPrimi
 
 function AvatarImage({ className, ...props }: React.ComponentProps<typeof AvatarPrimitive.Image>) {
   return (
-    <AvatarPrimitive.Image data-slot="avatar-image" className={cn('aspect-square size-full', className)} {...props} />
+    <AvatarPrimitive.Image
+      data-slot="avatar-image"
+      className={cn('aspect-square size-full', className)}
+      {...props}
+      asChild>
+      <Image
+        src={props.src}
+        alt={props.alt || ''}
+        className="object-cover object-center"
+        width={props.width}
+        height={props.height}
+      />
+    </AvatarPrimitive.Image>
   );
 }
 

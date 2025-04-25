@@ -1,24 +1,22 @@
-type CommentSortBy = 'createdAt' | 'id' | 'popularity';
+type CommentSortBy = 'date' | 'popularity';
 
-export interface CommentGetManyDto {
+export interface CommentGetManyDto extends CommentIdRelationField {
   page?: number;
   limit?: number;
   sortBy?: CommentSortBy;
   sortOrder?: 'asc' | 'desc';
   userId?: string;
-  eventId?: string;
-  parentId?: string;
-  newsId?: string;
 }
 
-export interface CreateCommentDto {
+export interface CreateCommentDto extends CommentIdRelationField {
   content: string;
-  parentId?: string;
-  userId?: string;
-  newsId?: string;
-  eventId?: string;
 }
 
+export interface CommentIdRelationField {
+  eventId?: string;
+  newsId?: string;
+  parentId?: string;
+}
 export interface UpdateCommentDto {
   content?: string;
 }
