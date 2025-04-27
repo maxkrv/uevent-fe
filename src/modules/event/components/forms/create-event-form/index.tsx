@@ -23,7 +23,6 @@ import {
   PosterField,
   PriceField,
   PublishDateField,
-  RedirectUrlField,
   ShowAttendeeListField,
   StartDateField,
   ThemesField,
@@ -122,7 +121,7 @@ export const CreateEventForm: FC<CreateEventFormProps> = ({ companyId, onSuccess
         }
         break;
       case 'tickets':
-        if (await form.trigger(['price', 'maxAttendees', 'redirectUrl'])) {
+        if (await form.trigger(['price', 'maxAttendees'])) {
           nextTab = 'settings';
           setAccessibleTabs((prev) => ({ ...prev, settings: true }));
         }
@@ -218,7 +217,6 @@ export const CreateEventForm: FC<CreateEventFormProps> = ({ companyId, onSuccess
                     <PriceField />
                     <MaxAttendeesField />
                   </div>
-                  <RedirectUrlField />
                 </div>
               </TabsContent>
 

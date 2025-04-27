@@ -7,7 +7,6 @@ export * from './notify-on-new-attendee-field';
 export * from './poster-field';
 export * from './price-field';
 export * from './publish-date-field';
-export * from './redirect-url-field';
 export * from './show-attendee-list-field';
 export * from './start-date-field';
 export * from './themes-field';

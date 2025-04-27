@@ -27,7 +27,6 @@ import {
   PosterField,
   PriceField,
   PublishDateField,
-  RedirectUrlField,
   ShowAttendeeListField,
   StartDateField,
   ThemesField,
@@ -52,8 +51,7 @@ export const EventSettingsForm: FC<EventSettingsFormProps> = ({ event, onSuccess
     resolver: zodResolver(UpdateEventSchema),
     defaultValues: {
       ...event,
-      posterUrl: event.posterUrl || undefined,
-      redirectUrl: event.redirectUrl || undefined
+      posterUrl: event.posterUrl || undefined
     },
     mode: 'onChange'
   });
@@ -167,7 +165,6 @@ export const EventSettingsForm: FC<EventSettingsFormProps> = ({ event, onSuccess
                   <PriceField disabled label="Price (Uneditable)" />
                   <MaxAttendeesField min={event.maxAttendees} />
                 </div>
-                <RedirectUrlField />
               </div>
             </TabsContent>
 

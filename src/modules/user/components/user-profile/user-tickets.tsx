@@ -19,12 +19,10 @@ interface UserTicketsProps {
 
 export const UserTickets = ({ userId }: UserTicketsProps) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 4;
 
-  // Fetch user tickets
   const { data: tickets, isLoading } = useQuery({
     queryKey: [QueryKeys.USER_TICKETS, userId],
-    queryFn: () => UserService.getTickets(userId),
+    queryFn: UserService.getTickets,
     enabled: !!userId
   });
 
@@ -57,7 +55,7 @@ export const UserTickets = ({ userId }: UserTicketsProps) => {
     );
   }
 
-  if (!tickets || tickets.length === 0) {
+  if (!isLoading && !tickets?.items.length) {
     return (
       <UserNoItems
         icon={Ticket}
@@ -68,12 +66,6 @@ export const UserTickets = ({ userId }: UserTicketsProps) => {
   }
 
   // Sort tickets by purchase date (newest first)
-  const sortedTickets = [...tickets].sort(
-    (a, b) => new Date(b.purchaseDate).getTime() - new Date(a.purchaseDate).getTime()
-  );
-
-  const totalPages = Math.ceil(sortedTickets.length / itemsPerPage);
-  const paginatedTickets = sortedTickets.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   // Status badge colors
   const statusColors = {
@@ -85,7 +77,7 @@ export const UserTickets = ({ userId }: UserTicketsProps) => {
   return (
     <div className="space-y-6">
       <div className="space-y-4">
-        {paginatedTickets.map((ticket) => (
+        {tickets?.items.map((ticket) => (
           <div key={ticket.id} className="bg-card rounded-lg border p-4 hover:border-primary transition-colors">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="h-24 w-full md:w-24 rounded-md overflow-hidden flex-shrink-0">
@@ -141,9 +133,13 @@ export const UserTickets = ({ userId }: UserTicketsProps) => {
         ))}
       </div>
 
-      {totalPages > 1 && (
+      {(tickets?.meta?.totalPages || 0) > 1 && (
         <div className="flex justify-center mt-6">
-          <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={tickets?.meta?.totalPages || 0}
+            onPageChange={setCurrentPage}
+          />
         </div>
       )}
     </div>

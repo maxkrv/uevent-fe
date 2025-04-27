@@ -1,6 +1,8 @@
+import { useMutation } from '@tanstack/react-query';
 import { CreditCard, Users } from 'lucide-react';
-import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
+import { useAuth } from '@/modules/auth/queries/use-auth.query';
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Progress } from '@/shared/components/ui/progress';
@@ -8,7 +10,7 @@ import { Separator } from '@/shared/components/ui/separator';
 import dayjs from '@/shared/lib/dayjs';
 
 import type { Event } from '../../interfaces/event.interface';
-import { BuyTicketsModal } from './buy-tickets.modal';
+import { EventService } from '../../services/event.service';
 
 interface EventTicketsProps {
   event: Event;
@@ -16,7 +18,8 @@ interface EventTicketsProps {
 }
 
 export const EventTickets = ({ event, currentAttendees }: EventTicketsProps) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { isLoggedIn } = useAuth();
+  const navigate = useNavigate();
 
   const isSoldOut = event.maxAttendees && currentAttendees === event.maxAttendees;
   const isEventPassed = event.endDate
@@ -32,6 +35,22 @@ export const EventTickets = ({ event, currentAttendees }: EventTicketsProps) => 
   // Calculate remaining tickets
   const remainingTickets =
     event.maxAttendees && currentAttendees !== undefined ? event.maxAttendees - currentAttendees : null;
+
+  const { mutate: purchase, isPending: isPurchasing } = useMutation({
+    mutationFn: EventService.purchase,
+    onSuccess: ({ url }) => {
+      window.location.href = url;
+    }
+  });
+
+  const handlePurchase = () => {
+    if (!isLoggedIn) {
+      navigate('/auth/login');
+      return;
+    }
+
+    purchase(event.id);
+  };
 
   return (
     <>
@@ -65,20 +84,15 @@ export const EventTickets = ({ event, currentAttendees }: EventTicketsProps) => 
               <Progress value={attendancePercentage} className="h-2" />
             </div>
           )}
-          <BuyTicketsModal event={event} isOpen={isModalOpen} setIsOpen={setIsModalOpen}>
-            <Button
-              className="w-full"
-              size="lg"
-              disabled={isSoldOut || isEventPassed}
-              onClick={() => setIsModalOpen(true)}>
-              <CreditCard className="mr-2 h-4 w-4" />
-              {isSoldOut
-                ? 'Sold Out'
-                : isEventPassed
-                  ? 'Event Ended'
-                  : `Get ${event.price ? 'Tickets' : 'Free Ticket'}`}
-            </Button>
-          </BuyTicketsModal>
+          <Button
+            className="w-full"
+            size="lg"
+            disabled={isSoldOut || isEventPassed || isPurchasing}
+            onClick={handlePurchase}
+            isLoading={isPurchasing}>
+            <CreditCard className="mr-2 h-4 w-4" />
+            {isSoldOut ? 'Sold Out' : isEventPassed ? 'Event Ended' : `Get ${event.price ? 'Tickets' : 'Free Ticket'}`}
+          </Button>
           <Separator />
 
           <div className="rounded-lg bg-muted/50 p-4">

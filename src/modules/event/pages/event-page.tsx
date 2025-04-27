@@ -35,6 +35,7 @@ export const EventPage = () => {
     select: (data) => data.currentAttendees,
     enabled: !!id
   });
+  console.log('🚀 ~ EventPage ~ currentAttendeesCount:', currentAttendeesCount);
 
   // Fetch event attendees
   const { data: attendees, isLoading: isAttendeesLoading } = useQuery({

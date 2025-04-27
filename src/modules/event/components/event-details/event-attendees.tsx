@@ -21,11 +21,11 @@ export const EventAttendees = ({ attendees, maxAttendees, currentAttendees = 0 }
   const [searchQuery, setSearchQuery] = useState('');
   const attendancePercentage =
     maxAttendees && currentAttendees !== undefined ? Math.round((currentAttendees / maxAttendees) * 100) : 0;
-  // Filter attendees based on search query
+
   const filteredAttendees = searchQuery
     ? attendees?.filter((attendee) => attendee.name.toLowerCase().includes(searchQuery.toLowerCase()))
     : attendees;
-  // If there are no attendees or the event doesn't show attendees, return a message
+
   if (!attendees?.length) {
     return (
       <Card>

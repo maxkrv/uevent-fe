@@ -1,6 +1,8 @@
 import dayjs from 'dayjs';
 import { z } from 'zod';
 
+import { UrlResponse } from '@/shared/types/url';
+
 import { apiClient } from '../../../shared/api/api';
 import type { Paginated } from '../../../shared/types/pagination';
 import type { User } from '../../user/interfaces/user.interface';
@@ -61,7 +63,6 @@ const BaseEventSchema = z.object({
   maxAttendees: z.number().nullable().optional(),
   showAttendeeList: z.boolean(),
   notifyOnNewAttendee: z.boolean(),
-  redirectUrl: z.string().nullable().optional(),
   format: z.nativeEnum(EventFormatType),
   themes: z.array(z.nativeEnum(EventThemeType))
 });
@@ -135,5 +136,9 @@ export class EventService {
 
   static getAttendeesCount(id: string): Promise<{ currentAttendees: number }> {
     return apiClient.get(`events/${id}/attendees/count`).json();
+  }
+
+  static purchase(id: string) {
+    return apiClient.post(`events/${id}/purchase`).json<UrlResponse>();
   }
 }

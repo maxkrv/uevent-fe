@@ -1,4 +1,3 @@
-import { mockData } from '../../../__mock__/data';
 import { apiClient } from '../../../shared/api/api';
 import type { Paginated, PaginationDto } from '../../../shared/types/pagination';
 import type { Company } from '../../company/interfaces/company.interface';
@@ -30,18 +29,8 @@ export class UserService {
       .json();
   }
 
-  static async getTickets(userId: string): Promise<Ticket[]> {
-    // In a real implementation, this would be:
-    // return apiClient.get<any[]>(`users/${userId}/tickets`).json()
-
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // Get user's tickets from mock data
-        const tickets = mockData.tickets.filter((ticket) => ticket.userId === userId);
-
-        resolve(tickets);
-      }, 800);
-    });
+  static async getTickets() {
+    return apiClient.get<Paginated<Ticket>>('tickets').json();
   }
   // New methods for user settings
   static async updateUserData(data: { name?: string; bio?: string }): Promise<User> {
