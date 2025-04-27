@@ -22,10 +22,13 @@ export const ShortCompanyCard: FC<ShortCompanyCardProps> = ({ company, className
         className
       )}>
       <div className="h-16 w-16 rounded-full overflow-hidden flex-shrink-0 relative border border-border">
-        <CompanyLogo company={company} className="size-full group-hover:scale-110 transition-transform duration-300" />
+        <CompanyLogo company={company} className="size-full group-hover:scale-105 transition-transform duration-500" />
       </div>
       <div className="flex-1 min-w-0">
-        <h3 className="font-medium text-sm line-clamp-1 group-hover:text-primary transition-colors">{company.name}</h3>
+        <h3 className="font-medium text-sm  group-hover:text-primary transition-colors flex items-center gap-2">
+          <span className="line-clamp-1">{company.name} </span>
+          {!company.isVerified && <Badge className="bg-red-500 text-white ml-auto">Unverified</Badge>}
+        </h3>
         <div className="flex items-center text-xs text-muted-foreground mt-1">
           <MapPin className="mr-1 h-3 w-3" />
           <span className="line-clamp-1">{company.location.address || 'No location'}</span>

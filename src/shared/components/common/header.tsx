@@ -25,7 +25,7 @@ export const Header: React.FC = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   return (
-    <header className="top-0 left-0 right-0 z-50 sticky transition-all duration-300 bg-accent/70 backdrop-blur-md shadow-md max-h-header min-h-full h-header">
+    <header className="top-0 left-0 right-0 z-50 sticky transition-all duration-300 bg-accent/40 backdrop-blur-sm shadow-md max-h-header min-h-full h-header">
       <div className="m-auto p-2 h-full">
         <div className="flex items-center justify-between h-full">
           {/* Logo and Name */}

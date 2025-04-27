@@ -8,19 +8,18 @@ import { QueryKeys } from '../../../shared/constants/query-keys';
 import { NotFoundPage } from '../../../shared/pages/not-found-page';
 import { CompanyAbout } from '../components/company-detail/company-about';
 import { CompanyContact } from '../components/company-detail/company-contact';
-import { CompanyEvents } from '../components/company-detail/company-events';
 import { CompanyHero } from '../components/company-detail/company-hero';
 import { CompanyNews } from '../components/company-detail/company-news';
 import { CompanyOwner } from '../components/company-detail/company-owner';
-import { CompanyStats } from '../components/company-detail/company-stats';
+import { PastEvents } from '../components/company-detail/past-events';
 import { SimilarCompanies } from '../components/company-detail/similar-companies';
+import { UpcomingEvents } from '../components/company-detail/upcoming-events';
 import { CompanyService } from '../services/company.service';
 
 export const CompanyDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const [isFollowing, setIsFollowing] = useState(false);
 
-  // Fetch company data
   const {
     data: company,
     isLoading,
@@ -31,14 +30,6 @@ export const CompanyDetailPage = () => {
     enabled: !!id
   });
 
-  // Fetch company events
-  const { data: eventsData } = useQuery({
-    queryKey: [QueryKeys.COMPANY_EVENTS, id],
-    queryFn: () => CompanyService.getCompanyEvents(id!),
-    enabled: !!id && !!company
-  });
-
-  // Fetch similar companies
   const { data: similarCompanies } = useQuery({
     queryKey: [QueryKeys.COMPANIES, 'similar', id],
     queryFn: () => CompanyService.getSimilarCompanies(id!),
@@ -52,11 +43,6 @@ export const CompanyDetailPage = () => {
   if (error || !company) {
     return <NotFoundPage />;
   }
-
-  // Get upcoming events count
-  const events = eventsData?.items || [];
-  const upcomingEvents = events.filter((event) => new Date(event.startDate) > new Date());
-  const pastEvents = events.filter((event) => new Date(event.startDate) <= new Date());
 
   return (
     <div className="bg-background min-h-screen-no-header">
@@ -72,7 +58,7 @@ export const CompanyDetailPage = () => {
             {/* Company News */}
             <CompanyNews company={company} />
             {/* Company Events */}
-            <CompanyEvents events={upcomingEvents} companyId={company.id} title="Upcoming Events" />
+            <UpcomingEvents company={company} />
           </div>
 
           {/* Sidebar */}
@@ -85,17 +71,13 @@ export const CompanyDetailPage = () => {
             />
 
             {/* Company Stats */}
-            <CompanyStats
-              company={company}
-              upcomingEventsCount={upcomingEvents.length}
-              totalEventsCount={events.length}
-            />
+            {/* <CompanyStats company={company} /> */}
             {/* Team Members */}
             <CompanyOwner user={company.owner} />
 
             {/* Similar Organizers */}
             {similarCompanies && <SimilarCompanies currentCompanyId={company.id} companies={similarCompanies} />}
-            <CompanyEvents events={pastEvents} companyId={company.id} title="Past Events" />
+            <PastEvents company={company} />
           </div>
         </div>
       </div>

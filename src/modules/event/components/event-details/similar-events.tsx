@@ -1,8 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 
+import { Pagination } from '../../../../shared/components/common/pagination';
 import { QueryKeys } from '../../../../shared/constants/query-keys';
 import type { Event } from '../../interfaces/event.interface';
 import { EventService } from '../../services/event.service';
@@ -12,10 +14,21 @@ interface SimilarEventsProps {
   event: Event;
 }
 
+const ITEMS_PER_PAGE = 5;
+
 export const SimilarEvents = ({ event }: SimilarEventsProps) => {
+  const [page, setPage] = useState(1);
   const { data: relatedEvents, isLoading } = useQuery({
-    queryKey: [QueryKeys.EVENTS, event.format, 'related'],
-    queryFn: () => EventService.getMany({ format: [event.format], limit: 5 })
+    queryKey: [
+      QueryKeys.EVENTS,
+      {
+        format: event.format,
+        themes: event.themes,
+        limit: ITEMS_PER_PAGE,
+        page
+      }
+    ],
+    queryFn: () => EventService.getMany({ format: [event.format], limit: ITEMS_PER_PAGE, themes: event.themes, page })
   });
 
   if (isLoading) {
@@ -52,6 +65,9 @@ export const SimilarEvents = ({ event }: SimilarEventsProps) => {
         {relatedEvents?.items.map((event) => (
           <ShortEventCard key={event.id} event={event} className="border-transparent" />
         ))}
+        {relatedEvents?.items && relatedEvents?.items.length > 0 && (
+          <Pagination currentPage={page} totalPages={relatedEvents.meta.totalPages} onPageChange={setPage} compact />
+        )}
       </CardContent>
     </Card>
   );

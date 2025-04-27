@@ -1,48 +1,24 @@
-import { type FC, useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { type FC } from 'react';
 import { Link } from 'react-router-dom';
 
-import { mockEvents } from '@/__mock__/events';
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 
-import type { Event } from '../../interfaces/event.interface';
+import { QueryKeys } from '../../../../shared/constants/query-keys';
+import { EventService } from '../../services/event.service';
 import { ShortEventCard } from '../short-event-card';
 
 interface CompanyEventsProps {
-  currentEventId: string;
   companyId?: string;
 }
 
-export const CompanyEvents: FC<CompanyEventsProps> = ({ currentEventId, companyId }) => {
-  const [organizerEvents, setOrganizerEvents] = useState<Event[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchOrganizerEvents = async () => {
-      setIsLoading(true);
-      try {
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 800));
-
-        // Filter events by company and exclude current event
-        if (companyId) {
-          const filtered = mockEvents
-            .filter((event) => event.id !== currentEventId && event.company?.id === companyId)
-            .slice(0, 3);
-          setOrganizerEvents(filtered);
-        } else {
-          setOrganizerEvents([]);
-        }
-      } catch (error) {
-        console.error('Failed to fetch organizer events:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchOrganizerEvents();
-  }, [currentEventId, companyId]);
+export const CompanyEvents: FC<CompanyEventsProps> = ({ companyId }) => {
+  const { data: organizerEvents, isLoading } = useQuery({
+    queryKey: [QueryKeys.COMPANY_EVENTS, { companyId }],
+    queryFn: () => EventService.getMany({ companyId, limit: 2 })
+  });
 
   if (isLoading) {
     return (
@@ -65,7 +41,7 @@ export const CompanyEvents: FC<CompanyEventsProps> = ({ currentEventId, companyI
     );
   }
 
-  if (organizerEvents.length === 0) {
+  if (!organizerEvents?.items || organizerEvents.items.length < 1) {
     return null;
   }
 
@@ -75,12 +51,12 @@ export const CompanyEvents: FC<CompanyEventsProps> = ({ currentEventId, companyI
         <CardTitle className="text-xl">More from this Company</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {organizerEvents.map((event) => (
+        {organizerEvents?.items.map((event) => (
           <ShortEventCard key={event.id} event={event} className="border-transparent" />
         ))}
 
-        {companyId && (
-          <Link to={`/companies/${companyId}`} className="block w-full">
+        {organizerEvents.meta.totalPages > 0 && (
+          <Link to={`/events?companyId=${companyId}`} className="block w-full">
             <Button variant="outline" className="w-full">
               View All Events
             </Button>

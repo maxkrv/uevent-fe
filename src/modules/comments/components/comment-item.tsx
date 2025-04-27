@@ -76,10 +76,6 @@ export const CommentItem = ({ comment, currentUserId, isReply = false }: Comment
           comment.parentId ? [QueryKeys.COMMENTS, comment.parentId, 'replies'] : null
         ].filter(Boolean)
       });
-    },
-    onError: (error) => {
-      toast.error('Failed to update comment. Please try again.');
-      console.error('Edit error:', error);
     }
   });
   // Mutation to delete a comment

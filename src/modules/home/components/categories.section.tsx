@@ -85,7 +85,7 @@ export const CategoriesSection: React.FC = () => {
   const displayCategories = categories;
 
   const handleCategoryClick = (category: EventThemeType) => {
-    navigate(`/events?category=${category}`);
+    navigate(`/events?themes=${category}`);
   };
 
   return (

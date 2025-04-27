@@ -1,7 +1,7 @@
 import { GoogleMap, InfoWindow, Marker } from '@react-google-maps/api';
 import dayjs from 'dayjs';
 import { Calendar } from 'lucide-react';
-import { FC, useCallback, useEffect, useRef, useState } from 'react';
+import { FC, useCallback, useEffect, useState } from 'react';
 
 import { useGoogleMaps } from '../../hooks/maps/use-google-maps';
 import { Image } from '../common/image';
@@ -45,7 +45,7 @@ export const EventsMap: FC<EventsMapProps> = ({
 }) => {
   const { isLoaded, isError, errorMessage } = useGoogleMaps();
   const [selectedEvent, setSelectedEvent] = useState<MapEvent | null>(null);
-  const mapRef = useRef<google.maps.Map | null>(null);
+  const [map, setMap] = useState<google.maps.Map | null>(null);
   const [center, setCenter] = useState(initialCenter);
 
   // Calculate center if not provided
@@ -70,7 +70,7 @@ export const EventsMap: FC<EventsMapProps> = ({
   // Handle map load
   const onMapLoad = useCallback(
     (map: google.maps.Map) => {
-      mapRef.current = map;
+      setMap(map);
       // If we have events, fit the map to show all markers
       if (events.length > 0) {
         const bounds = new window.google.maps.LatLngBounds();
@@ -123,6 +123,7 @@ export const EventsMap: FC<EventsMapProps> = ({
           fullscreenControl: true,
           zoomControl: false,
           minZoom: 1,
+          maxZoom: 19,
           disableDoubleClickZoom: true,
           clickableIcons: false,
           keyboardShortcuts: false,
@@ -140,7 +141,7 @@ export const EventsMap: FC<EventsMapProps> = ({
           <Marker
             key={event.id}
             position={event.position}
-            options={{ map: mapRef.current }}
+            options={{ map }}
             onClick={() => handleMarkerClick(event)}
             icon={{
               url: '/map-pin-icon.png',

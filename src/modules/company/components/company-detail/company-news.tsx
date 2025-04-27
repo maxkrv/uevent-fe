@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Calendar } from 'lucide-react';
 import { useState } from 'react';
-import { toast } from 'sonner';
 
 import { useAuth } from '@/modules/auth/queries/use-auth.query';
 import { Button } from '@/shared/components/ui/button';
@@ -9,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui
 import { Skeleton } from '@/shared/components/ui/skeleton';
 import { useShare } from '@/shared/hooks/use-share';
 
+import { Pagination } from '../../../../shared/components/common/pagination';
 import { QueryKeys } from '../../../../shared/constants/query-keys';
 import type { Company } from '../../interfaces/company.interface';
 import type { CompanyNews as News } from '../../interfaces/news.interface';
@@ -29,14 +29,9 @@ export const CompanyNews = ({ company }: CompanyNewsProps) => {
 
   const { data: newsData, isLoading } = useQuery({
     queryKey: [QueryKeys.COMPANY_NEWS, company.id, page],
-    queryFn: () => CompanyService.getCompanyNews(company.id),
+    queryFn: () => CompanyService.getCompanyNews(company.id, { page, limit: 5 }),
     enabled: !!company.id
   });
-
-  const handleLike = (_id: string) => {
-    // In a real app, this would call an API to like/unlike the news item
-    toast.success('Reaction saved');
-  };
 
   const handleShare = (item: News) => {
     share({
@@ -98,23 +93,11 @@ export const CompanyNews = ({ company }: CompanyNewsProps) => {
           <CardContent>
             <div className="space-y-6">
               {newsItems.map((item) => (
-                <NewsCard
-                  key={item.id}
-                  item={item}
-                  className="border-transparent"
-                  onLike={() => handleLike(item.id)}
-                  onShare={() => handleShare(item)}
-                />
+                <NewsCard key={item.id} item={item} className="border-transparent" onShare={() => handleShare(item)} />
               ))}
 
               {newsData && newsData.meta.totalPages > 1 && (
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => setPage((prev) => Math.min(prev + 1, newsData.meta.totalPages))}
-                  disabled={page >= newsData.meta.totalPages}>
-                  Load More
-                </Button>
+                <Pagination currentPage={page} totalPages={newsData.meta.totalPages} onPageChange={setPage} />
               )}
             </div>
           </CardContent>

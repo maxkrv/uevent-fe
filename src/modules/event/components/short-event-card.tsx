@@ -7,6 +7,7 @@ import { Link } from '../../../shared/components/common/link';
 import { Badge } from '../../../shared/components/ui/badge';
 import dayjs from '../../../shared/lib/dayjs';
 import { cn } from '../../../shared/lib/utils';
+import { getStaticMapImageUrl } from '../../../shared/utils/maps.utils';
 import type { Event } from '../interfaces/event.interface';
 
 interface ShortEventCardProps extends Partial<React.ComponentProps<typeof Link>> {
@@ -26,7 +27,19 @@ export const ShortEventCard: FC<ShortEventCardProps> = ({ event, className, ...p
       )}>
       <div className="flex gap-4">
         <Image
-          src={event.posterUrl}
+          src={
+            event.posterUrl ||
+            (event.location &&
+              getStaticMapImageUrl({
+                center: event.location,
+                zoom: 12,
+                size: {
+                  width: 200,
+                  height: 200
+                },
+                markers: [{ position: event.location }]
+              }))
+          }
           alt={event.title}
           wrapperClassName="h-24 w-24 rounded-md overflow-hidden flex-shrink-0 group-hover:scale-110 transition-transform duration-300"
           className="h-full w-full object-cover"

@@ -28,7 +28,7 @@ export const CompanyNewsDetailPage = () => {
   // Fetch related news
   const { data: relatedNews, isLoading: isRelatedLoading } = useQuery({
     queryKey: [QueryKeys.COMPANY_NEWS, newsItem?.company.id, 'related', newsId],
-    queryFn: () => CompanyService.getRelatedNews(newsItem!.company.id, newsId),
+    queryFn: () => CompanyService.getCompanyNews(newsItem?.company.id ?? '', { limit: 5 }),
     enabled: !!newsItem?.company.id && !!newsId
   });
 
@@ -65,8 +65,8 @@ export const CompanyNewsDetailPage = () => {
             <CompanyCard company={newsItem.company} />
 
             {/* Related News */}
-            {relatedNews && relatedNews.length > 0 && (
-              <RelatedNews companyId={newsItem.company.id} relatedNews={relatedNews} />
+            {relatedNews && relatedNews.items.length > 0 && (
+              <RelatedNews companyId={newsItem.company.id} relatedNews={relatedNews.items} />
             )}
           </div>
         </div>

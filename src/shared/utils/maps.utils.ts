@@ -35,9 +35,9 @@ export const getStaticMapImageUrl = (options: StaticMapOptions): string => {
   } = options;
 
   // Base URL
-  let url = 'https://maps.googleapis.com/maps/api/staticmap?';
+  let url = 'https://maps.googleapis.com/maps/api/staticmap?style=feature:poi|element:labels|visibility:off';
 
-  url += `center=${center.lat},${center.lng}`;
+  url += `&center=${center.lat},${center.lng}`;
   url += `&zoom=${zoom}`;
   url += `&size=${size.width}x${size.height}`;
   url += `&scale=${scale}`;

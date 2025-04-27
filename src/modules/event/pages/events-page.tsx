@@ -38,19 +38,23 @@ export const EventsPage = () => {
     toDate: parseAsIsoDate,
     priceTo: parseAsInteger,
     priceFrom: parseAsInteger,
-    sort: parseAsStringLiteral(['date', 'price-low', 'price-high', 'name'] as const).withDefault('date'),
+    sort: parseAsStringLiteral(['date-asc', 'date-desc', 'price-low', 'price-high', 'name'] as const).withDefault(
+      'date-asc'
+    ),
     page: parseAsInteger.withDefault(1),
     lat: parseAsFloat,
     lng: parseAsFloat,
+    companyId: parseAsString,
     address: parseAsString
   });
 
   const queryFilters: EventGetManyDto = useMemo(
     () => ({
       ...filters,
-      priceTo: (filters?.priceTo || 0) >= 300 ? undefined : filters.priceTo!,
-      page: viewMode !== EventsView.MAP ? filters.page : undefined,
-      limit: viewMode !== EventsView.MAP ? EVENTS_PER_PAGE : undefined
+      companyId: filters.companyId || undefined,
+      priceTo: (filters?.priceTo || 0) >= 300 ? null : filters.priceTo!,
+      page: viewMode !== EventsView.MAP ? filters.page : null,
+      limit: viewMode !== EventsView.MAP ? EVENTS_PER_PAGE : null
     }),
     [filters, viewMode]
   );
@@ -158,7 +162,7 @@ export const EventsPage = () => {
             'p-4 bg-accent rounded-lg animate-in fade-in-0 zoom-in-95 duration-200',
             showFilters ? 'block' : 'hidden'
           )}>
-          <EventFilters filters={filters} onFilterChange={handleFilterChange} onReset={handleClearFilters} />
+          <EventFilters filters={queryFilters} onFilterChange={handleFilterChange} onReset={handleClearFilters} />
         </div>
       </div>
 

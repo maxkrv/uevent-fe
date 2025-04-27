@@ -18,7 +18,6 @@ import { Textarea } from '@/shared/components/ui/textarea';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/shared/components/ui/tooltip';
 import { QueryKeys } from '@/shared/constants/query-keys';
 import { cn } from '@/shared/lib/utils';
-import type { LocationDto } from '@/shared/types/maps';
 
 import { Image } from '../../../../shared/components/common/image';
 import { type CompanyDto, CompanySchema } from '../../interfaces/company.interface';
@@ -94,21 +93,8 @@ export const CreateCompanyModal: FC<Props> = ({ open, setOpen }) => {
       toast.success('Company created successfully');
       queryClient.invalidateQueries({ queryKey: [QueryKeys.MY_COMPANIES] });
       setOpen(false);
-    },
-    onError: (error) => {
-      toast.error('Company created but failed to upload media', {
-        description: error instanceof Error ? error.message : 'Please try again later'
-      });
-      queryClient.invalidateQueries({ queryKey: [QueryKeys.MY_COMPANIES] });
-      setOpen(false);
     }
   });
-
-  const handleAddressChange = (address: LocationDto) => {
-    setValue('location.address', address.address, { shouldValidate: true });
-    setValue('location.lat', address.lat, { shouldValidate: true });
-    setValue('location.lng', address.lng, { shouldValidate: true });
-  };
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
@@ -209,7 +195,7 @@ export const CreateCompanyModal: FC<Props> = ({ open, setOpen }) => {
               </div>
             </TabsContent>
 
-            <TabsContent value="media" className="space-y-4 py-4 h-full grid">
+            <TabsContent value="media" className="space-y-4 pt-4 h-full grid">
               <div className="grid gap-6">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
@@ -318,12 +304,14 @@ export const CreateCompanyModal: FC<Props> = ({ open, setOpen }) => {
               </div>
             </TabsContent>
 
-            <TabsContent value="location" className="py-4 grid gap-4 h-full">
+            <TabsContent value="location" className="pt-4 grid gap-4 h-full">
               <div className="space-y-4">
                 <div className="space-y-2">
                   <AddressAutocomplete
                     placeholder="Enter company address"
-                    onAddressSelect={handleAddressChange}
+                    onAddressSelect={(address) => {
+                      setValue('location', address);
+                    }}
                     defaultValue={formData.location}
                     className="w-full"
                   />

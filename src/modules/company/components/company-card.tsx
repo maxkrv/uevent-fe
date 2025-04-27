@@ -1,4 +1,4 @@
-import { ExternalLink, MapPin, Star, Users } from 'lucide-react';
+import { ExternalLink, MapPin, Users } from 'lucide-react';
 import type React from 'react';
 import { useState } from 'react';
 
@@ -7,7 +7,9 @@ import { Card, CardContent } from '@/shared/components/ui/card';
 
 import { Image } from '../../../shared/components/common/image';
 import { Link } from '../../../shared/components/common/link';
+import { Badge } from '../../../shared/components/ui/badge';
 import { Separator } from '../../../shared/components/ui/separator';
+import { getStaticMapImageUrl } from '../../../shared/utils/maps.utils';
 import type { Company } from '../interfaces/company.interface';
 import { CompanyLogo } from './company-logo';
 
@@ -31,7 +33,19 @@ export const CompanyCard: React.FC<CompanyCardProps> = ({ company, isFeatured = 
       <Link to={`/companies/${company.id}`} unstyled>
         <div className="h-40 relative overflow-hidden">
           <Image
-            src={company.coverImage}
+            src={
+              company.coverImage ||
+              (company.location &&
+                getStaticMapImageUrl({
+                  center: company.location,
+                  zoom: 7,
+                  size: {
+                    width: 600,
+                    height: 600
+                  },
+                  markers: [{ position: company.location }]
+                }))
+            }
             alt={`${company.name} featured`}
             wrapperClassName="group-hover:scale-105 transition-transform duration-500"
             className="w-full h-full object-cover object-center  "
@@ -43,9 +57,7 @@ export const CompanyCard: React.FC<CompanyCardProps> = ({ company, isFeatured = 
               <CompanyLogo company={company} className="size-full" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-lg truncate text-white">
-                {company.name} {!company.isVerified && '(unverified)'}
-              </h3>
+              <h3 className="font-bold text-lg truncate text-white">{company.name}</h3>
               <div className="flex items-center text-sm text-white/90">
                 <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
                 <span className="truncate">{company.location.address}</span>
@@ -53,12 +65,10 @@ export const CompanyCard: React.FC<CompanyCardProps> = ({ company, isFeatured = 
             </div>
           </div>
 
-          {isFeatured && (
-            <div className="absolute top-2 right-2 bg-primary/90 text-white px-2 py-1 rounded-md text-xs font-semibold flex items-center">
-              <Star className="h-3 w-3 mr-1 fill-white" />
-              Featured
-            </div>
-          )}
+          <div className="absolute top-2 right-2 flex gap-1">
+            {isFeatured && <Badge className="bg-primary text-primary-foreground">Featured</Badge>}
+            {!company.isVerified && <Badge className="bg-red-500 text-white ">Unverified</Badge>}
+          </div>
         </div>
 
         <CardContent className="p-4 flex gap-4 flex-col">
@@ -76,13 +86,9 @@ export const CompanyCard: React.FC<CompanyCardProps> = ({ company, isFeatured = 
 
           {hasFollow && (
             <>
-              <Separator className="border-2 rounded" />
+              <Separator className="rounded" />
               <div className="flex gap-2">
-                <Button
-                  variant={isFollowing ? 'outline' : 'default'}
-                  size="sm"
-                  onClick={handleFollowClick}
-                  className="flex-1">
+                <Button variant={isFollowing ? 'outline' : 'default'} onClick={handleFollowClick} className="flex-1">
                   {isFollowing ? 'Following' : 'Follow'}
                 </Button>
 
@@ -90,7 +96,6 @@ export const CompanyCard: React.FC<CompanyCardProps> = ({ company, isFeatured = 
                   <Button
                     variant="outline"
                     size="icon"
-                    className="h-9 w-9"
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();

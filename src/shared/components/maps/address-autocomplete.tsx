@@ -16,11 +16,13 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { LocationPicker } from './location-picker';
 
 interface AddressAutocompleteProps {
-  value?: LocationDto;
+  value?: LocationDto | null;
   onAddressSelect?: (address: LocationDto) => void;
   defaultValue?: LocationDto;
   placeholder?: string;
   className?: string;
+  label?: string | null;
+  disabled?: boolean;
   mapContainerStyle?: CSSProperties;
 }
 
@@ -28,8 +30,10 @@ export const AddressAutocomplete: FC<AddressAutocompleteProps> = ({
   value,
   onAddressSelect,
   defaultValue,
+  label,
   placeholder = 'Search for an address...',
   className,
+  disabled = false,
   mapContainerStyle = {
     width: '100%',
     height: '280px'
@@ -127,7 +131,7 @@ export const AddressAutocomplete: FC<AddressAutocompleteProps> = ({
   return (
     <div className={cn('space-y-4', className)}>
       <div className="space-y-2">
-        <Label htmlFor="address">Address</Label>
+        {label !== null && <Label htmlFor="address">{label || 'Address'}</Label>}
         <Popover open={open}>
           <Command className="border-none bg-transparent">
             <PopoverTrigger>
@@ -137,6 +141,7 @@ export const AddressAutocomplete: FC<AddressAutocompleteProps> = ({
                 value={inputValue}
                 onChange={handleInputChange}
                 onClick={handleSuggestionOpen}
+                disabled={disabled}
                 ref={inputRef}
               />
             </PopoverTrigger>

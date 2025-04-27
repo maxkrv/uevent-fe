@@ -15,13 +15,15 @@ interface UserCompaniesProps {
   userId: string;
 }
 
+const ITEMS_PER_PAGE = 4;
+
 export const UserCompanies = ({ userId }: UserCompaniesProps) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [open, setOpen] = useState(false);
 
   const { data: userCompanies, isLoading } = useQuery({
     queryKey: [QueryKeys.USER_COMPANIES, userId, currentPage],
-    queryFn: () => CompanyService.getMyCompanies(currentPage),
+    queryFn: () => CompanyService.getMyCompanies(currentPage, ITEMS_PER_PAGE),
     enabled: !!userId
   });
 
