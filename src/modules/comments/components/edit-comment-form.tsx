@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { Button } from '../../../shared/components/ui/button';
 import { Textarea } from '../../../shared/components/ui/textarea';
+import { AddEmojiButton } from './add-emoji-button';
 
 interface EditCommentFormProps {
   initialContent: string;
@@ -64,8 +65,17 @@ export const EditCommentForm = ({
         />
         <div className="absolute bottom-2 right-2 text-xs text-muted-foreground">{content.length}/1000</div>
       </div>
-      <div className="flex justify-end gap-2">
-        <Button type="button" variant="outline" size="sm" onClick={onCancel} disabled={isSubmitting} className="h-8">
+      <div className="flex justify-center gap-2">
+        <AddEmojiButton onEmojiSelect={(emoji) => setContent((prev) => prev + emoji)} disabled={isSubmitting}>
+          {''}
+        </AddEmojiButton>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={onCancel}
+          disabled={isSubmitting}
+          className="h-8 ml-auto">
           <X className="h-4 w-4 mr-1" />
           Cancel
         </Button>
@@ -79,7 +89,6 @@ export const EditCommentForm = ({
           Save
         </Button>
       </div>
-      <div className="text-xs text-muted-foreground">Press Esc to cancel, Ctrl+Enter to save</div>
     </form>
   );
 };

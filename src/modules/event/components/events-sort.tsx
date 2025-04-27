@@ -14,7 +14,8 @@ export const EventsSort = ({ sortOption, onSortChange }: EventsSortProps) => {
         <SelectValue placeholder="Sort by" />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="date">Date (Soonest)</SelectItem>
+        <SelectItem value="date-asc">Date (Soonest)</SelectItem>
+        <SelectItem value="date-desc">Date (Latest)</SelectItem>
         <SelectItem value="price-low">Price (Low to High)</SelectItem>
         <SelectItem value="price-high">Price (High to Low)</SelectItem>
         <SelectItem value="name">Name (A-Z)</SelectItem>

@@ -13,6 +13,7 @@ import { Button, buttonVariants } from '../../../shared/components/ui/button';
 import { QueryKeys } from '../../../shared/constants/query-keys';
 import { useShare } from '../../../shared/hooks/use-share';
 import { cn } from '../../../shared/lib/utils';
+import { getStaticMapImageUrl } from '../../../shared/utils/maps.utils';
 import { CompanyLogo } from '../../company/components/company-logo';
 import type { Event } from '../interfaces/event.interface';
 import { EventService } from '../services/event.service';
@@ -56,7 +57,19 @@ export const EventCard: React.FC<EventListItemProps> = ({ event }) => {
         <div className="relative min-h-2/5 @lg:h-auto @lg:w-2/5 flex-none overflow-hidden max-h-60  @lg:max-h-100 ">
           <Image
             alt={event.title}
-            src={event.posterUrl}
+            src={
+              event.posterUrl ||
+              (event.location &&
+                getStaticMapImageUrl({
+                  center: event.location,
+                  zoom: 12,
+                  size: {
+                    width: 600,
+                    height: 600
+                  },
+                  markers: [{ position: event.location }]
+                }))
+            }
             wrapperClassName="group-hover:scale-110 transition-transform duration-700 "
             className="object-cover size-full"
           />

@@ -14,6 +14,7 @@ import { useShare } from '@/shared/hooks/use-share';
 import { cn } from '@/shared/lib/utils';
 
 import { Image } from '../../../../shared/components/common/image';
+import { getStaticMapImageUrl } from '../../../../shared/utils/maps.utils';
 import type { Company } from '../../interfaces/company.interface';
 import { CompanyService } from '../../services/company.service';
 import { CompanyLogo } from '../company-logo';
@@ -84,9 +85,25 @@ export const CompanyHero = ({ company }: CompanyHeroProps) => {
     <>
       <div className="relative w-full h-[40vh] md:h-[50vh] overflow-hidden ">
         <div className="absolute inset-0 z-10"></div>
-        <Image src={company.coverImage} alt={company.name} className="w-full h-full object-cover object-center" />
+        <Image
+          src={
+            company.coverImage ||
+            (company.location &&
+              getStaticMapImageUrl({
+                center: company.location,
+                zoom: 6,
+                size: {
+                  width: 600,
+                  height: 300
+                },
+                markers: [{ position: company.location }]
+              }))
+          }
+          alt={company.name}
+          className="w-full h-full object-cover object-center"
+        />
 
-        <div className="absolute inset-0 bg-black/30"></div>
+        <div className="absolute inset-0 bg-black/40"></div>
         {/* Hero Content */}
         <div className="absolute bottom-0 left-0 right-0 z-20 p-6 md:p-10 text-white">
           <div className="container mx-auto flex items-end gap-6">

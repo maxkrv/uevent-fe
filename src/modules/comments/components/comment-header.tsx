@@ -1,7 +1,7 @@
 'use client';
 
 import dayjs from 'dayjs';
-import { ChevronDown, ChevronUp, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { ChevronDown, ChevronUp, Pencil, Settings, Trash2 } from 'lucide-react';
 
 import type { User } from '../../../modules/user/interfaces/user.interface';
 import { Link } from '../../../shared/components/common/link';
@@ -62,10 +62,10 @@ export const CommentHeader = ({
                 size="icon"
                 className={`rounded-full ${isReply ? 'h-7 w-7' : 'h-8 w-8'}`}
                 aria-label="Comment options">
-                <MoreHorizontal className={isReply ? 'h-3.5 w-3.5' : 'h-4 w-4'} />
+                <Settings className={isReply ? 'h-3.5 w-3.5' : 'h-4 w-4'} />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent>
               {onEdit && (
                 <DropdownMenuItem onClick={onEdit}>
                   <Pencil className="h-4 w-4 mr-2" />
@@ -73,7 +73,7 @@ export const CommentHeader = ({
                 </DropdownMenuItem>
               )}
               <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={onDelete}>
-                <Trash2 className="h-4 w-4 mr-2" />
+                <Trash2 className="h-4 w-4 mr-2 text-current" />
                 Delete
               </DropdownMenuItem>
             </DropdownMenuContent>

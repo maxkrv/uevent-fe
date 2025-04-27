@@ -2,7 +2,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { ArrowLeft } from 'lucide-react';
 import { useState } from 'react';
 import { FaArrowRightLong } from 'react-icons/fa6';
-import { FiCalendar, FiDollarSign, FiHeart, FiMapPin, FiShare2 } from 'react-icons/fi';
+import { FiCalendar, FiDollarSign, FiHeart, FiMapPin, FiSettings, FiShare2 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -10,25 +10,34 @@ import { Image } from '../../../../shared/components/common/image';
 import { Badge } from '../../../../shared/components/ui/badge';
 import { Button } from '../../../../shared/components/ui/button';
 import { useShare } from '../../../../shared/hooks/use-share';
-import type { Event } from '../../interfaces/event.interface';
+import { getStaticMapImageUrl } from '../../../../shared/utils/maps.utils';
+import type { Event, EventFormatType } from '../../interfaces/event.interface';
+import { EventSettingsModal } from '../modals/event-settings-modal';
 
 interface EventHeroProps {
   event: Event;
 }
 
-const categoryColors: Record<string, string> = {
-  ART: 'from-blue-900/70 to-blue-700/30',
-  MUSIC: 'from-purple-900/70 to-purple-700/30',
-  TECHNOLOGY: 'from-green-900/70 to-green-700/30',
-  BUSINESS: 'from-orange-900/70 to-orange-700/30',
-  SPORTS: 'from-red-900/70 to-red-700/30',
-  FOOD: 'from-amber-900/70 to-amber-700/30',
-  EDUCATION: 'from-cyan-900/70 to-cyan-700/30',
-  HEALTH: 'from-emerald-900/70 to-emerald-700/30',
-  TRAVEL: 'from-indigo-900/70 to-indigo-700/30',
-  ENTERTAINMENT: 'from-pink-900/70 to-pink-700/30',
-  default: 'from-gray-900/70 to-gray-700/30'
+const FORMAT_COLORS: Record<EventFormatType, string> = {
+  CONFERENCE: 'from-blue-900/70 to-blue-700/30',
+  LECTURE: 'from-amber-900/70 to-amber-700/30',
+  WORKSHOP: 'from-green-900/70 to-green-700/30',
+  SEMINAR: 'from-cyan-900/70 to-cyan-700/30',
+  MEETUP: 'from-purple-900/70 to-purple-700/30',
+  PANEL_DISCUSSION: 'from-indigo-900/70 to-indigo-700/30',
+  WEBINAR: 'from-sky-900/70 to-sky-700/30',
+  NETWORKING: 'from-pink-900/70 to-pink-700/30',
+  PERFORMANCE: 'from-rose-900/70 to-rose-700/30',
+  EXHIBITION: 'from-violet-900/70 to-violet-700/30',
+  COMPETITION: 'from-red-900/70 to-red-700/30',
+  FESTIVAL: 'from-fuchsia-900/70 to-fuchsia-700/30',
+  PARTY: 'from-orange-900/70 to-orange-700/30',
+  CEREMONY: 'from-emerald-900/70 to-emerald-700/30',
+  TRAINING: 'from-lime-900/70 to-lime-700/30',
+  OTHER: 'from-gray-900/70 to-gray-700/30'
 };
+
+const DEFAULT_FORMAT_COLOR = 'from-gray-900/70 to-gray-700/30';
 
 interface EventStatusBadgeProps {
   event: Event;
@@ -38,17 +47,15 @@ const EventStatusBadge = ({ event }: EventStatusBadgeProps) => {
   if (!event) return null;
 
   const now = dayjs();
-  const startDate = dayjs(event.startDate);
-  const endDate = event.endDate ? dayjs(event.endDate) : startDate.add(2, 'hour');
 
-  if (now.isBefore(startDate)) {
+  if (now.isBefore(event.startDate)) {
     return (
-      <Badge variant="outline" className="bg-primary/10 text-primary border-primary">
+      <Badge variant="outline" className="bg-primary-light/70 text-primary border-primary">
         Upcoming
       </Badge>
     );
   }
-  if (now.isAfter(endDate)) {
+  if (now.isAfter(event.endDate)) {
     return (
       <Badge variant="outline" className="bg-muted text-muted-foreground">
         Past Event
@@ -56,14 +63,14 @@ const EventStatusBadge = ({ event }: EventStatusBadgeProps) => {
     );
   }
   return (
-    <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-600">
+    <Badge variant="outline" className="bg-green-500/30 text-green-600 border-green-600">
       Happening Now
     </Badge>
   );
 };
 
 export const EventHero = ({ event }: EventHeroProps) => {
-  const [isSaved, setIsSaved] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
   const nav = useNavigate();
   const share = useShare();
 
@@ -73,14 +80,12 @@ export const EventHero = ({ event }: EventHeroProps) => {
       title: event.title,
       text: `Check out this event: ${event.title}`,
       url: window.location.href
-    }).then(() => {
-      toast.success('Event link copied to clipboard');
     });
   };
 
   const handleSaveToggle = () => {
-    setIsSaved(!isSaved);
-    toast.success(isSaved ? 'Event removed from saved events' : 'Event saved to your list');
+    setIsSubscribed((prev) => !prev);
+    toast.success(isSubscribed ? 'Unsubscribed from event' : 'Subscribed to event');
   };
 
   const formatDate = (dateString: string | Date | Dayjs) => {
@@ -88,24 +93,45 @@ export const EventHero = ({ event }: EventHeroProps) => {
   };
 
   // Get a color based on category for the gradient overlay
-  const getCategoryColor = () => {
-    if (!event.themes || event.themes.length === 0) return categoryColors.default;
-    return categoryColors[event.themes[0]] || categoryColors.default;
+  const getFormatColor = () => {
+    if (!event.format) return DEFAULT_FORMAT_COLOR;
+
+    return FORMAT_COLORS[event.format] || DEFAULT_FORMAT_COLOR;
   };
 
   return (
     <div className="relative w-full h-[50vh] md:h-[60vh] overflow-hidden">
-      <div className={`absolute inset-0 bg-gradient-to-t ${getCategoryColor()} z-10`}></div>
-      <Image src={event.posterUrl} alt={event.title} className="w-full h-full object-cover object-center " />
+      <div className={`absolute inset-0 bg-gradient-to-t ${getFormatColor()} z-10`}></div>
+      <Image
+        src={
+          event.posterUrl ||
+          (event.location &&
+            getStaticMapImageUrl({
+              center: event.location,
+              zoom: 10,
+              size: {
+                width: 600,
+                height: 300
+              },
+              markers: [{ position: event.location }]
+            }))
+        }
+        alt={event.title}
+        className="w-full h-full object-cover object-center "
+      />
 
       {/* Hero Content */}
       <div className="absolute bottom-0 left-0 right-0 z-20 p-6 md:p-10 text-white">
         <div className="container mx-auto">
           <div className="flex flex-wrap items-center gap-2 mb-3">
             {event.themes && event.themes.length > 0 && (
-              <Badge className="bg-white/20 hover:bg-white/30 text-white border-transparent backdrop-blur-sm capitalize">
-                {event.themes[0].replace(/_/g, ' ').toLowerCase()}
-              </Badge>
+              <div className="flex items-center gap-2">
+                {event.themes.map((theme) => (
+                  <Badge key={theme} variant="outline" className="bg-white/10 text-white border-white/20 capitalize">
+                    {theme.replace(/_/g, ' ').toLowerCase()}
+                  </Badge>
+                ))}
+              </div>
             )}
             <EventStatusBadge event={event} />
             {event.format && (
@@ -148,14 +174,23 @@ export const EventHero = ({ event }: EventHeroProps) => {
         Go Back
       </Button>
       <div className="flex space-x-2 absolute top-4 right-4 z-20">
+        <EventSettingsModal event={event}>
+          <Button
+            variant="ghost"
+            size={'icon'}
+            className="text-white/90 hover:text-primary hover:bg-primary/30 transition-colors duration-300"
+            aria-label="Event settings">
+            <FiSettings className="size-6" />
+          </Button>
+        </EventSettingsModal>
         <Button
           variant="ghost"
           size={'icon'}
           className="text-white/90 hover:text-red-700/80 hover:bg-red-500/30 transition-colors duration-300 hover:border-red-700/80"
           onClick={handleSaveToggle}
-          aria-pressed={isSaved}
+          aria-pressed={isSubscribed}
           aria-label="Like event">
-          <FiHeart className="size-6" fill={isSaved ? 'currentColor' : 'none'} />
+          <FiHeart className="size-6" fill={isSubscribed ? 'currentColor' : 'none'} />
         </Button>
         <Button
           variant="ghost"

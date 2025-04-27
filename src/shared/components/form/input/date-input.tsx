@@ -5,19 +5,29 @@ import { Calendar } from '@/shared/components/ui/calendar';
 import { Input } from '@/shared/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/components/ui/popover';
 
+import { cn } from '../../../lib/utils';
+
 interface DateButtonProps {
-  id: string;
+  id?: string;
   value?: Date;
   onSelect: (date: Date | undefined) => void;
   placeholder?: string;
   minDate?: Date;
+  className?: string;
 }
 
-export const DateInput = ({ id, value, onSelect, placeholder = 'Pick a date', minDate }: DateButtonProps) => {
+export const DateInput = ({
+  id,
+  value,
+  onSelect,
+  placeholder = 'Pick a date',
+  minDate,
+  className
+}: DateButtonProps) => {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <div className="relative w-full group min-w-30">
+        <div className={cn('relative w-full group min-w-30', className)}>
           <Input
             id={id}
             readOnly

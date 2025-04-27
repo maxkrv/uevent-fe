@@ -1,24 +1,18 @@
 'use client';
 
-import { Send, Smile } from 'lucide-react';
+import { Send } from 'lucide-react';
 import type React from 'react';
 import { useCallback, useRef, useState } from 'react';
 
 import { useAuth } from '@/modules/auth/queries/use-auth.query';
 import { UserAvatar } from '@/shared/components/common/user-avatar';
 import { Button } from '@/shared/components/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '@/shared/components/ui/popover';
 import { Textarea } from '@/shared/components/ui/textarea';
 
 import { cn } from '../../../shared/lib/utils';
+import { AddEmojiButton } from './add-emoji-button';
 
 // Common emoji categories
-const EMOJI_CATEGORIES = [
-  { name: 'Smileys', emojis: ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇'] },
-  { name: 'Gestures', emojis: ['👍', '👎', '👌', '✌️', '🤞', '👏', '🙌', '🤝', '🙏', '🤲'] },
-  { name: 'Love', emojis: ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '💔', '❣️', '💕'] },
-  { name: 'Celebration', emojis: ['🎉', '🎊', '🎈', '🎂', '🎁', '🎆', '🎇', '✨', '🎃', '🎄'] }
-];
 
 interface CommentFormProps {
   onSubmit: (content: string) => Promise<void>;
@@ -40,7 +34,6 @@ export const CommentForm = ({
   const [content, setContent] = useState('');
   const { data: user } = useAuth();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
 
   const insertEmoji = useCallback((emoji: string) => {
     setContent((prev) => prev + emoji);
@@ -90,52 +83,7 @@ export const CommentForm = ({
             <div className="absolute bottom-2 right-2 text-xs text-muted-foreground">{content.length}/1000</div>
           </div>
           <div className="flex justify-between items-center gap-2">
-            <Popover open={isEmojiPickerOpen} onOpenChange={setIsEmojiPickerOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="h-8 rounded-full"
-                  disabled={isSubmitting}
-                  aria-label="Add emoji">
-                  <Smile className="h-4 w-4 mr-1" />
-                  Add Emoji
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-64 p-2" align="start" side="top">
-                <div className="space-y-3 max-h-55 overflow-y-auto">
-                  {EMOJI_CATEGORIES.map((category) => (
-                    <div key={category.name}>
-                      <h4 className="text-xs font-medium text-muted-foreground mb-1">{category.name}</h4>
-                      <div className="flex flex-wrap gap-1">
-                        {category.emojis.map((emoji) => (
-                          <button
-                            key={emoji}
-                            type="button"
-                            className="text-xl p-1.5 hover:bg-muted rounded-md cursor-pointer transition-colors"
-                            onClick={() => {
-                              insertEmoji(emoji);
-                              setIsEmojiPickerOpen(false);
-                            }}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter' || e.key === ' ') {
-                                insertEmoji(emoji);
-                                setIsEmojiPickerOpen(false);
-                              }
-                            }}
-                            tabIndex={0}
-                            aria-label={`${category.name} emoji: ${emoji}`}
-                            title={category.name.toLowerCase()}>
-                            {emoji}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </PopoverContent>
-            </Popover>
+            <AddEmojiButton onEmojiSelect={insertEmoji} disabled={isSubmitting} />
 
             <div className="flex gap-2 ml-auto">
               {onCancel && (

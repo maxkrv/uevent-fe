@@ -152,7 +152,7 @@ export const LocationPicker = ({
         </GoogleMap>
 
         <div className="absolute top-4 right-4 z-10">
-          <Button variant="secondary" size="sm" onClick={handleUseCurrentLocation} className="shadow-md">
+          <Button variant="secondary" size="sm" type="button" onClick={handleUseCurrentLocation} className="shadow-md">
             Use My Location
           </Button>
         </div>

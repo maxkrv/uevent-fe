@@ -9,8 +9,8 @@ import { DateInput } from '../../../shared/components/form/input/date-input';
 import { Button } from '../../../shared/components/ui/button';
 
 export interface DateRange {
-  from?: Date | undefined;
-  to?: Date | undefined;
+  from?: Date | null;
+  to?: Date | null;
 }
 
 interface DateRangeFilterProps {
@@ -109,9 +109,9 @@ export const DateRangeFilter = ({ dateRange, onDateRangeChange, className }: Dat
           </Label>
           <DateInput
             id="date-from"
-            value={dateRange.from}
+            value={dateRange.from || undefined}
             onSelect={(date) => {
-              onDateRangeChange({ ...dateRange, from: date });
+              onDateRangeChange({ ...dateRange, from: date || null });
               setQuickDateFilter(null);
             }}
           />
@@ -123,8 +123,8 @@ export const DateRangeFilter = ({ dateRange, onDateRangeChange, className }: Dat
           </Label>
           <DateInput
             id="date-to"
-            value={dateRange.to}
-            minDate={dateRange.from}
+            value={dateRange.to || undefined}
+            minDate={dateRange.from || undefined}
             onSelect={(date) => {
               onDateRangeChange({ ...dateRange, to: date });
               setQuickDateFilter(null);

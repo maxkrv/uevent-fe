@@ -29,6 +29,13 @@ export const EventPage = () => {
     enabled: !!id
   });
 
+  const { data: currentAttendeesCount, isLoading: isAttendeesCountLoading } = useQuery({
+    queryKey: [QueryKeys.EVENT_ATTENDEES, id, 'count'],
+    queryFn: () => EventService.getAttendeesCount(id!),
+    select: (data) => data.currentAttendees,
+    enabled: !!id
+  });
+
   // Fetch event attendees
   const { data: attendees, isLoading: isAttendeesLoading } = useQuery({
     queryKey: [QueryKeys.EVENT_ATTENDEES, id],
@@ -36,7 +43,7 @@ export const EventPage = () => {
     enabled: !!id && !!event?.showAttendeeList
   });
 
-  const isLoading = isEventLoading || isAttendeesLoading;
+  const isLoading = isEventLoading || isAttendeesLoading || isAttendeesCountLoading;
 
   // Handle error state
   if (error) {
@@ -77,7 +84,7 @@ export const EventPage = () => {
               <EventAttendees
                 attendees={attendees?.items}
                 maxAttendees={event.maxAttendees}
-                currentAttendees={attendees?.meta.totalItemsCount}
+                currentAttendees={currentAttendeesCount}
               />
             )}
 
@@ -90,13 +97,13 @@ export const EventPage = () => {
           {/* Sidebar */}
           <div className="space-y-8">
             {/* Event Actions */}
-            <EventTickets event={event} currentAttendees={attendees?.meta.totalItemsCount || 0} />
+            <EventTickets event={event} currentAttendees={currentAttendeesCount || 0} />
 
             {/* Organizer Info */}
             {event.company && <CompanyCard company={event.company} />}
 
             {/* More events from this organizer */}
-            {event.company && <CompanyEvents currentEventId={event.id} companyId={event.company.id} />}
+            {event.company && <CompanyEvents companyId={event.company.id} />}
 
             {/* Related Events */}
             <SimilarEvents event={event} />
