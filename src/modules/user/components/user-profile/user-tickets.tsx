@@ -1,15 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
-import { Calendar, Check, Clock, MapPin, Ticket } from 'lucide-react';
+import { Calendar, Check, Clock, ExternalLink, MapPin, Ticket } from 'lucide-react';
 import { useState } from 'react';
+import QRCode from 'react-qr-code';
 import { Link } from 'react-router-dom';
 
 import { Pagination } from '@/shared/components/common/pagination';
 import { Badge } from '@/shared/components/ui/badge';
+import { Card, CardContent, CardFooter } from '@/shared/components/ui/card';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 import { QueryKeys } from '@/shared/constants/query-keys';
 import dayjs from '@/shared/lib/dayjs';
 
-import { Image } from '../../../../shared/components/common/image';
 import { UserService } from '../../services/user.service';
 import { UserNoItems } from './user-no-items';
 
@@ -78,58 +79,63 @@ export const UserTickets = ({ userId }: UserTicketsProps) => {
     <div className="space-y-6">
       <div className="space-y-4">
         {tickets?.items.map((ticket) => (
-          <div key={ticket.id} className="bg-card rounded-lg border p-4 hover:border-primary transition-colors">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="h-24 w-full md:w-24 rounded-md overflow-hidden flex-shrink-0">
-                <Image src={ticket.event.posterUrl} alt={ticket.event.title} className="h-full w-full object-cover" />
+          <Card key={ticket.id} className="overflow-hidden hover:border-primary transition-colors py-0">
+            <div className="flex h-full">
+              {/* QR Code Section */}
+              <div className="w-1/3 bg-muted p-3 flex flex-col items-center justify-center border-r [&_path]:first:fill-transparent">
+                <QRCode size={100} value={window.location.origin + `/verify-ticket/${ticket.id}`} className="mb-2" />
+                <span className="text-xs text-center text-muted-foreground">#{ticket.id.substring(0, 8)}</span>
               </div>
 
-              <div className="flex-1 min-w-0">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-2">
-                  <Link to={`/events/${ticket.event.id}`} className="font-medium hover:text-primary transition-colors">
-                    {ticket.event.title}
-                  </Link>
-                  <Badge variant="outline" className={statusColors[ticket.status]}>
-                    {ticket.status === 'VALID' && <Check className="h-3 w-3 mr-1" />}
-                    {ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1).toLowerCase()}
-                  </Badge>
-                </div>
+              {/* Ticket Details Section */}
+              <div className="w-2/3 flex flex-col">
+                <CardContent className="p-3 pb-0 flex-grow">
+                  <div className="flex flex-col items-start justify-between gap-2 mb-2">
+                    <div className="min-w-0 w-full flex justify-between">
+                      <Link
+                        to={`/events/${ticket.event.id}`}
+                        className="font-medium text-sm hover:text-primary transition-colors line-clamp-1">
+                        {ticket.event.title}
+                      </Link>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                  <div className="flex items-center text-muted-foreground">
-                    <Calendar className="mr-1 h-3.5 w-3.5" />
-                    {dayjs(ticket.event.startDate).format('MMM D, YYYY')}
-                  </div>
-
-                  {ticket.event.location && (
-                    <div className="flex items-center text-muted-foreground">
-                      <MapPin className="mr-1 h-3.5 w-3.5" />
-                      <span className="truncate">{ticket.event.location.address}</span>
+                      <Badge variant="outline" className={`text-xs ${statusColors[ticket.status]}`}>
+                        {ticket.status === 'VALID' && <Check className="h-2.5 w-2.5 mr-1" />}
+                        {ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1).toLowerCase()}
+                      </Badge>
                     </div>
-                  )}
 
-                  <div className="flex items-center text-muted-foreground">
-                    <Ticket className="mr-1 h-3.5 w-3.5" />
-                    Ticket #{ticket.id.substring(0, 8)}
+                    <div className="grid grid-cols-1 gap-1 text-xs">
+                      <div className="flex items-center text-xs text-muted-foreground mt-1">
+                        <Calendar className="mr-1 h-3 w-3" />
+                        {dayjs(ticket.event.startDate).format('MMM D, YYYY')}
+                      </div>
+
+                      <div className="flex items-center text-muted-foreground">
+                        <MapPin className="mr-1 h-3 w-3 flex-shrink-0" />
+                        <span className="truncate">{ticket?.event?.location?.address || 'Online'}</span>
+                      </div>
+
+                      <div className="flex items-center text-muted-foreground">
+                        <Clock className="mr-1 h-3 w-3 flex-shrink-0" />
+                        <span className="truncate">Purchased {dayjs(ticket.purchaseDate).format('MMM D, YYYY')}</span>
+                      </div>
+                    </div>
                   </div>
+                </CardContent>
 
-                  <div className="flex items-center text-muted-foreground">
-                    <Clock className="mr-1 h-3.5 w-3.5" />
-                    Purchased {dayjs(ticket.purchaseDate).format('MMM D, YYYY')}
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-center mt-2">
-                  <div className="font-medium">
+                <CardFooter className="p-3 !pt-3 flex justify-between items-center border-t mt-auto">
+                  <div className="font-medium text-sm">
                     {ticket.event.price > 0 ? `$${ticket.event.price.toFixed(2)}` : 'Free'}
                   </div>
-                  <Link to={`/events/${ticket.event.id}`} className="text-sm text-primary hover:underline">
-                    View Event
+                  <Link
+                    to={`/events/${ticket.event.id}`}
+                    className="text-xs text-primary hover:underline flex items-center">
+                    View <ExternalLink className="ml-1 h-3 w-3" />
                   </Link>
-                </div>
+                </CardFooter>
               </div>
             </div>
-          </div>
+          </Card>
         ))}
       </div>
 

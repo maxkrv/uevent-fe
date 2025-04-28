@@ -54,7 +54,7 @@ export const UserProfileLayout = () => {
 
         {/* Main Content */}
         <div className="lg:col-span-2">
-          <ul className="flex w-full mb-6 border-b">
+          <ul className="flex w-full mb-6 border-b overflow-x-auto">
             {USER_PROFILE_LINKS.map(
               (link) =>
                 (!link.isProtected || (link.isProtected && isOwnProfile)) && (

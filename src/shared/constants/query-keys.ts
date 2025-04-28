@@ -19,5 +19,6 @@ export enum QueryKeys {
   COMMENTS = 'comments',
   REACTIONS = 'reactions',
   MY_REACTIONS = 'my-reactions',
-  NOTIFICATIONS = 'notifications'
+  NOTIFICATIONS = 'notifications',
+  TICKET_VERIFICATION = 'ticket-verification'
 }
