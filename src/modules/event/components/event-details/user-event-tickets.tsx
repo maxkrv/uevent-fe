@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import { Ticket } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import { Pagination } from '@/shared/components/common/pagination';
@@ -8,16 +7,15 @@ import { QueryKeys } from '@/shared/constants/query-keys';
 
 import { useAuth } from '../../../auth/queries/use-auth.query';
 import { TicketCard } from '../../../ticket/components/ticket-card';
-import { UserService } from '../../services/user.service';
-import { UserNoItems } from './user-no-items';
+import { UserService } from '../../../user/services/user.service';
 
 interface UserTicketsProps {
   eventId?: string;
 }
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 1;
 
-export const UserTickets = ({ eventId }: UserTicketsProps) => {
+export const UserEventTickets = ({ eventId }: UserTicketsProps) => {
   const me = useAuth();
   const [currentPage, setCurrentPage] = useState(1);
   const query = useMemo(
@@ -64,21 +62,20 @@ export const UserTickets = ({ eventId }: UserTicketsProps) => {
     );
   }
 
-  if (!isLoading && !tickets?.items.length) {
-    return (
-      <UserNoItems icon={Ticket} title="No Tickets Purchased" description="You haven't purchased any tickets yet." />
-    );
+  if (!tickets?.items.length) {
+    return null;
   }
 
   return (
     <div className="space-y-6">
       <div className="space-y-4">
-        {tickets?.items.map((ticket) => <TicketCard ticket={ticket} key={ticket.id} className="w-full" />)}
+        {tickets?.items.map((ticket) => <TicketCard ticket={ticket} key={ticket.id} className="w-full shadow-none" />)}
       </div>
 
       {(tickets?.meta?.totalPages || 0) > 1 && (
         <div className="flex justify-center mt-6">
           <Pagination
+            compact
             currentPage={tickets?.meta.currentPage || 1}
             totalPages={tickets?.meta?.totalPages || 0}
             onPageChange={setCurrentPage}

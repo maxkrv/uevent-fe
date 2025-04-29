@@ -14,6 +14,7 @@ import { cn } from '../../lib/utils';
 import { Button, buttonVariants } from '../ui/button';
 import { CommandPalette } from './command-palette';
 import { Link } from './link';
+import { ThemeToggle } from './theme-toggle';
 import { UserMenuSheet } from './user-menu-sheet';
 
 const LINKS = [
@@ -32,7 +33,7 @@ export const Header: React.FC = () => {
   const { unreadCount } = useNotifications();
 
   return (
-    <header className="top-0 left-0 right-0 z-50 sticky transition-all duration-300 bg-accent/40 backdrop-blur-sm shadow-md max-h-header min-h-full h-header">
+    <header className="top-0 left-0 right-0 z-50 sticky transition-all duration-300 bg-accent/20 backdrop-blur-sm shadow-md max-h-header min-h-full h-header">
       <div className="m-auto p-2 h-full">
         <div className="flex items-center justify-between h-full">
           {/* Logo and Name */}
@@ -61,6 +62,7 @@ export const Header: React.FC = () => {
           {/* Search and User Actions */}
           <div className="flex items-center gap-2">
             {/* Command Palette Button */}
+            <ThemeToggle />
             <Button
               variant="default"
               size="icon"

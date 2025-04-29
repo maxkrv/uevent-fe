@@ -14,6 +14,14 @@ export class AuthService {
       .json();
   }
 
+  static async googleLogin(code: string): Promise<Tokens> {
+    return await apiClient
+      .post<Tokens>('auth/google/login', {
+        json: { code }
+      })
+      .json();
+  }
+
   static async register(dto: RegisterDto): Promise<User> {
     return apiClient
       .post<User>('auth/register', {

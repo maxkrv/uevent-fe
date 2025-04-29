@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 
 import { useAuth } from '@/modules/auth/queries/use-auth.query';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
 
+import { ColorSchemeSection } from '../components/user-profile/color-scheme-section';
 import { NotificationSection } from '../components/user-settings/notification-section';
 import { PrivacySection } from '../components/user-settings/privacy-section';
 import { ProfileSection } from '../components/user-settings/profile-section';
@@ -17,7 +18,7 @@ export const UserSettingsPage = () => {
   useEffect(() => {
     const tab = searchParams.get('tab');
 
-    if (tab && !['profile', 'notifications', 'privacy'].includes(tab)) {
+    if (tab && !['profile', 'notifications', 'privacy', 'appearance'].includes(tab)) {
       setActiveTab('profile');
       setSearchParams({});
 
@@ -42,10 +43,11 @@ export const UserSettingsPage = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3 md:w-auto">
+        <TabsList className="grid w-full grid-cols-4 md:w-auto">
           <TabsTrigger value="profile">Profile</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
           <TabsTrigger value="privacy">Privacy</TabsTrigger>
+          <TabsTrigger value="appearance">Appearance</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile" className="space-y-4">
@@ -58,6 +60,9 @@ export const UserSettingsPage = () => {
 
         <TabsContent value="privacy" className="space-y-4">
           <PrivacySection currentUser={currentUser} />
+        </TabsContent>
+        <TabsContent value="appearance" className="space-y-4">
+          <ColorSchemeSection />
         </TabsContent>
       </Tabs>
     </div>

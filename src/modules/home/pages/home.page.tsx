@@ -42,7 +42,7 @@ const FeaturedCompaniesSkeleton = () => (
 
 export const HomePage = () => {
   return (
-    <div className="flex flex-col items-center justify-center dark:bg-gray-900">
+    <div className="flex flex-col items-center justify-center">
       <HeroSection />
       <div className="container mx-auto grid items-center justify-center gap-6 px-6">
         <CategoriesSection />

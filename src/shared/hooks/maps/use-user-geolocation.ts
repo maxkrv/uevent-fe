@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import ky from 'ky';
 import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
 
 import { QueryKeys } from '../../constants/query-keys';
 import { LocationDto } from '../../types/maps';
@@ -81,8 +80,7 @@ export function useUserGeolocation(): UseUserGeolocationReturn {
           lng: position.coords.longitude
         };
       } catch (error) {
-        toast.info('Browser geolocation failed, falling back to IP-based geolocation');
-        // Fall back to IP-based geolocation
+        console.error('Error getting browser geolocation:', error);
         return await getIpBasedGeolocation();
       }
     },

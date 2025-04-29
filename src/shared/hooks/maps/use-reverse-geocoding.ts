@@ -1,24 +1,22 @@
 import { useMutation } from '@tanstack/react-query';
+import { fromLatLng } from 'react-geocode';
 
 import { Coordinates, LocationDto } from '@/shared/types/maps';
 
 export const useReverseGeocoding = (onSuccess?: (address: LocationDto) => void) => {
   const mutation = useMutation<LocationDto, Error, Coordinates>({
     mutationFn: ({ lat, lng }) =>
-      new Promise((resolve, reject) => {
-        const geocoder = new google.maps.Geocoder();
+      fromLatLng(lat, lng).then(({ results, status }) => {
+        if (status !== 'OK') {
+          throw new Error('Failed to fetch address');
+        }
+        const formattedAddress = results[0].formatted_address;
 
-        geocoder.geocode({ location: { lat, lng } }, (results, status) => {
-          if (status !== google.maps.GeocoderStatus.OK || !results || results.length === 0) {
-            return reject(new Error('Reverse geocoding failed'));
-          }
-
-          resolve({
-            address: results[0].formatted_address,
-            lat,
-            lng
-          });
-        });
+        return {
+          address: formattedAddress,
+          lat: lat,
+          lng: lng
+        };
       }),
     onSuccess
   });
