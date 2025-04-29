@@ -1,37 +1,12 @@
-import { useQuery } from '@tanstack/react-query';
 import type React from 'react';
-import { useEffect, useState } from 'react';
 
 import { Link } from '../../../shared/components/common/link';
 import { Skeleton } from '../../../shared/components/ui/skeleton';
-import { QueryKeys } from '../../../shared/constants/query-keys';
 import { CompanyCard } from '../../company/components/company-card';
-import type { Company } from '../../company/interfaces/company.interface';
+import { useFeaturedCompanies } from '../../company/hooks/use-featured-companies';
 
 const FeaturedCompanies: React.FC = () => {
-  const [featuredCompanies, setFeaturedCompanies] = useState<Company[]>([]);
-
-  // Fetch all companies
-  const { data: companies, isLoading } = useQuery({
-    queryKey: [QueryKeys.COMPANIES],
-    queryFn: async () => {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      return import('../../../__mock__/companies').then((module) => module.mockCompanies);
-    }
-  });
-
-  // Select featured companies based on subscriber count
-  useEffect(() => {
-    if (companies) {
-      // Sort by subscriber count and take top 4
-      const featured = [...companies]
-        .sort((a, b) => (b.subscribers?.length || 0) - (a.subscribers?.length || 0))
-        .slice(0, 4);
-
-      setFeaturedCompanies(featured);
-    }
-  }, [companies]);
+  const { data: featuredCompanies, isLoading } = useFeaturedCompanies({});
 
   return (
     <section className="py-16">
@@ -61,7 +36,7 @@ const FeaturedCompanies: React.FC = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-          {featuredCompanies.map((company) => (
+          {featuredCompanies?.items.map((company) => (
             <CompanyCard key={company.id} company={company} isFeatured={true} />
           ))}
         </div>

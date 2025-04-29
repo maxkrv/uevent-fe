@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Upload } from 'lucide-react';
 import { useState } from 'react';
 import { FaCalendarDays, FaLocationDot, FaRegUser } from 'react-icons/fa6';
-import { FiHeart, FiShare2 } from 'react-icons/fi';
+import { FiBell, FiShare2 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 
 import { useAuth } from '@/modules/auth/queries/use-auth.query';
@@ -15,6 +15,7 @@ import { cn } from '@/shared/lib/utils';
 
 import { Image } from '../../../../shared/components/common/image';
 import { getStaticMapImageUrl } from '../../../../shared/utils/maps.utils';
+import { useCompanyFollow } from '../../hooks/use-company-follow';
 import type { Company } from '../../interfaces/company.interface';
 import { CompanyService } from '../../services/company.service';
 import { CompanyLogo } from '../company-logo';
@@ -26,11 +27,10 @@ interface CompanyHeroProps {
 
 export const CompanyHero = ({ company }: CompanyHeroProps) => {
   const queryClient = useQueryClient();
-  const [isFollowing, setIsFollowing] = useState(false);
   const [open, setOpen] = useState(false);
   const nav = useNavigate();
   const share = useShare();
-
+  const { isFollowing, toggle } = useCompanyFollow(company.id);
   const { data } = useAuth();
 
   const handleShare = () => {
@@ -192,10 +192,10 @@ export const CompanyHero = ({ company }: CompanyHeroProps) => {
             variant="ghost"
             size={'icon'}
             className="text-white/90 hover:text-red-700/80 hover:bg-red-500/30 transition-colors duration-300 hover:border-red-700/80"
-            onClick={() => setIsFollowing(!isFollowing)}
+            onClick={toggle}
             aria-pressed={isFollowing}
             aria-label="Follow Company">
-            <FiHeart className="size-6" fill={isFollowing ? 'currentColor' : 'none'} />
+            <FiBell className="size-6" fill={isFollowing ? 'currentColor' : 'none'} />
           </Button>
           <Button
             variant="ghost"
@@ -228,12 +228,12 @@ const CompanyHeroStats = ({ company }: CompanyHeroStatsProps) => {
       )}
       <div className="flex items-center">
         <FaCalendarDays className="mr-2 h-5 w-5" />
-        <span>{company.events?.length} Events</span>
+        <span>{company._count?.events} Events</span>
       </div>
       <div className="flex items-center">
         <FaRegUser className="mr-2 h-5 w-5" />
 
-        <span>{company.subscribers?.length} Followers</span>
+        <span>{company._count?.subscribers} Followers</span>
       </div>
     </div>
   );

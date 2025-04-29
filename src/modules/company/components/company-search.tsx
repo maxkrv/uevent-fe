@@ -3,11 +3,14 @@ import { FiSearch, FiX } from 'react-icons/fi';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../shared/components/ui/select';
+import { CompanySortBy } from '../services/company.service';
+
 interface CompanySearchProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
-  sortBy: 'name' | 'events' | 'newest';
-  setSortBy: (sort: 'name' | 'events' | 'newest') => void;
+  sortBy: CompanySortBy;
+  setSortBy: (sort: CompanySortBy) => void;
 }
 
 export const CompanySearch = ({ searchQuery, setSearchQuery, sortBy, setSortBy }: CompanySearchProps) => {
@@ -35,28 +38,22 @@ export const CompanySearch = ({ searchQuery, setSearchQuery, sortBy, setSortBy }
         </div>
 
         <div className="flex gap-2">
-          <select
-            className="bg-background border border-input rounded-md px-3 py-2"
+          <Select
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as 'name' | 'events' | 'newest')}>
-            <option value="newest">Newest First</option>
-            <option value="name">Name (A-Z)</option>
-            <option value="events">Most Events</option>
-          </select>
+            onValueChange={(value) => setSortBy(value as CompanySortBy)}
+            defaultValue={CompanySortBy.NEWEST}>
+            <SelectTrigger className="min-w-35">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={CompanySortBy.NEWEST}>Newest</SelectItem>
+              <SelectItem value={CompanySortBy.OLDEST}>Oldest</SelectItem>
+              <SelectItem value={CompanySortBy.NAME}>Name (A-Z)</SelectItem>
+              <SelectItem value={CompanySortBy.EVENTS}>Most Events</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
-
-      {/* Active Filters */}
-      {searchQuery && (
-        <div className="flex flex-wrap gap-2 mb-4">
-          <div className="bg-accent rounded-full px-3 py-1 text-sm flex items-center">
-            <span className="mr-2">Search: {searchQuery}</span>
-            <Button variant="ghost" size="icon" className="h-4 w-4 p-0" onClick={() => setSearchQuery('')}>
-              <FiX className="h-3 w-3" />
-            </Button>
-          </div>
-        </div>
-      )}
     </>
   );
 };

@@ -16,7 +16,8 @@ import { HomePage } from './modules/home/pages/home.page';
 import { ActivateTicketPage } from './modules/ticket/pages/activate-ticket-page';
 import { UserProfileLayout } from './modules/user/layouts/user-profile-layout';
 import { UserPage } from './modules/user/pages/user.page';
-import { UserFollowingPage } from './modules/user/pages/user-following-page';
+import { UserFollowingCompaniesPage } from './modules/user/pages/user-following-companies-page';
+import { UserFollowingEventsPage } from './modules/user/pages/user-following-events-page';
 import { UserPastEventsPage } from './modules/user/pages/user-past-events-page';
 import { UserSettingsPage } from './modules/user/pages/user-settings-page';
 import { UserTicketsPage } from './modules/user/pages/user-tickets-page';
@@ -80,8 +81,12 @@ const router = createBrowserRouter([
             element: <UserPastEventsPage />
           },
           {
-            path: 'following',
-            element: <UserFollowingPage />
+            path: 'following/companies',
+            element: <UserFollowingCompaniesPage />
+          },
+          {
+            path: 'following/events',
+            element: <UserFollowingEventsPage />
           },
           {
             path: 'tickets',

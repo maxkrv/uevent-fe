@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { Building2, CalendarClock, CalendarHeart, History, Settings, Ticket } from 'lucide-react';
 import { NavLink, Outlet, useParams } from 'react-router-dom';
 
 import { useAuth } from '@/modules/auth/queries/use-auth.query';
@@ -12,11 +13,12 @@ import { UserProfileHeader } from '../components/user-profile/user-profile-heade
 import { UserService } from '../services/user.service';
 
 const USER_PROFILE_LINKS = [
-  { name: 'Upcoming', link: '/upcoming', isProtected: false },
-  { name: 'Past Events', link: '/past', isProtected: false },
-  { name: 'Following', link: '/following', isProtected: false },
-  { name: 'Tickets', link: '/tickets', isProtected: true },
-  { name: 'Settings', link: '/settings', isProtected: true }
+  { name: 'Upcoming', link: '/upcoming', icon: CalendarClock, isProtected: false },
+  { name: 'Past Events', link: '/past', icon: History, isProtected: false },
+  { name: 'Following', link: '/following/companies', icon: Building2, isProtected: false },
+  { name: 'Following', link: '/following/events', icon: CalendarHeart, isProtected: false },
+  { name: 'Tickets', link: '/tickets', icon: Ticket, isProtected: true },
+  { name: 'Settings', link: '/settings', icon: Settings, isProtected: true }
 ];
 
 export const UserProfileLayout = () => {
@@ -53,21 +55,22 @@ export const UserProfileLayout = () => {
         </div>
 
         {/* Main Content */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 @container/main">
           <ul className="flex w-full mb-6 border-b overflow-x-auto">
             {USER_PROFILE_LINKS.map(
               (link) =>
                 (!link.isProtected || (link.isProtected && isOwnProfile)) && (
-                  <li key={link.name} className="flex-1 m-auto flex">
+                  <li key={`${link.name}-${link.link}`} className="flex-shrink-0 grow">
                     <NavLink
                       to={`/users/${id}${link.link}`}
                       className={({ isActive }) =>
                         cn(
-                          'flex-1 py-2 px-4 text-center font-medium transition-colors hover:text-primary',
+                          'flex items-center py-2 px-3 font-medium transition-colors hover:text-primary whitespace-nowrap justify-center',
                           isActive ? 'border-b-2 border-primary text-primary' : 'text-muted-foreground'
                         )
                       }>
-                      {link.name}
+                      <link.icon className="h-4 w-4 @3xl/main:mr-2" />
+                      <span className="hidden @3xl/main:inline">{link.name}</span>
                     </NavLink>
                   </li>
                 )

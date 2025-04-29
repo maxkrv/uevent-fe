@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { Skeleton } from '@/shared/components/ui/skeleton';
 
 import { QueryKeys } from '../../../shared/constants/query-keys';
+import { useUserGeolocation } from '../../../shared/hooks/maps/use-user-geolocation';
 import { NotFoundPage } from '../../../shared/pages/not-found-page';
 import { CompanyAbout } from '../components/company-detail/company-about';
 import { CompanyContact } from '../components/company-detail/company-contact';
@@ -18,8 +19,6 @@ import { CompanyService } from '../services/company.service';
 
 export const CompanyDetailPage = () => {
   const { id } = useParams<{ id: string }>();
-  const [isFollowing, setIsFollowing] = useState(false);
-
   const {
     data: company,
     isLoading,
@@ -29,11 +28,22 @@ export const CompanyDetailPage = () => {
     queryFn: () => CompanyService.getById(id!),
     enabled: !!id
   });
-
+  const userLocation = useUserGeolocation();
+  const similarQuery = useMemo(
+    () => ({
+      limit: 5,
+      page: 1,
+      isVerified: true,
+      lng: userLocation.location?.lng,
+      lat: userLocation.location?.lat
+    }),
+    [userLocation.location?.lng, userLocation.location?.lat]
+  );
   const { data: similarCompanies } = useQuery({
-    queryKey: [QueryKeys.COMPANIES, 'similar', id],
-    queryFn: () => CompanyService.getSimilarCompanies(id!),
-    enabled: !!id && !!company
+    queryKey: [QueryKeys.COMPANIES, similarQuery],
+    queryFn: () => CompanyService.getMany(similarQuery),
+    enabled: !!id && !!userLocation.location,
+    select: (data) => data?.items?.filter((company) => company.id !== id)
   });
 
   if (isLoading) {
@@ -64,11 +74,7 @@ export const CompanyDetailPage = () => {
           {/* Sidebar */}
           <div className="space-y-8">
             {/* Contact Information */}
-            <CompanyContact
-              company={company}
-              isFollowing={isFollowing}
-              onFollowToggle={() => setIsFollowing(!isFollowing)}
-            />
+            <CompanyContact company={company} />
 
             {/* Company Stats */}
             {/* <CompanyStats company={company} /> */}
@@ -76,7 +82,7 @@ export const CompanyDetailPage = () => {
             <CompanyOwner user={company.owner} />
 
             {/* Similar Organizers */}
-            {similarCompanies && <SimilarCompanies currentCompanyId={company.id} companies={similarCompanies} />}
+            {!!similarCompanies?.length && <SimilarCompanies companies={similarCompanies} />}
             <PastEvents company={company} />
           </div>
         </div>

@@ -35,16 +35,8 @@ export const EventPage = () => {
     select: (data) => data.currentAttendees,
     enabled: !!id
   });
-  console.log('🚀 ~ EventPage ~ currentAttendeesCount:', currentAttendeesCount);
 
-  // Fetch event attendees
-  const { data: attendees, isLoading: isAttendeesLoading } = useQuery({
-    queryKey: [QueryKeys.EVENT_ATTENDEES, id],
-    queryFn: () => EventService.getAttendees(id!),
-    enabled: !!id && !!event?.showAttendeeList
-  });
-
-  const isLoading = isEventLoading || isAttendeesLoading || isAttendeesCountLoading;
+  const isLoading = isEventLoading || isAttendeesCountLoading;
 
   // Handle error state
   if (error) {
@@ -83,7 +75,7 @@ export const EventPage = () => {
             {/* Event Attendees - only show if the event has showAttendeeList enabled */}
             {event.showAttendeeList && (
               <EventAttendees
-                attendees={attendees?.items}
+                eventId={event.id}
                 maxAttendees={event.maxAttendees}
                 currentAttendees={currentAttendeesCount}
               />

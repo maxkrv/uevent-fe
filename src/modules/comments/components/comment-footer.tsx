@@ -1,6 +1,6 @@
 'use client';
 
-import { Reply } from 'lucide-react';
+import { FaReply } from 'react-icons/fa6';
 
 import { Button } from '../../../shared/components/ui/button';
 import { Reactions } from './reactions';
@@ -23,13 +23,13 @@ export const CommentFooter = ({
   showReplies = false
 }: CommentFooterProps) => {
   return (
-    <div className="flex flex-wrap items-center gap-1 pl-1">
+    <div className="flex flex-wrap items-center gap-1">
       <Reactions small={isReply} commentId={commentId} />
 
       {/* Reply button with count - only show for non-replies */}
       {!isReply && onToggleReplies && (
         <Button variant="ghost" size="sm" className="h-7 text-xs rounded-full hover:bg-muted" onClick={onToggleReplies}>
-          <Reply className="h-3.5 w-3.5 mr-1" />
+          <FaReply className="h-3.5 w-3.5 mr-1" />
           {hasReplies ? `${replyCount === 1 ? 'Reply' : 'Replies'} (${replyCount})` : showReplies ? 'Cancel' : 'Reply'}
         </Button>
       )}

@@ -37,15 +37,16 @@ const buttonVariants = cva(
 type ButtonProps = React.ComponentProps<'button'> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean;
+    unstyled?: boolean;
     isLoading?: boolean;
   };
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, isLoading, children, ...props }, ref) => {
+  ({ className, variant, size, asChild = false, isLoading, children, unstyled, ...props }, ref) => {
     const Comp = asChild ? Slot : 'button';
 
     return (
-      <Comp ref={ref} className={cn(buttonVariants({ variant, size, className }))} {...props}>
+      <Comp ref={ref} className={unstyled ? className : cn(buttonVariants({ variant, size, className }))} {...props}>
         {isLoading && <CgSpinner className="animate-spin" />}
         {children}
       </Comp>

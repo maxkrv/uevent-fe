@@ -1,40 +1,46 @@
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { parseAsInteger, parseAsString, useQueryState } from 'nuqs';
+import { useEffect, useMemo, useState } from 'react';
 
 import { QueryKeys } from '../../../shared/constants/query-keys';
+import { useUserGeolocation } from '../../../shared/hooks/maps/use-user-geolocation';
 import { CompanyList } from '../components/company-list';
 import { CompanySearch } from '../components/company-search';
-import { CompanyStatistics } from '../components/company-statistics';
+import { CompaniesStatistics } from '../components/company-statistics';
 import { FeaturedCompanies } from '../components/featured-companies';
-import { CompanyService } from '../services/company.service';
-
+import { useFeaturedCompanies } from '../hooks/use-featured-companies';
+import { CompanyGetManyDto, CompanyService, CompanySortBy } from '../services/company.service';
+const MAX_COMPANIES = 9;
 export const CompaniesPage = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [sortBy, setSortBy] = useState<'name' | 'events' | 'newest'>('newest');
-  const pageSize = 9;
+  const [searchQuery, setSearchQuery] = useQueryState('search', parseAsString.withDefault(''));
+  const [currentPage, setCurrentPage] = useQueryState('page', parseAsInteger.withDefault(1));
+  const [sortBy, setSortBy] = useState<CompanySortBy>(CompanySortBy.NEWEST);
+  const useerLocation = useUserGeolocation();
 
-  // Fetch companies with React Query
+  const companyQuery: CompanyGetManyDto = useMemo(
+    () => ({
+      search: searchQuery,
+      sortBy,
+      page: currentPage,
+      isVerified: true,
+      limit: MAX_COMPANIES,
+      lat: useerLocation.location?.lat,
+      lng: useerLocation.location?.lng
+    }),
+    [searchQuery, sortBy, currentPage, useerLocation.location]
+  );
   const { data: companiesData, isLoading } = useQuery({
-    queryKey: [QueryKeys.COMPANIES, { search: searchQuery, sortBy, page: currentPage, limit: pageSize }],
-    queryFn: () =>
-      CompanyService.getMany({
-        search: searchQuery,
-        sortBy,
-        page: currentPage,
-        limit: pageSize
-      })
+    queryKey: [QueryKeys.COMPANIES, companyQuery],
+    queryFn: () => CompanyService.getMany(companyQuery)
   });
 
-  // Fetch all companies for statistics and featured companies
-  const { data: allCompaniesData, isLoading: isLoadingAll } = useQuery({
-    queryKey: [QueryKeys.COMPANIES, 'all'],
-    queryFn: () => CompanyService.getMany({ limit: 100 }),
-    staleTime: 5 * 60 * 1000 // 5 minutes
+  const { data: featuredCompaniesData, isLoading: isFeaturedLoading } = useFeaturedCompanies({
+    sortBy: CompanySortBy.EVENTS,
+    currentPage: 1
   });
-
   // Reset to page 1 when search or sort changes
   useEffect(() => {
+    if (currentPage === 1) return;
     setCurrentPage(1);
   }, [searchQuery, sortBy]);
 
@@ -55,14 +61,12 @@ export const CompaniesPage = () => {
           Discover and follow event organizers to stay updated with their latest events
         </p>
       </div>
+      {<CompaniesStatistics />}
 
-      {/* Statistics Section */}
-      {!isLoadingAll && allCompaniesData && <CompanyStatistics companies={allCompaniesData.items} />}
+      {!isFeaturedLoading && featuredCompaniesData?.items && (
+        <FeaturedCompanies companies={featuredCompaniesData.items} />
+      )}
 
-      {/* Featured Companies Section */}
-      {!isLoadingAll && allCompaniesData && <FeaturedCompanies companies={allCompaniesData.items} />}
-
-      {/* Search and Filter Controls */}
       <CompanySearch
         searchQuery={searchQuery}
         setSearchQuery={handleSearchChange}
@@ -70,7 +74,6 @@ export const CompaniesPage = () => {
         setSortBy={setSortBy}
       />
 
-      {/* All Companies Section */}
       <div className="mb-8">
         <CompanyList
           companies={companiesData?.items || []}
@@ -78,6 +81,7 @@ export const CompaniesPage = () => {
           currentPage={currentPage}
           totalPages={companiesData?.meta.totalPages || 1}
           onPageChange={handlePageChange}
+          onReset={() => setSearchQuery('')}
         />
       </div>
     </div>

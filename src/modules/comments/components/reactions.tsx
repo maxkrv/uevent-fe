@@ -46,7 +46,7 @@ export const Reactions: FC<ReactionListProps> = ({ small, commentId, newsId }) =
   const userReaction = myReactions.getReaction(relationId);
 
   return (
-    <div className="flex flex-wrap items-center gap-1 pl-1">
+    <div className="flex flex-wrap items-center gap-1">
       {/* Reaction counts */}
       {reactions && reactions.length > 0 && (
         <>

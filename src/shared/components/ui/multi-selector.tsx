@@ -5,8 +5,8 @@ import { forwardRef, useEffect, useState } from 'react';
 
 import { cn } from '@/shared/lib/utils';
 
+import { Command, CommandGroup, CommandItem, CommandList } from '../maps/command';
 import { Badge } from './badge';
-import { Command, CommandGroup, CommandItem, CommandList } from './command';
 
 export interface Option {
   value: string;

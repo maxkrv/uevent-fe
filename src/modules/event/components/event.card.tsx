@@ -4,7 +4,7 @@ import { CreditCard } from 'lucide-react';
 import type React from 'react';
 import type { MouseEventHandler } from 'react';
 import { FaArrowRightLong } from 'react-icons/fa6';
-import { FiCalendar, FiDollarSign, FiHeart, FiMapPin, FiShare2 } from 'react-icons/fi';
+import { FiBell, FiCalendar, FiDollarSign, FiMapPin, FiShare2 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 
 import { Image } from '../../../shared/components/common/image';
@@ -15,6 +15,7 @@ import { useShare } from '../../../shared/hooks/use-share';
 import { cn } from '../../../shared/lib/utils';
 import { getStaticMapImageUrl } from '../../../shared/utils/maps.utils';
 import { CompanyLogo } from '../../company/components/company-logo';
+import { useEventFollow } from '../hooks/use-event-follow';
 import type { Event } from '../interfaces/event.interface';
 import { EventService } from '../services/event.service';
 
@@ -44,7 +45,7 @@ export const EventCard: React.FC<EventListItemProps> = ({ event }) => {
     },
     enabled: !!event.id
   });
-
+  const { isFollowing, toggle } = useEventFollow(event.id);
   const isSoldOut = event.maxAttendees && attendees?.meta.totalItemsCount === event.maxAttendees;
   const isEventPassed = event.endDate
     ? dayjs(event.endDate).isBefore(dayjs())
@@ -84,7 +85,7 @@ export const EventCard: React.FC<EventListItemProps> = ({ event }) => {
         {/* Content */}
         <div className="p-6 flex-1 flex flex-col grow">
           <div className="flex justify-between items-start mb-3 gap-2">
-            <h3 className="text-xl font-bold group-hover:text-primary transition-colors duration-300 line-clamp-2">
+            <h3 className="text-xl font-bold group-hover:text-primary transition-colors duration-300 line-clamp-2 grow">
               {event.title}
             </h3>
 
@@ -92,9 +93,17 @@ export const EventCard: React.FC<EventListItemProps> = ({ event }) => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="p-2 rounded-full text-gray-400 hover:text-red-700/80 hover:bg-red-100/60  transition-colors duration-300 hover:border-red-700/80"
+                className={cn(
+                  'p-2 rounded-full text-gray-400 hover:text-red-700/80 hover:bg-red-100/60  transition-colors duration-300 hover:border-red-700/80',
+                  isFollowing && 'text-red-700/80 bg-red-100/60'
+                )}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  toggle();
+                }}
                 aria-label="Like event">
-                <FiHeart />
+                <FiBell />
               </Button>
               <Button
                 variant="ghost"

@@ -1,8 +1,13 @@
 import { Building2 } from 'lucide-react';
+import { FC } from 'react';
 
-import { Button } from '@/shared/components/ui/button';
+import { Button, buttonVariants } from '@/shared/components/ui/button';
 
-export const NoCompaniesFound = () => {
+import { Link } from '../../../shared/components/common/link';
+interface NoCompaniesFoundProps {
+  onReset?: () => void;
+}
+export const NoCompaniesFound: FC<NoCompaniesFoundProps> = ({ onReset }) => {
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
       <div className="bg-muted rounded-full p-6 mb-4">
@@ -13,10 +18,12 @@ export const NoCompaniesFound = () => {
         We couldn&apos;t find any companies matching your search criteria. Try adjusting your filters or search terms.
       </p>
       <div className="flex gap-4">
-        <Button variant="outline" onClick={() => window.location.reload()}>
+        <Button variant="outline" onClick={onReset}>
           Reset Filters
         </Button>
-        <Button>Browse All Companies</Button>
+        <Link to={'/companies'} unstyled className={buttonVariants()}>
+          Browse All Companies
+        </Link>
       </div>
     </div>
   );

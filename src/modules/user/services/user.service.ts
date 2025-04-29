@@ -1,6 +1,5 @@
 import { apiClient } from '../../../shared/api/api';
-import type { Paginated, PaginationDto } from '../../../shared/types/pagination';
-import type { Company } from '../../company/interfaces/company.interface';
+import type { Paginated } from '../../../shared/types/pagination';
 import { Ticket } from '../../ticket/interfaces/ticket.interface';
 import type { User } from '../interfaces/user.interface';
 
@@ -11,22 +10,6 @@ export class UserService {
 
   static async getById(id: string): Promise<User> {
     return apiClient.get<User>(`users/${id}`).json();
-  }
-
-  static async getFollowedCompanies(userId: string, dto?: PaginationDto): Promise<Paginated<Company>> {
-    const searchParams = new URLSearchParams();
-
-    Object.entries(dto || {}).forEach(([key, value]) => {
-      if (value) {
-        searchParams.append(key, value.toString());
-      }
-    });
-
-    return apiClient
-      .get<Paginated<Company>>(`users/${userId}/companies/following`, {
-        searchParams
-      })
-      .json();
   }
 
   static async getTickets() {

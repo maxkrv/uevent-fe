@@ -5,8 +5,9 @@ import { UrlResponse } from '@/shared/types/url';
 
 import { apiClient } from '../../../shared/api/api';
 import type { Paginated } from '../../../shared/types/pagination';
+import { Success } from '../../auth/interfaces/auth.interface';
 import type { User } from '../../user/interfaces/user.interface';
-import { Event, EventFormatType, EventThemeType } from '../interfaces/event.interface';
+import { Event, EventFormatType, EventSubscription, EventThemeType } from '../interfaces/event.interface';
 
 export type EventSortOption = 'date-asc' | 'date-desc' | 'price-low' | 'price-high' | 'name';
 
@@ -27,6 +28,7 @@ export const EventGetManySchema = z.object({
   page: z.coerce.number().nullable().optional(),
   limit: z.coerce.number().nullable().optional()
 });
+
 export type EventGetManyDto = z.infer<typeof EventGetManySchema>;
 const BaseEventSchema = z.object({
   title: z.string().min(1).max(100),
@@ -89,6 +91,12 @@ export const UpdateEventSchema = BaseEventSchema.partial();
 
 export type UpdateEventDto = z.infer<typeof UpdateEventSchema>;
 
+interface EventAttendeesGetManyDto {
+  search: string;
+  page: number;
+  limit: number;
+}
+
 export class EventService {
   static getById(id: string): Promise<Event> {
     return apiClient.get(`events/${id}`).json<Event>();
@@ -111,6 +119,41 @@ export class EventService {
 
     return apiClient.get('events', { searchParams }).json<Paginated<Event>>();
   }
+  static async getMyEvents(dto: EventGetManyDto) {
+    const searchParams = new URLSearchParams();
+
+    Object.entries(dto).forEach(([key, value]) => {
+      if (value) {
+        if (Array.isArray(value)) {
+          value.forEach((val) => searchParams.append(key, val));
+        } else if (value instanceof Date) {
+          searchParams.append(key, value.toISOString());
+        } else {
+          searchParams.append(key, value.toString());
+        }
+      }
+    });
+
+    return apiClient.get('users/me/events', { searchParams }).json<Paginated<Event>>();
+  }
+
+  static getUserEvents(userId: string, dto: EventGetManyDto) {
+    const searchParams = new URLSearchParams();
+
+    Object.entries(dto).forEach(([key, value]) => {
+      if (value) {
+        if (Array.isArray(value)) {
+          value.forEach((val) => searchParams.append(key, val));
+        } else if (value instanceof Date) {
+          searchParams.append(key, value.toISOString());
+        } else {
+          searchParams.append(key, value.toString());
+        }
+      }
+    });
+
+    return apiClient.get(`users/${userId}/events`, { searchParams }).json<Paginated<Event>>();
+  }
 
   static create(dto: CreateEventDto): Promise<Event> {
     return apiClient.post('events', { json: dto }).json<Event>();
@@ -130,8 +173,21 @@ export class EventService {
     return apiClient.delete(`events/${id}`).json<void>();
   }
 
-  static getAttendees(id: string): Promise<Paginated<User>> {
-    return apiClient.get(`events/${id}/attendees`).json<Paginated<User>>();
+  static async getAttendees(id: string, dto?: EventAttendeesGetManyDto): Promise<Paginated<User>> {
+    const searchParams = Object.entries(dto || {}).reduce((acc, [key, value]) => {
+      if (value) {
+        if (Array.isArray(value)) {
+          value.forEach((val) => acc.append(key, val));
+        } else if (value instanceof Date) {
+          acc.append(key, value.toISOString());
+        } else {
+          acc.append(key, value.toString());
+        }
+      }
+      return acc;
+    }, new URLSearchParams());
+
+    return await apiClient.get(`events/${id}/attendees`, { searchParams }).json<Paginated<User>>();
   }
 
   static getAttendeesCount(id: string): Promise<{ currentAttendees: number }> {
@@ -140,5 +196,20 @@ export class EventService {
 
   static purchase(id: string) {
     return apiClient.post(`events/${id}/purchase`).json<UrlResponse>();
+  }
+
+  static getMyFollowed() {
+    return apiClient.get(`users/me/subscriptions/events`).json<EventSubscription[]>();
+  }
+  static getUserFollowed(userId: string) {
+    return apiClient.get(`users/${userId}/subscriptions/events`).json<EventSubscription[]>();
+  }
+
+  static follow(id: string): Promise<Success> {
+    return apiClient.post(`events/${id}/subscribe`).json<Success>();
+  }
+
+  static unfollow(id: string): Promise<Success> {
+    return apiClient.delete(`events/${id}/unsubscribe`).json<Success>();
   }
 }

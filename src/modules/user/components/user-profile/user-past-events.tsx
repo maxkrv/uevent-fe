@@ -1,11 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
+import dayjs from 'dayjs';
 import { Calendar } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { Pagination } from '@/shared/components/common/pagination';
 
 import { Skeleton } from '../../../../shared/components/ui/skeleton';
 import { QueryKeys } from '../../../../shared/constants/query-keys';
+import { useAuth } from '../../../auth/queries/use-auth.query';
 import { ShortEventCard } from '../../../event/components/short-event-card';
 import { EventService } from '../../../event/services/event.service';
 import { UserNoItems } from './user-no-items';
@@ -17,18 +19,26 @@ const ITEMS_PER_PAGE = 10;
 
 export const UserPastEvents = ({ userId }: UserPastEventsProps) => {
   const [currentPage, setCurrentPage] = useState(1);
+  const me = useAuth();
+  const eventQuery = useMemo(
+    () => ({
+      page: currentPage,
+      limit: ITEMS_PER_PAGE,
+      toDate: dayjs().startOf('hour').toDate()
+    }),
+    [currentPage]
+  );
 
-  // Fetch user's attended events
-  const { data: attendedEventsData, isLoading } = useQuery({
-    queryKey: [QueryKeys.USER_EVENTS, userId, currentPage],
+  const {
+    data: attendedEventsData,
+    isLoading,
+    isError,
+    error
+  } = useQuery({
+    queryKey: [QueryKeys.USER_EVENTS, userId, eventQuery, me.data?.id],
     queryFn: () =>
-      EventService.getMany({
-        page: currentPage,
-        limit: ITEMS_PER_PAGE,
-        userId,
-        toDate: new Date()
-      }),
-    enabled: !!userId
+      me.data?.id === userId ? EventService.getMyEvents(eventQuery) : EventService.getUserEvents(userId, eventQuery),
+    enabled: !!userId && !me.isLoading
   });
 
   if (isLoading) {
@@ -55,6 +65,16 @@ export const UserPastEvents = ({ userId }: UserPastEventsProps) => {
         icon={Calendar}
         title="No Upcoming Events"
         description="This user hasn't registered for any upcoming events yet."
+      />
+    );
+  }
+
+  if (isError && error.message.toLocaleLowerCase().includes('private')) {
+    return (
+      <UserNoItems
+        icon={Calendar}
+        title="Private Events"
+        description="User has desided to keep their events private."
       />
     );
   }

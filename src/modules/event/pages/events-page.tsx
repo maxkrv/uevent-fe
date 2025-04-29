@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import dayjs from 'dayjs';
 import {
   parseAsArrayOf,
   parseAsFloat,
@@ -12,9 +13,11 @@ import { useCallback, useMemo, useState } from 'react';
 import { FiSliders } from 'react-icons/fi';
 
 import { Button } from '@/shared/components/ui/button';
-import { cn, getPagesAmount } from '@/shared/lib/utils';
+import { cn } from '@/shared/lib/utils';
 
+import { Skeleton } from '../../../shared/components/ui/skeleton';
 import { QueryKeys } from '../../../shared/constants/query-keys';
+import { useUserGeolocation } from '../../../shared/hooks/maps/use-user-geolocation';
 import { ActiveFilters } from '../components/active-filters';
 import { EventCard } from '../components/event.card';
 import { EventFilters } from '../components/event-filters';
@@ -30,6 +33,7 @@ const EVENTS_PER_PAGE = 10;
 export const EventsPage = () => {
   const [viewMode, setViewMode] = useState<EventsView>(EventsView.GRID);
   const [showFilters, setShowFilters] = useState(false);
+  const userLocation = useUserGeolocation();
   const [filters, setFilters] = useQueryStates({
     format: parseAsArrayOf(parseAsStringLiteral(Object.values(EventFormatType))).withDefault([]),
     search: parseAsString.withDefault(''),
@@ -48,9 +52,23 @@ export const EventsPage = () => {
     address: parseAsString
   });
 
+  const hasFilters = useMemo(() => {
+    return (
+      !!filters.format.length ||
+      !!filters.themes.length ||
+      !!filters.fromDate ||
+      !!filters.toDate ||
+      !!filters.priceTo ||
+      !!filters.priceFrom ||
+      !!filters.companyId ||
+      !!filters.address
+    );
+  }, [filters]);
+
   const queryFilters: EventGetManyDto = useMemo(
     () => ({
       ...filters,
+      fromDate: filters.fromDate || dayjs().startOf('minute').toDate(),
       companyId: filters.companyId || undefined,
       priceTo: (filters?.priceTo || 0) >= 300 ? null : filters.priceTo!,
       page: viewMode !== EventsView.MAP ? filters.page : null,
@@ -59,9 +77,24 @@ export const EventsPage = () => {
     [filters, viewMode]
   );
 
-  const { data: events, isLoading } = useQuery({
-    queryKey: [QueryKeys.EVENTS, queryFilters],
-    queryFn: () => EventService.getMany(queryFilters)
+  const featuredQueryFilters: EventGetManyDto = useMemo(
+    () => ({
+      limit: 1,
+      fromDate: dayjs().startOf('hour').toDate(),
+      format: queryFilters.format,
+      themes: queryFilters.themes,
+      search: undefined,
+      lat: userLocation.location?.lat,
+      lng: userLocation.location?.lng
+    }),
+    [queryFilters.format, queryFilters.themes, userLocation.location]
+  );
+
+  const { data: featuredEvent, isLoading: isFeaturedEventLoading } = useQuery({
+    queryKey: [QueryKeys.EVENTS, featuredQueryFilters],
+    queryFn: () => EventService.getMany(featuredQueryFilters),
+    select: (data) => data.items.at(0),
+    enabled: !!userLocation.location
   });
 
   const handleFilterChange = useCallback(
@@ -125,11 +158,31 @@ export const EventsPage = () => {
         <p className="text-muted-foreground">Find and join exciting events happening around you</p>
       </div>
 
-      {!!events?.items.length && (
+      {!!featuredEvent && (
         <div className="grid gap-2">
           <h1 className="text-2xl font-bold">Featured Event</h1>
           <p className="text-muted-foreground">Find and join exciting events happening around you</p>
-          <EventCard event={events.items[0]} />
+          <EventCard event={featuredEvent} />
+        </div>
+      )}
+      {isFeaturedEventLoading && (
+        <div className="grid gap-2">
+          <h1 className="text-2xl font-bold">Featured Event</h1>
+          <p className="text-muted-foreground">Find and join exciting events happening around you</p>
+          <div className="grid gap-2">
+            <div className="bg-secondary rounded-xl overflow-hidden shadow h-96">
+              <Skeleton className="h-1/3 w-full" />
+              <div className="p-4 space-y-4">
+                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="h-20 w-full" />
+                <div className="flex justify-between">
+                  <Skeleton className="h-8 w-20" />
+                  <Skeleton className="h-8 w-28" />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
@@ -153,8 +206,10 @@ export const EventsPage = () => {
         <ActiveFilters
           searchQuery={filters.search}
           onClearSearch={handleClearSearch}
-          showFilters={showFilters}
-          onToggleFilters={handleToggleFilters}
+          hasFilters={hasFilters}
+          onToggleFilters={handleClearFilters}
+          companyId={filters.companyId || undefined}
+          onClearCompanyId={() => setFilters((value) => ({ ...value, companyId: null }))}
         />
 
         <div
@@ -167,13 +222,13 @@ export const EventsPage = () => {
       </div>
 
       <EventsDisplay
-        events={events?.items || []}
-        isLoading={isLoading}
+        queryFilters={queryFilters}
         viewMode={viewMode}
-        currentPage={filters.page || 1}
-        totalPages={getPagesAmount(events?.meta.totalItemsCount || 0, EVENTS_PER_PAGE) || 1}
-        pageSize={events?.meta.itemsPerPage || EVENTS_PER_PAGE}
         onPageChange={handlePageChange}
+        onResetFilters={() => {
+          handleClearFilters();
+          handleClearSearch();
+        }}
       />
     </div>
   );
