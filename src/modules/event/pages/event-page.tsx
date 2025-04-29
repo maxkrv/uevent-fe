@@ -3,10 +3,12 @@ import { useParams } from 'react-router-dom';
 
 import { Skeleton } from '@/shared/components/ui/skeleton';
 
+import { Card, CardContent, CardHeader, CardTitle } from '../../../shared/components/ui/card';
 import { QueryKeys } from '../../../shared/constants/query-keys';
 import { NotFoundPage } from '../../../shared/pages/not-found-page';
 import { Comments } from '../../comments/components/comments';
 import { CompanyCard } from '../../company/components/company-card';
+import { UserTickets } from '../../user/components/user-profile/user-tickets';
 import { EventAttendees } from '../components/event-details/event-attendees';
 import { EventHero } from '../components/event-details/event-hero';
 import { EventMap } from '../components/event-details/event-map';
@@ -91,7 +93,16 @@ export const EventPage = () => {
           <div className="space-y-8">
             {/* Event Actions */}
             <EventTickets event={event} currentAttendees={currentAttendeesCount || 0} />
-
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <span>My Tickets</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-3">
+                <UserTickets eventId={event.id} classname="border-transparent shadow-none" />
+              </CardContent>
+            </Card>
             {/* Organizer Info */}
             {event.company && <CompanyCard company={event.company} />}
 

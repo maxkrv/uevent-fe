@@ -32,6 +32,8 @@ import {
 import type React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
+import { useAuth } from '@/modules/auth/queries/use-auth.query';
+
 import {
   CommandDialog,
   CommandEmpty,
@@ -72,7 +74,7 @@ const navigationGroups: NavigationGroup[] = [
       {
         icon: CircleUser,
         name: 'My Profile',
-        path: '/profile',
+        path: '/users/{id}',
         description: 'View your profile',
         keywords: ['account', 'me', 'personal']
       }
@@ -185,63 +187,63 @@ const navigationGroups: NavigationGroup[] = [
       {
         icon: CalendarClock,
         name: 'Your Upcoming Events',
-        path: '/users/me/upcoming',
+        path: '/users/{id}/upcoming',
         description: "Events you're attending",
         keywords: ['my', 'attending', 'future']
       },
       {
         icon: History,
         name: 'Your Past Events',
-        path: '/users/me/past',
+        path: '/users/{id}/past',
         description: "Events you've attended",
         keywords: ['my', 'history', 'previous']
       },
       {
         icon: Heart,
         name: 'Following',
-        path: '/users/me/following/companies',
+        path: '/users/{id}/following/companies',
         description: 'Companies you follow',
         keywords: ['subscribed', 'saved', 'favorite']
       },
       {
         icon: CalendarHeart,
         name: 'Following Events',
-        path: '/users/me/following/events',
+        path: '/users/{id}/following/events',
         description: 'Events you follow',
         keywords: ['subscribed', 'saved', 'favorite']
       },
       {
         icon: Ticket,
         name: 'Your Tickets',
-        path: '/users/me/tickets',
+        path: '/users/{id}/tickets',
         description: 'View your tickets',
         keywords: ['my', 'passes', 'bookings']
       },
       {
         icon: Settings,
         name: 'Settings',
-        path: '/users/me/settings',
+        path: '/users/{id}/settings',
         description: 'Manage your account',
         keywords: ['preferences', 'account', 'profile']
       },
       {
         icon: UserCog,
         name: 'Profile Settings',
-        path: '/users/me/settings?tab=profile',
+        path: '/users/{id}/settings?tab=profile',
         description: 'Edit your profile',
         keywords: ['edit', 'personal', 'information']
       },
       {
         icon: Bell,
         name: 'Notification Settings',
-        path: '/users/me/settings?tab=notifications',
+        path: '/users/{id}/settings?tab=notifications',
         description: 'Manage notifications',
         keywords: ['alerts', 'preferences', 'email']
       },
       {
         icon: Lock,
         name: 'Privacy Settings',
-        path: '/users/me/settings?tab=privacy',
+        path: '/users/{id}/settings?tab=privacy',
         description: 'Manage privacy',
         keywords: ['security', 'visibility', 'personal']
       }
@@ -296,8 +298,28 @@ interface NavigationGroup {
 export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { data: user } = useAuth();
 
   const handleSelect = (path: string) => {
+    if (path.includes('{id}')) {
+      if (!user) {
+        navigate('/auth/login', { replace: true });
+        onOpenChange(false);
+        return;
+      }
+      path = path.replace('{id}', user.id);
+
+      navigate(path);
+      onOpenChange(false);
+      return;
+    }
+
+    if (path === '/companies/create' && user) {
+      navigate(`users/${user.id}?create=company`, { replace: true });
+      onOpenChange(false);
+      return;
+    }
+
     navigate(path);
     onOpenChange(false);
   };

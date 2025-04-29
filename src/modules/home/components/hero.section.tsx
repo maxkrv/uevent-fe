@@ -11,6 +11,7 @@ import DiscoverEventImage from '@/assets/images/discover-events.png';
 import ExploreCategoriesImage from '@/assets/images/explore-categories.png';
 import SecureTicketsImage from '@/assets/images/secure-tickets.png';
 import TopOrganizersImage from '@/assets/images/top-organizers.png';
+import { useAuth } from '@/modules/auth/queries/use-auth.query';
 import { Button } from '@/shared/components/ui/button';
 import { cn } from '@/shared/lib/utils';
 import { TimeUtils } from '@/shared/utils/time.utils';
@@ -48,7 +49,7 @@ const HERO_SLIDES = [
     description: 'Easy registration and ticketing for all types of events with instant confirmation',
     cta: 'Get Tickets',
     image: SecureTicketsImage,
-    link: '/tickets',
+    link: '/events',
     icon: TbTicket,
     color: 'from-rose-600 to-pink-700'
   },
@@ -57,7 +58,7 @@ const HERO_SLIDES = [
     description: 'Browse events by category to find exactly what interests you most',
     cta: 'Browse Categories',
     image: ExploreCategoriesImage,
-    link: '/categories',
+    link: '/events',
     icon: MdOutlineCategory,
     color: 'from-green-600 to-emerald-700'
   }
@@ -67,6 +68,7 @@ export const HeroSection = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
   const nav = useNavigate();
+  const { isLoggedIn, data: user } = useAuth();
   const autoScrollTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Function to start the auto-scroll timer
@@ -151,6 +153,16 @@ export const HeroSection = () => {
                     variant={'ghost'}
                     size={'lg'}
                     onClick={() => {
+                      if (slide.cta === 'Create Event') {
+                        if (!isLoggedIn) {
+                          nav(slide.link);
+                          return;
+                        }
+
+                        nav(`users/${user?.id}`);
+                        return;
+                      }
+
                       nav(slide.link);
                     }}
                     className="group relative overflow-hidden rounded-full text-lg text-white border-2 border-current font-semibold transition-all duration-500 hover:bg-white/10 bg-white/20">

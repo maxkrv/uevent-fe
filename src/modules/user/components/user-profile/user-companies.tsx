@@ -78,9 +78,8 @@ export const UserCompanies = ({ userId }: UserCompaniesProps) => {
             </div>
           )}
         </CardContent>
-
-        <CreateCompanyModal open={open} setOpen={setOpen} />
       </Card>
+      {open && <CreateCompanyModal userId={userId} open={open} setOpen={setOpen} />}
     </>
   );
 };

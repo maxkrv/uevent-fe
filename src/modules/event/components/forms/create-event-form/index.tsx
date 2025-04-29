@@ -86,6 +86,8 @@ export const CreateEventForm: FC<CreateEventFormProps> = ({ companyId, onSuccess
   const uploadPosterMutation = useMutation({
     mutationFn: ({ id, file }: { id: string; file: File }) => EventService.uploadPoster(id, file),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QueryKeys.COMPANY_EVENTS, companyId] });
+      queryClient.invalidateQueries({ queryKey: [QueryKeys.EVENTS] });
       toast.success('Poster uploaded successfully');
     }
   });

@@ -8,6 +8,8 @@ import { NavLink } from 'react-router-dom';
 
 import { Logo } from '../../../assets/logos/logo';
 import { useAuth } from '../../../modules/auth/queries/use-auth.query';
+import { NotificationDrawer } from '../../../modules/notification/components/notification-drawer';
+import { useNotifications } from '../../../modules/notification/hooks/use-notifications';
 import { cn } from '../../lib/utils';
 import { Button, buttonVariants } from '../ui/button';
 import { CommandPalette } from './command-palette';
@@ -26,6 +28,8 @@ export const Header: React.FC = () => {
   const user = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const { unreadCount } = useNotifications();
 
   return (
     <header className="top-0 left-0 right-0 z-50 sticky transition-all duration-300 bg-accent/40 backdrop-blur-sm shadow-md max-h-header min-h-full h-header">
@@ -68,9 +72,16 @@ export const Header: React.FC = () => {
 
             {user.data ? (
               <>
-                <Button variant="ghost" size="icon" className="relative" onClick={() => {}}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="relative"
+                  onClick={() => setIsNotificationsOpen(true)}
+                  aria-label="Notifications">
                   <FiBell className="text-xl" />
-                  <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                  {unreadCount > 0 && (
+                    <span className="absolute top-0 right-0 w-2 h-2 bg-primary rounded-full animate-ping"></span>
+                  )}
                 </Button>
 
                 <Button
@@ -119,6 +130,8 @@ export const Header: React.FC = () => {
 
       {/* Command Palette */}
       <CommandPalette open={isCommandPaletteOpen} onOpenChange={setIsCommandPaletteOpen} />
+      {/* Notifications Drawer */}
+      <NotificationDrawer open={isNotificationsOpen} onOpenChange={setIsNotificationsOpen} />
     </header>
   );
 };

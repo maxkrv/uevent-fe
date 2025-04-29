@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useParams, useSearchParams } from 'react-router-dom';
 
 import { useAuth } from '@/modules/auth/queries/use-auth.query';
 import { Skeleton } from '@/shared/components/ui/skeleton';
@@ -11,6 +12,23 @@ import { ProfileSection } from '../components/user-settings/profile-section';
 export const UserSettingsPage = () => {
   const { data: currentUser, isLoading } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+
+    if (tab && !['profile', 'notifications', 'privacy'].includes(tab)) {
+      setActiveTab('profile');
+      setSearchParams({});
+
+      return;
+    }
+
+    if (tab) {
+      setActiveTab(tab);
+      setSearchParams({});
+    }
+  }, [searchParams]);
 
   if (isLoading || !currentUser) {
     return <UserSettingsSkeleton />;

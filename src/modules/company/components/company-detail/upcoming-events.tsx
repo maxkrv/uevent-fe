@@ -27,7 +27,7 @@ export const UpcomingEvents: FC<UpcomingEventsProps> = ({ company }) => {
   );
 
   const { data: upcomingEvents, isLoading } = useQuery({
-    queryKey: [QueryKeys.COMPANY_EVENTS, getManyQuery],
+    queryKey: [QueryKeys.COMPANY_EVENTS, company?.id, getManyQuery],
     queryFn: () => EventService.getMany(getManyQuery),
     enabled: !!company?.id && !!company
   });

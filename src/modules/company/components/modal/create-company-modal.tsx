@@ -26,10 +26,11 @@ import { CompanyLogo } from '../company-logo';
 
 interface Props {
   open: boolean;
+  userId: string;
   setOpen: (open: boolean) => void;
 }
 
-export const CreateCompanyModal: FC<Props> = ({ open, setOpen }) => {
+export const CreateCompanyModal: FC<Props> = ({ open, userId, setOpen }) => {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('basic');
 
@@ -38,7 +39,7 @@ export const CreateCompanyModal: FC<Props> = ({ open, setOpen }) => {
     register,
     setValue,
     watch,
-    formState: { errors, isValid }
+    formState: { errors }
   } = useForm<CompanyDto>({
     resolver: zodResolver(CompanySchema),
     mode: 'onChange',
@@ -62,7 +63,7 @@ export const CreateCompanyModal: FC<Props> = ({ open, setOpen }) => {
 
   const { mutate, isPending } = useMutation({
     mutationFn: CompanyService.create,
-    onSuccess: ({ id, ownerId }) => {
+    onSuccess: ({ id }) => {
       if (avatar || cover) {
         mutateMedia(id);
         return;
@@ -70,7 +71,7 @@ export const CreateCompanyModal: FC<Props> = ({ open, setOpen }) => {
 
       toast.success('Company created successfully');
       queryClient.invalidateQueries({ queryKey: [QueryKeys.MY_COMPANIES] });
-      queryClient.invalidateQueries({ queryKey: [QueryKeys.USER_COMPANIES, ownerId] });
+      queryClient.invalidateQueries({ queryKey: [QueryKeys.USER_COMPANIES, userId] });
       setOpen(false);
     }
   });
@@ -92,6 +93,7 @@ export const CreateCompanyModal: FC<Props> = ({ open, setOpen }) => {
     onSuccess: () => {
       toast.success('Company created successfully');
       queryClient.invalidateQueries({ queryKey: [QueryKeys.MY_COMPANIES] });
+      queryClient.invalidateQueries({ queryKey: [QueryKeys.USER_COMPANIES, userId] });
       setOpen(false);
     }
   });
@@ -332,7 +334,7 @@ export const CreateCompanyModal: FC<Props> = ({ open, setOpen }) => {
                 <Button type="button" variant="outline" onClick={() => setActiveTab('media')}>
                   Back
                 </Button>
-                <Button type="submit" disabled={!isValid || isLoading} isLoading={isLoading}>
+                <Button type="submit" disabled={isLoading} isLoading={isLoading}>
                   Create Company
                 </Button>
               </div>
