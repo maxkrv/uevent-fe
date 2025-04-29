@@ -1,14 +1,16 @@
+'use client';
+
 import { useParams } from 'react-router-dom';
 
 import { NotFoundPage } from '../../../shared/pages/not-found-page';
-import { UserFollowing } from '../components/user-profile/user-following';
+import { UserFollowingCompanies } from '../components/user-profile/user-following-companies';
 
-export const UserFollowingPage = () => {
+export const UserFollowingCompaniesPage = () => {
   const { id } = useParams<{ id: string }>();
 
   if (!id) {
     return <NotFoundPage />;
   }
 
-  return <UserFollowing userId={id} />;
+  return <UserFollowingCompanies userId={id} />;
 };

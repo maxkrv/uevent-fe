@@ -136,21 +136,22 @@ export const CommentItem = ({ comment, currentUserId, isReply = false }: Comment
                   isReply={isReply}
                 />
               ) : (
-                <CommentContent content={comment.content} isReply={isReply} />
+                <>
+                  <CommentContent content={comment.content} isReply={isReply} />
+                  <CommentFooter
+                    commentId={comment.id}
+                    isReply={isReply}
+                    hasReplies={hasReplies}
+                    replyCount={replyCount || 0}
+                    onToggleReplies={!isReply ? () => setShowReplies(!showReplies) : undefined}
+                    showReplies={showReplies}
+                  />
+                </>
               ))}
           </div>
 
           {!isCollapsed && (
             <>
-              <CommentFooter
-                commentId={comment.id}
-                isReply={isReply}
-                hasReplies={hasReplies}
-                replyCount={replyCount || 0}
-                onToggleReplies={!isReply ? () => setShowReplies(!showReplies) : undefined}
-                showReplies={showReplies}
-              />
-
               {/* Replies section - only for non-replies */}
               {!isReply && showReplies && (
                 <div className="pl-4 border-l-2 border-muted">

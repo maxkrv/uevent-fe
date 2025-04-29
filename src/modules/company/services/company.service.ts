@@ -2,17 +2,29 @@ import { Success } from '@/modules/auth/interfaces/auth.interface';
 import { apiClient } from '@/shared/api/api';
 import { UrlResponse } from '@/shared/types/url';
 
-import { mockCompanies } from '../../../__mock__/companies';
-import { mockData } from '../../../__mock__/data';
-import type { SortOrder } from '../../../shared/types/interfaces';
 import type { Paginated, PaginationDto } from '../../../shared/types/pagination';
-import type { Company, CompanyDto, CompanyPromoCode, CompanyPromoCodeDto } from '../interfaces/company.interface';
+import type {
+  Company,
+  CompanyDto,
+  CompanyPromoCode,
+  CompanyPromoCodeDto,
+  CompanySubscription
+} from '../interfaces/company.interface';
 import type { CompanyNews, CompanyNewsDto } from '../interfaces/news.interface';
+
+export enum CompanySortBy {
+  NAME = 'name',
+  EVENTS = 'events',
+  NEWEST = 'newest',
+  OLDEST = 'oldest'
+}
 
 export interface CompanyGetManyDto extends PaginationDto {
   search?: string;
-  sortBy?: 'name' | 'events' | 'newest';
-  sortOrder?: SortOrder;
+  lat?: number;
+  lng?: number;
+  sortBy?: CompanySortBy;
+  isVerified?: boolean;
 }
 
 export class CompanyService {
@@ -91,38 +103,6 @@ export class CompanyService {
     return apiClient.get(`companies-news/${newsId}`).json<CompanyNews>();
   }
 
-  static getRelatedNews(companyId: string, excludeId?: string): Promise<CompanyNews[]> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        let relatedNews = mockData.companyNews.filter((news) => news.company.id === companyId);
-
-        // Exclude the current news item if provided
-        if (excludeId) {
-          relatedNews = relatedNews.filter((news) => news.id !== excludeId);
-        }
-
-        // Sort by date (newest first) and limit to 3
-        relatedNews.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-        relatedNews = relatedNews.slice(0, 3);
-
-        resolve(relatedNews);
-      }, 500);
-    });
-  }
-
-  static getSimilarCompanies(companyId: string, limit = 3): Promise<Company[]> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // Exclude current company and get random companies
-        const otherCompanies = mockCompanies.filter((company) => company.id !== companyId);
-        const shuffled = [...otherCompanies].sort(() => 0.5 - Math.random());
-        const similarCompanies = shuffled.slice(0, limit);
-
-        resolve(similarCompanies);
-      }, 500);
-    });
-  }
-
   static getMyCompanies(page = 1, limit = 10): Promise<Paginated<Company>> {
     const params = new URLSearchParams();
     params.set('page', page.toString());
@@ -134,7 +114,24 @@ export class CompanyService {
       })
       .json<Paginated<Company>>();
   }
+  static getSubscriptionsCount(): Promise<{ companySubscriptions: number }> {
+    return apiClient.get('companies/subscriptions/count').json();
+  }
+  static getMyFollowed() {
+    return apiClient.get(`users/me/subscriptions/companies`).json<CompanySubscription[]>();
+  }
 
+  static getUserFollowed(userId: string) {
+    return apiClient.get(`users/${userId}/subscriptions/companies`).json<CompanySubscription[]>();
+  }
+
+  static follow(id: string): Promise<Success> {
+    return apiClient.post(`companies/${id}/subscribe`).json<Success>();
+  }
+
+  static unfollow(id: string): Promise<Success> {
+    return apiClient.delete(`companies/${id}/unsubscribe`).json<Success>();
+  }
   static verify(id: string) {
     return apiClient.post(`companies/${id}/onboarding-link`).json<UrlResponse>();
   }

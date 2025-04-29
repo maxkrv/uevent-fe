@@ -30,7 +30,7 @@ const HERO_SLIDES = [
     description: 'Share your passion with others by creating and hosting your own events',
     cta: 'Create Event',
     image: CreateEventImage,
-    link: '/events/create',
+    link: '/auth/sign-up',
     icon: TbTimelineEventPlus,
     color: 'from-blue-600 to-cyan-700'
   },

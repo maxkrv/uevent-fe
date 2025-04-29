@@ -1,6 +1,6 @@
 import { GoogleMap, InfoWindow, Marker } from '@react-google-maps/api';
 import dayjs from 'dayjs';
-import { Calendar } from 'lucide-react';
+import { Calendar, LucideMapPinOff } from 'lucide-react';
 import { FC, useCallback, useEffect, useState } from 'react';
 
 import { useGoogleMaps } from '../../hooks/maps/use-google-maps';
@@ -94,7 +94,15 @@ export const EventsMap: FC<EventsMapProps> = ({
   const handleInfoWindowClose = useCallback(() => {
     setSelectedEvent(null);
   }, [setSelectedEvent]);
-
+  if (events.length === 0) {
+    return (
+      <div className="p-4 border bg-muted text-muted-foreground rounded-md flex items-center justify-center min-h-full text-2xl font-semibold relative gap-2">
+        <LucideMapPinOff className="size-16" />
+        No events available
+        <br /> to display on the map.
+      </div>
+    );
+  }
   if (isError) {
     return (
       <div className="p-4 border border-red-300 bg-red-50 text-red-700 rounded-md">

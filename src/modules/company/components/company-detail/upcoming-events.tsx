@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import dayjs from 'dayjs';
 import { FC, useMemo } from 'react';
 
 import { QueryKeys } from '../../../../shared/constants/query-keys';
@@ -18,7 +19,7 @@ export const UpcomingEvents: FC<UpcomingEventsProps> = ({ company }) => {
   const getManyQuery: EventGetManyDto = useMemo(
     () => ({
       companyId: company?.id ?? '',
-      fromDate: new Date(),
+      fromDate: dayjs().startOf('hour').toDate(),
       sort: 'date-asc',
       limit: ITEMS_PER_PAGE
     }),

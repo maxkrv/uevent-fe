@@ -1,72 +1,94 @@
 import { useQuery } from '@tanstack/react-query';
+import dayjs from 'dayjs';
 import type React from 'react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 
 import { Link } from '../../../shared/components/common/link';
+import { Pagination } from '../../../shared/components/common/pagination';
 import { Button } from '../../../shared/components/ui/button';
 import { Skeleton } from '../../../shared/components/ui/skeleton';
 import { QueryKeys } from '../../../shared/constants/query-keys';
-import { cn } from '../../../shared/lib/utils';
 import { EventCard } from '../../event/components/event.card';
 import { EventThemeType } from '../../event/interfaces/event.interface';
 import { EventGetManyDto, EventService } from '../../event/services/event.service';
 
+// Define filters
+enum FilterType {
+  ALL = 'All',
+  TODAY = 'Today',
+  WEEKEND = 'Weekend',
+  FREE = 'Free',
+  ONLINE = 'Online',
+  HEALTH = 'Health',
+  SCIENCE = 'Science',
+  ART = 'Art',
+  ENTERTAINMENT = 'Entertainment'
+}
+const createEventsFilters = (filter: FilterType, page?: number) => {
+  const queryFilters: EventGetManyDto = {
+    search: '',
+    page: page || 1,
+    limit: 4,
+    sort: 'date-asc',
+    format: [],
+    themes: [],
+    fromDate: null,
+    toDate: null,
+    priceFrom: null,
+    priceTo: null
+  };
+  const now = dayjs().startOf('hour').toDate();
+
+  switch (filter) {
+    case FilterType.ALL:
+      queryFilters.search = '';
+      queryFilters.fromDate = now;
+
+      break;
+    case FilterType.TODAY:
+      queryFilters.fromDate = now;
+      queryFilters.toDate = dayjs(now).endOf('day').toDate();
+      break;
+    case FilterType.WEEKEND:
+      queryFilters.fromDate = dayjs(now).day(5).startOf('day').toDate(); // Friday
+      queryFilters.toDate = dayjs(now).day(7).endOf('day').toDate(); // Sunday
+      break;
+    case FilterType.FREE:
+      queryFilters.priceFrom = 0;
+      break;
+    case FilterType.ONLINE:
+      queryFilters.lat = null;
+      queryFilters.lng = null;
+      queryFilters.address = null;
+      break;
+    case FilterType.HEALTH:
+      queryFilters.themes?.push(EventThemeType.HEALTH);
+      break;
+    case FilterType.SCIENCE:
+      queryFilters.themes?.push(EventThemeType.SCIENCE);
+      break;
+    case FilterType.ART:
+      queryFilters.themes?.push(EventThemeType.ART);
+      break;
+    case FilterType.ENTERTAINMENT:
+      queryFilters.themes?.push(EventThemeType.ENTERTAINMENT);
+      break;
+    default:
+      break;
+  }
+  return queryFilters;
+};
+
 const UpcomingEventsSection: React.FC = () => {
-  const [activeFilter, setActiveFilter] = useState('all');
+  const [activeFilter, setActiveFilter] = useState(FilterType.ALL);
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 4;
-
-  // Define filters
-  const filters = [
-    { id: 'all', name: 'All Events' },
-    { id: 'today', name: 'Today' },
-    { id: 'weekend', name: 'This Weekend' },
-    { id: 'free', name: 'Free' },
-    { id: 'music', name: 'Music' },
-    { id: 'business', name: 'Business' }
-  ];
-
+  const filters = useMemo(() => createEventsFilters(activeFilter, currentPage), [activeFilter, currentPage]);
   // Fetch events with React Query
   const { data: eventsData, isLoading } = useQuery({
-    queryKey: [QueryKeys.EVENTS, 'upcoming', activeFilter, currentPage, pageSize],
-    queryFn: async () => {
-      // Create filter options based on active filter
-      const filterOptions: EventGetManyDto = {
-        page: currentPage,
-        limit: pageSize
-      };
-
-      // Apply specific filters based on selection
-      if (activeFilter === 'today') {
-        const today = new Date();
-        filterOptions.startDate = today;
-        filterOptions.endDate = new Date(today.setHours(23, 59, 59, 999));
-      } else if (activeFilter === 'weekend') {
-        const today = new Date();
-        const dayOfWeek = today.getDay();
-        const daysUntilFriday = dayOfWeek <= 5 ? 5 - dayOfWeek : 5 + 7 - dayOfWeek;
-        const friday = new Date(today);
-        friday.setDate(today.getDate() + daysUntilFriday);
-        friday.setHours(0, 0, 0, 0);
-
-        const sunday = new Date(friday);
-        sunday.setDate(friday.getDate() + 2);
-        sunday.setHours(23, 59, 59, 999);
-
-        filterOptions.startDate = friday;
-        filterOptions.endDate = sunday;
-      } else if (activeFilter === 'free') {
-        filterOptions.priceFrom = 0;
-        filterOptions.priceTo = 0;
-      } else if (activeFilter === 'music') {
-        filterOptions.themes = [EventThemeType.MUSIC];
-      } else if (activeFilter === 'business') {
-        filterOptions.themes = [EventThemeType.BUSINESS];
-      }
-
-      return await EventService.getMany(filterOptions);
-    }
+    queryKey: [QueryKeys.EVENTS, filters],
+    queryFn: () => EventService.getMany(filters),
+    enabled: !!filters
   });
 
   const totalPages = eventsData?.meta.totalPages || 1;
@@ -100,19 +122,16 @@ const UpcomingEventsSection: React.FC = () => {
       {/* Filters */}
       <div className={`mb-8 overflow-x-auto scrollbar-hide`}>
         <div className="flex gap-2 pb-2 flex-wrap">
-          {filters.map((filter) => (
-            <button
-              key={filter.id}
+          {Object.values(FilterType).map((filter) => (
+            <Button
+              key={filter}
               onClick={() => {
-                setActiveFilter(filter.id);
+                setActiveFilter(filter);
                 setCurrentPage(1);
               }}
-              className={cn(
-                'px-4 py-2 rounded-full whitespace-nowrap transition-colors duration-300',
-                activeFilter === filter.id ? 'bg-primary text-primary-foreground' : 'bg-accent hover:bg-primary-light'
-              )}>
-              {filter.name}
-            </button>
+              variant={activeFilter === filter ? 'default' : 'outline'}>
+              {filter}
+            </Button>
           ))}
         </div>
       </div>
@@ -136,34 +155,23 @@ const UpcomingEventsSection: React.FC = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-8">
-          {eventsData?.items.map((event) => <EventCard key={event.id} event={event} />)}
+          {eventsData?.items?.map((event) => <EventCard key={event.id} event={event} />)}
+        </div>
+      )}
+      {eventsData?.items?.length === 0 && !isLoading && (
+        <div className="text-center h-96 grid justify-center items-center border-2  rounded-xl bg-muted">
+          <p className="text-muted-foreground text-xl">No events found for this filter</p>
         </div>
       )}
 
-      {/* Mobile pagination */}
-      <div className="mt-8 flex justify-center md:hidden">
-        <div className="flex items-center space-x-2">
-          <Button
-            size={'icon'}
-            variant="outline"
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}>
-            <FiChevronLeft />
-          </Button>
-
-          <span className="text-accent-foreground">
-            Page {currentPage} of {totalPages}
-          </span>
-
-          <Button
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages}
-            size={'icon'}
-            variant="outline">
-            <FiChevronRight />
-          </Button>
-        </div>
-      </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={(page) => {
+          setCurrentPage(page);
+        }}
+        className="mt-8 md:hidden"
+      />
 
       {/* View all button */}
       <div className="mt-8 text-center">

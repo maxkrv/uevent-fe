@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { RiEmojiStickerLine } from 'react-icons/ri';
 
 import { Button } from '../../../shared/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '../../../shared/components/ui/popover';
@@ -31,18 +32,11 @@ export const ReactionButton = ({ userReaction, isReply = false, onReact, onRemov
   const [isOpen, setIsOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
-  // Get the emoji for the React button
-  const reactButtonEmoji = userReaction ? REACTION_EMOJIS[userReaction.type] : '';
-
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <Button
-          ref={buttonRef}
-          variant="outline"
-          size="sm"
-          className={`text-xs rounded-full p-2 ${isReply ? 'h-6' : 'h-7'}`}>
-          {reactButtonEmoji} React
+        <Button ref={buttonRef} variant="ghost" size="sm" className="h-7 text-xs rounded-full hover:bg-muted">
+          <RiEmojiStickerLine /> React
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-2" side="top">

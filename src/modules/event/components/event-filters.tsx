@@ -43,6 +43,9 @@ export const EventFilters = ({ onFilterChange, filters, onReset }: EventFiltersP
   // Initialize the form with React Hook Form and Zod validation
   const { handleSubmit, control, watch, setValue, reset, ...other } = useForm<EventGetManyDto>({
     resolver: zodResolver(EventGetManySchema),
+    reValidateMode: 'onChange',
+    mode: 'onChange',
+
     defaultValues: {
       ...defaultValues,
       ...filters
@@ -234,7 +237,11 @@ export const EventFilters = ({ onFilterChange, filters, onReset }: EventFiltersP
               Reset Filters
             </Button>
 
-            <Button type="submit" className="grow">
+            <Button
+              type="submit"
+              className="grow"
+              disabled={!form.formState.isValid || form.formState.isSubmitting}
+              isLoading={form.formState.isSubmitting}>
               Apply
             </Button>
           </div>

@@ -45,22 +45,21 @@ export const ShortEventCard: FC<ShortEventCardProps> = ({ event, className, ...p
           className="h-full w-full object-cover"
         />
 
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 flex flex-col justify-between gap-1">
           <h3 className="font-medium line-clamp-1 group-hover:text-primary transition-colors">{event.title}</h3>
 
-          <div className="flex items-center text-xs text-muted-foreground mt-1">
-            <Calendar className="mr-1 h-3 w-3" />
-            {dayjs(event.startDate).format('MMM D, YYYY')}
+          <div className="grid gap-0.5">
+            <div className="flex items-center text-xs text-muted-foreground">
+              <Calendar className="mr-1 h-3 w-3" />
+              {dayjs(event.startDate).format('MMM D, YYYY')}
+            </div>
+            <div className="flex items-center text-xs text-muted-foreground">
+              <MapPin className="mr-1 h-3 w-3" />
+              <span className="line-clamp-1">{event.location?.address || 'Online'}</span>
+            </div>
           </div>
 
-          {event.location && (
-            <div className="flex items-center text-xs text-muted-foreground mt-1">
-              <MapPin className="mr-1 h-3 w-3" />
-              <span className="line-clamp-1">{event.location.address}</span>
-            </div>
-          )}
-
-          <div className="flex items-center gap-2 mt-2 flex-wrap overflow-hidden max-h-6">
+          <div className="flex items-center gap-2 flex-wrap overflow-hidden max-h-6 grow">
             <Badge variant="outline" className="text-xs">
               {event.price ? `$${event.price.toFixed(2)}` : 'Free'}
             </Badge>

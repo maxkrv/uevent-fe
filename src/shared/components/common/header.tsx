@@ -1,3 +1,5 @@
+'use client';
+
 import { LucideLogIn } from 'lucide-react';
 import type React from 'react';
 import { useState } from 'react';
@@ -8,6 +10,7 @@ import { Logo } from '../../../assets/logos/logo';
 import { useAuth } from '../../../modules/auth/queries/use-auth.query';
 import { cn } from '../../lib/utils';
 import { Button, buttonVariants } from '../ui/button';
+import { CommandPalette } from './command-palette';
 import { Link } from './link';
 import { UserMenuSheet } from './user-menu-sheet';
 
@@ -22,7 +25,7 @@ const getNavLinkClassName = ({ isActive }: { isActive: boolean }) =>
 export const Header: React.FC = () => {
   const user = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
 
   return (
     <header className="top-0 left-0 right-0 z-50 sticky transition-all duration-300 bg-accent/40 backdrop-blur-sm shadow-md max-h-header min-h-full h-header">
@@ -53,13 +56,19 @@ export const Header: React.FC = () => {
 
           {/* Search and User Actions */}
           <div className="flex items-center gap-2">
-            {/* Search Button */}
-            <Button variant="default" size="icon" onClick={() => setIsSearchOpen(!isSearchOpen)}>
+            {/* Command Palette Button */}
+            <Button
+              variant="default"
+              size="icon"
+              onClick={() => setIsCommandPaletteOpen(true)}
+              aria-label="Command Menu"
+              className="relative">
               <FiSearch className="text-xl stroke-3" />
             </Button>
+
             {user.data ? (
               <>
-                <Button variant="ghost" size="icon" className="relative" onClick={() => setIsSearchOpen(!isSearchOpen)}>
+                <Button variant="ghost" size="icon" className="relative" onClick={() => {}}>
                   <FiBell className="text-xl" />
                   <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
                 </Button>
@@ -83,8 +92,6 @@ export const Header: React.FC = () => {
                 <LucideLogIn className="text-xl stroke-3" />
               </NavLink>
             )}
-
-            {/* Mobile Menu Button */}
           </div>
         </div>
 
@@ -109,6 +116,9 @@ export const Header: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Command Palette */}
+      <CommandPalette open={isCommandPaletteOpen} onOpenChange={setIsCommandPaletteOpen} />
     </header>
   );
 };

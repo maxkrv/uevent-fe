@@ -36,10 +36,10 @@ export const ShortCompanyCard: FC<ShortCompanyCardProps> = ({ company, className
         <div className="flex items-center gap-2 mt-1">
           <Badge variant="outline" className="text-xs px-1 py-0 h-4">
             <Building2 className="h-3 w-3 mr-1" />
-            {company.events?.length || 0} events
+            {company._count?.events || 0} events
           </Badge>
           <Badge variant="secondary" className="text-xs px-1 py-0 h-4">
-            {company.subscribers?.length || 0} followers
+            {company._count?.subscribers || 0} followers
           </Badge>
         </div>
       </div>

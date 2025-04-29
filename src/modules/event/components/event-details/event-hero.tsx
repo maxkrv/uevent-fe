@@ -1,16 +1,15 @@
 import dayjs, { Dayjs } from 'dayjs';
 import { ArrowLeft } from 'lucide-react';
-import { useState } from 'react';
 import { FaArrowRightLong } from 'react-icons/fa6';
-import { FiCalendar, FiDollarSign, FiHeart, FiMapPin, FiSettings, FiShare2 } from 'react-icons/fi';
+import { FiBell, FiCalendar, FiDollarSign, FiMapPin, FiSettings, FiShare2 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
 
 import { Image } from '../../../../shared/components/common/image';
 import { Badge } from '../../../../shared/components/ui/badge';
 import { Button } from '../../../../shared/components/ui/button';
 import { useShare } from '../../../../shared/hooks/use-share';
 import { getStaticMapImageUrl } from '../../../../shared/utils/maps.utils';
+import { useEventFollow } from '../../hooks/use-event-follow';
 import type { Event, EventFormatType } from '../../interfaces/event.interface';
 import { EventSettingsModal } from '../modals/event-settings-modal';
 
@@ -70,10 +69,9 @@ const EventStatusBadge = ({ event }: EventStatusBadgeProps) => {
 };
 
 export const EventHero = ({ event }: EventHeroProps) => {
-  const [isSubscribed, setIsSubscribed] = useState(false);
+  const { isFollowing, toggle } = useEventFollow(event.id);
   const nav = useNavigate();
   const share = useShare();
-
   const handleShare = () => {
     if (!event) return;
     share({
@@ -81,11 +79,6 @@ export const EventHero = ({ event }: EventHeroProps) => {
       text: `Check out this event: ${event.title}`,
       url: window.location.href
     });
-  };
-
-  const handleSaveToggle = () => {
-    setIsSubscribed((prev) => !prev);
-    toast.success(isSubscribed ? 'Unsubscribed from event' : 'Subscribed to event');
   };
 
   const formatDate = (dateString: string | Date | Dayjs) => {
@@ -187,10 +180,10 @@ export const EventHero = ({ event }: EventHeroProps) => {
           variant="ghost"
           size={'icon'}
           className="text-white/90 hover:text-red-700/80 hover:bg-red-500/30 transition-colors duration-300 hover:border-red-700/80"
-          onClick={handleSaveToggle}
-          aria-pressed={isSubscribed}
+          onClick={toggle}
+          aria-pressed={isFollowing}
           aria-label="Like event">
-          <FiHeart className="size-6" fill={isSubscribed ? 'currentColor' : 'none'} />
+          <FiBell className="size-6" fill={isFollowing ? 'currentColor' : 'none'} />
         </Button>
         <Button
           variant="ghost"

@@ -26,6 +26,10 @@ export interface Company {
   events?: Event[];
   news?: CompanyNews[];
   subscribers?: CompanySubscription[];
+  _count?: {
+    events?: number;
+    subscribers?: number;
+  };
 }
 
 export interface CompanySubscription {

@@ -3,15 +3,15 @@ import { ExternalLink, Mail, MapPin } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 
+import { useCompanyFollow } from '../../hooks/use-company-follow';
 import type { Company } from '../../interfaces/company.interface';
 
 interface CompanyContactProps {
   company: Company;
-  isFollowing: boolean;
-  onFollowToggle: () => void;
 }
 
-export const CompanyContact = ({ company, isFollowing, onFollowToggle }: CompanyContactProps) => {
+export const CompanyContact = ({ company }: CompanyContactProps) => {
+  const { isFollowing, toggle } = useCompanyFollow(company.id);
   return (
     <Card>
       <CardHeader>
@@ -63,7 +63,7 @@ export const CompanyContact = ({ company, isFollowing, onFollowToggle }: Company
         )}
 
         <div className="pt-4 border-t border-border">
-          <Button className="w-full" onClick={onFollowToggle} variant={isFollowing ? 'outline' : 'default'}>
+          <Button className="w-full" onClick={toggle} variant={isFollowing ? 'outline' : 'default'}>
             {isFollowing ? 'Following' : 'Follow Company'}
           </Button>
         </div>

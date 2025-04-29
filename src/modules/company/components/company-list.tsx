@@ -15,6 +15,7 @@ interface CompanyListProps {
   onPageChange: (page: number) => void;
   hasHeader?: boolean;
   hasFollow?: boolean;
+  onReset?: () => void;
 }
 
 export const CompanyList = ({
@@ -24,11 +25,12 @@ export const CompanyList = ({
   totalPages,
   onPageChange,
   hasHeader = true,
-  hasFollow = true
+  hasFollow = true,
+  onReset
 }: CompanyListProps) => {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {Array.from({ length: 6 }).map((_, index) => (
           <div key={index} className="bg-card rounded-xl p-6 shadow-md">
             <div className="flex items-center mb-4">
@@ -51,7 +53,7 @@ export const CompanyList = ({
   }
 
   if (companies.length === 0) {
-    return <NoCompaniesFound />;
+    return <NoCompaniesFound onReset={onReset} />;
   }
 
   return (
@@ -65,7 +67,7 @@ export const CompanyList = ({
         </h2>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {companies.map((company) => (
           <CompanyCard key={company.id} company={company} isFeatured={false} hasFollow={hasFollow} />
         ))}

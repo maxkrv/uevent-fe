@@ -1,6 +1,5 @@
 import { ExternalLink, MapPin, Users } from 'lucide-react';
 import type React from 'react';
-import { useState } from 'react';
 
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent } from '@/shared/components/ui/card';
@@ -10,6 +9,7 @@ import { Link } from '../../../shared/components/common/link';
 import { Badge } from '../../../shared/components/ui/badge';
 import { Separator } from '../../../shared/components/ui/separator';
 import { getStaticMapImageUrl } from '../../../shared/utils/maps.utils';
+import { useCompanyFollow } from '../hooks/use-company-follow';
 import type { Company } from '../interfaces/company.interface';
 import { CompanyLogo } from './company-logo';
 
@@ -20,13 +20,7 @@ interface CompanyCardProps {
 }
 
 export const CompanyCard: React.FC<CompanyCardProps> = ({ company, isFeatured = false, hasFollow = true }) => {
-  const [isFollowing, setIsFollowing] = useState(false);
-
-  const handleFollowClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsFollowing(!isFollowing);
-  };
+  const { isFollowing, toggle } = useCompanyFollow(company.id);
 
   return (
     <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg cursor-pointer group border-2 hover:border-primary py-0 gap-0">
@@ -75,9 +69,9 @@ export const CompanyCard: React.FC<CompanyCardProps> = ({ company, isFeatured = 
           <div className="flex items-center justify-between">
             <div className="flex items-center text-sm text-muted-foreground">
               <Users className="h-4 w-4 mr-1" />
-              <span>{company.subscribers?.length || 0} followers</span>
+              <span>{company._count?.subscribers || 0} followers</span>
             </div>
-            <div className="text-sm text-muted-foreground">{company.events?.length || 0} events</div>
+            <div className="text-sm text-muted-foreground">{company._count?.events || 0} events</div>
           </div>
 
           <p className="text-sm text-muted-foreground line-clamp-2 h-10">
@@ -88,7 +82,14 @@ export const CompanyCard: React.FC<CompanyCardProps> = ({ company, isFeatured = 
             <>
               <Separator className="rounded" />
               <div className="flex gap-2">
-                <Button variant={isFollowing ? 'outline' : 'default'} onClick={handleFollowClick} className="flex-1">
+                <Button
+                  variant={isFollowing ? 'outline' : 'default'}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggle();
+                  }}
+                  className="flex-1">
                   {isFollowing ? 'Following' : 'Follow'}
                 </Button>
 
