@@ -1,5 +1,5 @@
 import { apiClient } from '../../../shared/api/api';
-import type { Paginated } from '../../../shared/types/pagination';
+import type { Paginated, PaginationDto } from '../../../shared/types/pagination';
 import { Ticket } from '../../ticket/interfaces/ticket.interface';
 import type { User } from '../interfaces/user.interface';
 
@@ -12,8 +12,15 @@ export class UserService {
     return apiClient.get<User>(`users/${id}`).json();
   }
 
-  static async getTickets() {
-    return apiClient.get<Paginated<Ticket>>('tickets').json();
+  static async getTickets(opt: PaginationDto & { eventId?: string }): Promise<Paginated<Ticket>> {
+    const searchParams = Object.entries(opt).reduce((acc, [key, value]) => {
+      if (value) {
+        acc.append(key, value.toString());
+      }
+      return acc;
+    }, new URLSearchParams());
+
+    return apiClient.get<Paginated<Ticket>>('tickets/my', { searchParams }).json();
   }
   // New methods for user settings
   static async updateUserData(data: { name?: string; bio?: string }): Promise<User> {

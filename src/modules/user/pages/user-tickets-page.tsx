@@ -14,5 +14,5 @@ export const UserTicketsPage = () => {
     return <div className="text-center py-8">You don&apos;t have permission to view this page.</div>;
   }
 
-  return <UserTickets userId={id || ''} />;
+  return <UserTickets />;
 };

@@ -5,7 +5,7 @@ import { forwardRef, useEffect, useState } from 'react';
 
 import { cn } from '@/shared/lib/utils';
 
-import { Command, CommandGroup, CommandItem, CommandList } from '../maps/command';
+import { Command, CommandGroup, CommandItem, CommandList } from '../ui/command';
 import { Badge } from './badge';
 
 export interface Option {
@@ -17,6 +17,7 @@ export interface Option {
   /** Group the options by providing key. */
   [key: string]: string | boolean | undefined;
 }
+
 interface GroupOption {
   [key: string]: Option[];
 }
