@@ -3,5 +3,6 @@ export const config = {
   isProduction: import.meta.env.PROD,
   isDevelopment: import.meta.env.DEV,
   apiUrl: import.meta.env.VITE_API_URL,
-  googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+  googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+  googleClientId: import.meta.env.VITE_GOOGLE_CLIENT_ID
 };

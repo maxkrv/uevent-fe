@@ -52,7 +52,7 @@ export const EventCard: React.FC<EventListItemProps> = ({ event }) => {
     : dayjs(event.startDate).isBefore(dayjs());
 
   return (
-    <article className="bg-secondary rounded-xl overflow-hidden shadow transition-all duration-300 @container min-h-fit min-w-80 hover:shadow-2xl hover:scale-[1.02] group">
+    <article className="bg-card rounded-xl overflow-hidden shadow transition-all duration-300 @container min-h-fit min-w-80 hover:shadow-2xl hover:scale-[1.02] group border">
       <Link to={`/events/${event.id}`} className="h-full flex flex-col @lg:flex-row @lg:min-h-80 min-h-148" unstyled>
         {/* Image container - 2/5 height in vertical, 2/5 width in horizontal */}
         <div className="relative min-h-2/5 @lg:h-auto @lg:w-2/5 flex-none overflow-hidden max-h-60  @lg:max-h-100 ">
@@ -94,8 +94,8 @@ export const EventCard: React.FC<EventListItemProps> = ({ event }) => {
                 variant="ghost"
                 size="icon"
                 className={cn(
-                  'p-2 rounded-full text-gray-400 hover:text-red-700/80 hover:bg-red-100/60  transition-colors duration-300 hover:border-red-700/80',
-                  isFollowing && 'text-red-700/80 bg-red-100/60'
+                  'p-2 rounded-full text-gray-400 hover:text-red-700/80 hover:bg-red-400/20  transition-colors duration-300 hover:border-red-700/80',
+                  isFollowing && 'text-red-700/80 hover:bg-red-400/20'
                 )}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -108,7 +108,7 @@ export const EventCard: React.FC<EventListItemProps> = ({ event }) => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="p-2 rounded-full text-gray-400 hover:text-primary hover:bg-primary-light transition-colors duration-300"
+                className="p-2 rounded-full transition-colors duration-300"
                 aria-label="Share event"
                 onClick={handleShare}>
                 <FiShare2 />

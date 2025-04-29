@@ -18,7 +18,7 @@ export const ThemeSwitcher = () => {
           {isDark ? (
             <MoonIcon className="w-6 h-6 text-blue-500 fill-current" />
           ) : (
-            <SunIcon className="w-6 h-6 text-yellow fill-current" />
+            <SunIcon className="w-6 h-6 text-yellow-600 fill-current" />
           )}
         </div>
       </Switch>

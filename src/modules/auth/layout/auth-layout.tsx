@@ -8,7 +8,7 @@ export const AuthLayout: FC<PropsWithChildren> = ({ children }) => {
   return (
     <div className="grid min-h-screen-no-header lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-5">
-        <div className="flex flex-1 items-center justify-center">
+        <div className="flex flex-1 items-center justify-center ">
           <div className="w-full max-w-xs">
             {children}
             <Outlet />

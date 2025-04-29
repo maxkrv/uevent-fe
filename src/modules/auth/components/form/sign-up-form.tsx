@@ -11,6 +11,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from '@/shared/components/ui/input';
 import { PasswordInput } from '@/shared/components/ui/password-input';
 
+import { GoogleSignInButton } from '../../../../shared/components/common/google-login-button';
+import { Separator } from '../../../../shared/components/ui/separator';
 import { type RegisterDto, RegisterSchema } from '../../interfaces/auth.interface';
 import { AuthService } from '../../services/auth.service';
 
@@ -45,9 +47,18 @@ export const SignUpForm = () => {
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
         <div className="flex flex-col items-center gap-2 text-center">
           <h1 className="text-2xl font-bold">Sign up</h1>
-          <p className="text-balance text-sm text-muted-foreground">Enter your details below to create your account</p>
+          <p className="text-balance text-sm text-muted-foreground">
+            Enter your details below to create your account.
+            <span className="text-center text-foreground">
+              {' '}
+              Have an account?{' '}
+              <Link to={'/auth/login'} className="underline underline-offset-4 text-primary">
+                Login
+              </Link>
+            </span>
+          </p>
         </div>
-        <div className="grid gap-6">
+        <div className="grid gap-3">
           <div className="grid gap-2">
             <Label htmlFor="name">Full Name</Label>
             <Input {...register('name')} id="name" placeholder="John Doe" errorMessage={errors.name?.message} />
@@ -69,15 +80,17 @@ export const SignUpForm = () => {
 
             <PasswordInput id="password" {...register('password')} errorMessage={errors.password?.message} />
           </div>
+        </div>
+        <div className="grid gap-2 mt-auto">
           <Button type="submit" className="w-full" isLoading={isPending} disabled={!isValid || isPending}>
             Sign up
           </Button>
-        </div>
-        <div className="text-center text-sm">
-          Have an account?{' '}
-          <Link to={'/auth/login'} className="underline underline-offset-4">
-            Login
-          </Link>
+          <div className="flex items-center justify-between gap-2 w-full">
+            <Separator className="w-min! grow" />
+            <p className="text-muted-foreground">or</p>
+            <Separator className="w-min! grow" />
+          </div>
+          <GoogleSignInButton label="Login with Google" className="w-full" />
         </div>
       </form>
 
