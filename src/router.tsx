@@ -13,6 +13,7 @@ import { CompanyDetailPage } from './modules/company/pages/company-details-page'
 import { EventPage } from './modules/event/pages/event-page';
 import { EventsPage } from './modules/event/pages/events-page';
 import { HomePage } from './modules/home/pages/home.page';
+import { ActivateTicketPage } from './modules/ticket/pages/activate-ticket-page';
 import { UserProfileLayout } from './modules/user/layouts/user-profile-layout';
 import { UserPage } from './modules/user/pages/user.page';
 import { UserFollowingCompaniesPage } from './modules/user/pages/user-following-companies-page';
@@ -21,6 +22,7 @@ import { UserPastEventsPage } from './modules/user/pages/user-past-events-page';
 import { UserSettingsPage } from './modules/user/pages/user-settings-page';
 import { UserTicketsPage } from './modules/user/pages/user-tickets-page';
 import { UserUpcomingEventsPage } from './modules/user/pages/user-upcoming-events-page';
+import { AuthGuard } from './shared/guards/auth-guard';
 import { NotFoundPage } from './shared/pages/not-found-page';
 
 const router = createBrowserRouter([
@@ -116,6 +118,14 @@ const router = createBrowserRouter([
       {
         path: 'companies/news/:newsId',
         element: <CompanyNewsDetailPage />
+      },
+      {
+        path: 'verify-ticket/:ticketId',
+        element: (
+          <AuthGuard>
+            <ActivateTicketPage />
+          </AuthGuard>
+        )
       },
       {
         path: '*',
