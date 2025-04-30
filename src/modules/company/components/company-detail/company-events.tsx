@@ -15,9 +15,17 @@ interface CompanyEventsProps {
   isLoading?: boolean;
   companyId: string;
   isOwner?: boolean;
+  isVerified?: boolean;
 }
 
-export const CompanyEvents = ({ events, companyId, title, isOwner = false, isLoading }: CompanyEventsProps) => {
+export const CompanyEvents = ({
+  events,
+  companyId,
+  title,
+  isOwner = false,
+  isLoading,
+  isVerified
+}: CompanyEventsProps) => {
   const nav = useNavigate();
   const displayEvents = events?.length > 0 ? events : [];
 
@@ -49,7 +57,7 @@ export const CompanyEvents = ({ events, companyId, title, isOwner = false, isLoa
           <Calendar className="h-5 w-5 text-primary" />
           {title}
         </CardTitle>
-        {isOwner && title === 'Upcoming Events' && <CreateEventModal companyId={companyId} />}
+        {isOwner && title === 'Upcoming Events' && <CreateEventModal companyId={companyId} disabled={!isVerified} />}
       </CardHeader>
       <CardContent>
         {displayEvents.length === 0 ? (

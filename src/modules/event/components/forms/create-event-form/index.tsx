@@ -2,6 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import dayjs from 'dayjs';
 import { type FC, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -59,6 +60,8 @@ export const CreateEventForm: FC<CreateEventFormProps> = ({ companyId, onSuccess
       price: 0,
       showAttendeeList: true,
       notifyOnNewAttendee: false,
+      startDate: dayjs().add(15, 'minute').toDate(),
+      endDate: dayjs().add(1, 'hour').toDate(),
       format: EventFormatType.CONFERENCE,
       themes: [EventThemeType.BUSINESS]
     },

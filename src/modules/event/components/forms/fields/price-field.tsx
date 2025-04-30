@@ -47,6 +47,7 @@ export const PriceField = ({
                 placeholder={placeholder}
                 disabled={disabled}
                 {...field}
+                value={field.value || ''}
                 onChange={(e) => field.onChange(Number.parseFloat(e.target.value) || 0)}
               />
             </FormControl>

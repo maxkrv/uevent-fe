@@ -19,9 +19,10 @@ interface CreateEventModalProps {
   companyId: string;
   children?: ReactNode;
   className?: string;
+  disabled?: boolean;
 }
 
-export function CreateEventModal({ companyId, children, className }: CreateEventModalProps) {
+export function CreateEventModal({ companyId, children, className, disabled }: CreateEventModalProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleClose = () => {
@@ -34,7 +35,7 @@ export function CreateEventModal({ companyId, children, className }: CreateEvent
         {children ? (
           children
         ) : (
-          <Button className={className} variant="outline">
+          <Button className={className} variant="outline" disabled={disabled}>
             <PlusIcon className="h-4 w-4 mr-2" />
             Create Event
           </Button>

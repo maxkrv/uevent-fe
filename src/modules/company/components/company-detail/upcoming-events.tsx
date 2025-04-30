@@ -44,6 +44,7 @@ export const UpcomingEvents: FC<UpcomingEventsProps> = ({ company }) => {
       title="Upcoming Events"
       isOwner={isOwner}
       isLoading={isLoading}
+      isVerified={company?.isVerified}
     />
   );
 };
