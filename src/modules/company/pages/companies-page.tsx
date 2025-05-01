@@ -62,7 +62,7 @@ export const CompaniesPage = () => {
       </div>
       {<CompaniesStatistics />}
 
-      {!isFeaturedLoading && featuredCompaniesData?.items && (
+      {!isFeaturedLoading && !!featuredCompaniesData?.items.length && (
         <FeaturedCompanies companies={featuredCompaniesData.items} />
       )}
 
