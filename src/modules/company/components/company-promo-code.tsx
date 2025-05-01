@@ -12,7 +12,6 @@ import { ScrollArea } from '@/shared/components/ui/scroll-area';
 import { Skeleton } from '@/shared/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/components/ui/table';
 import { QueryKeys } from '@/shared/constants/query-keys';
-import { getPagesAmount } from '@/shared/lib/utils';
 
 import { type CompanyPromoCodeDto, CompanyPromoCodeSchema } from '../interfaces/company.interface';
 import { CompanyService } from '../services/company.service';
@@ -67,7 +66,7 @@ export const CompanyPromoCode: FC<Props> = ({ companyId }) => {
   const isLoading = isFetching || isPending;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 sm:grid-cols-2">
         <div className="grid gap-1">
           <Label htmlFor="discount">Discount (%)</Label>
@@ -101,7 +100,7 @@ export const CompanyPromoCode: FC<Props> = ({ companyId }) => {
         </div>
       </form>
 
-      <ScrollArea className="h-[300px] w-full">
+      <ScrollArea className="h-60 w-full">
         <Table>
           <TableHeader>
             <TableRow>
@@ -144,8 +143,8 @@ export const CompanyPromoCode: FC<Props> = ({ companyId }) => {
       </ScrollArea>
 
       <Pagination
-        totalPages={getPagesAmount(data?.meta.totalItemsCount || 1, data?.meta.itemsPerPage || 0)}
-        currentPage={page}
+        totalPages={data?.meta.totalPages || 0}
+        currentPage={data?.meta.currentPage || 1}
         onPageChange={(page) => setPage(page)}
       />
     </div>

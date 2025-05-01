@@ -9,6 +9,7 @@ import { Badge } from '../../../../shared/components/ui/badge';
 import { Button } from '../../../../shared/components/ui/button';
 import { useShare } from '../../../../shared/hooks/use-share';
 import { getStaticMapImageUrl } from '../../../../shared/utils/maps.utils';
+import { useAuth } from '../../../auth/queries/use-auth.query';
 import { useEventFollow } from '../../hooks/use-event-follow';
 import type { Event, EventFormatType } from '../../interfaces/event.interface';
 import { EventSettingsModal } from '../modals/event-settings-modal';
@@ -72,6 +73,7 @@ export const EventHero = ({ event }: EventHeroProps) => {
   const { isFollowing, toggle } = useEventFollow(event.id);
   const nav = useNavigate();
   const share = useShare();
+  const me = useAuth();
   const handleShare = () => {
     if (!event) return;
     share({
@@ -167,15 +169,17 @@ export const EventHero = ({ event }: EventHeroProps) => {
         Go Back
       </Button>
       <div className="flex space-x-2 absolute top-4 right-4 z-20">
-        <EventSettingsModal event={event}>
-          <Button
-            variant="ghost"
-            size={'icon'}
-            className="text-white/90 hover:text-primary hover:bg-primary/30 transition-colors duration-300"
-            aria-label="Event settings">
-            <FiSettings className="size-6" />
-          </Button>
-        </EventSettingsModal>
+        {me.data?.id === event.creatorId && (
+          <EventSettingsModal event={event}>
+            <Button
+              variant="ghost"
+              size={'icon'}
+              className="text-white/90 hover:text-primary hover:bg-primary/30 transition-colors duration-300"
+              aria-label="Event settings">
+              <FiSettings className="size-6" />
+            </Button>
+          </EventSettingsModal>
+        )}
         <Button
           variant="ghost"
           size={'icon'}

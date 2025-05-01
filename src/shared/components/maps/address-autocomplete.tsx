@@ -17,7 +17,7 @@ import { LocationPicker } from './location-picker';
 
 interface AddressAutocompleteProps {
   value?: LocationDto | null;
-  onAddressSelect?: (address: LocationDto) => void;
+  onAddressSelect?: (address: LocationDto | null) => void;
   defaultValue?: LocationDto;
   placeholder?: string;
   className?: string;
@@ -113,7 +113,7 @@ export const AddressAutocomplete: FC<AddressAutocompleteProps> = ({
       if (!open) {
         handleSuggestionOpen();
       }
-
+      console.log('e.target.value: ', e.target.value);
       setInputValue(e.target.value);
     },
     [open]
@@ -154,6 +154,9 @@ export const AddressAutocomplete: FC<AddressAutocompleteProps> = ({
               }}
               onInteractOutside={() => {
                 setOpen(false);
+                if (!inputValue) {
+                  onAddressSelect?.(null);
+                }
               }}
               showArrow={false}>
               <CommandList className="w-full min-w-full">

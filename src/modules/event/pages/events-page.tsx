@@ -2,11 +2,14 @@ import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import {
   parseAsArrayOf,
+  parseAsBoolean,
   parseAsFloat,
   parseAsInteger,
   parseAsIsoDate,
   parseAsString,
+  parseAsStringEnum,
   parseAsStringLiteral,
+  useQueryState,
   useQueryStates
 } from 'nuqs';
 import { useCallback, useMemo, useState } from 'react';
@@ -28,10 +31,13 @@ import { EventsSort } from '../components/events-sort';
 import { EventFormatType, EventThemeType } from '../interfaces/event.interface';
 import { EventGetManyDto, EventService, EventSortOption } from '../services/event.service';
 
-const EVENTS_PER_PAGE = 10;
+const EVENTS_PER_PAGE = 12;
 
 export const EventsPage = () => {
-  const [viewMode, setViewMode] = useState<EventsView>(EventsView.GRID);
+  const [viewMode, setViewMode] = useQueryState<EventsView>(
+    'view',
+    parseAsStringEnum<EventsView>(Object.values(EventsView)).withDefault(EventsView.GRID)
+  );
   const [showFilters, setShowFilters] = useState(false);
   const userLocation = useUserGeolocation();
   const [filters, setFilters] = useQueryStates({
@@ -49,7 +55,9 @@ export const EventsPage = () => {
     lat: parseAsFloat,
     lng: parseAsFloat,
     companyId: parseAsString,
-    address: parseAsString
+    address: parseAsString,
+    isOnline: parseAsBoolean.withDefault(false),
+    freeOnly: parseAsBoolean.withDefault(false)
   });
 
   const hasFilters = useMemo(() => {
@@ -70,9 +78,13 @@ export const EventsPage = () => {
       ...filters,
       fromDate: filters.fromDate || dayjs().startOf('minute').toDate(),
       companyId: filters.companyId || undefined,
-      priceTo: (filters?.priceTo || 0) >= 300 ? null : filters.priceTo!,
+      priceTo: filters.freeOnly ? 0 : (filters?.priceTo || 0) >= 300 ? null : filters.priceTo || 300,
+      priceFrom: filters.freeOnly ? 0 : filters.priceFrom || 0,
       page: viewMode !== EventsView.MAP ? filters.page : null,
-      limit: viewMode !== EventsView.MAP ? EVENTS_PER_PAGE : null
+      limit: viewMode !== EventsView.MAP ? EVENTS_PER_PAGE : null,
+      lat: filters.isOnline ? null : filters.lat || undefined,
+      lng: filters.isOnline ? null : filters.lng || undefined,
+      address: filters.isOnline ? null : filters.address || undefined
     }),
     [filters, viewMode]
   );
@@ -99,8 +111,13 @@ export const EventsPage = () => {
 
   const handleFilterChange = useCallback(
     (filter: EventGetManyDto) => {
+      const filteredEntries = Object.entries(filter).map(([key, value]) =>
+        value === undefined ? [key, null] : [key, value]
+      );
+
+      const filteredObject = Object.fromEntries(filteredEntries);
       setFilters({
-        ...filter,
+        ...filteredObject,
         page: 1
       });
     },

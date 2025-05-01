@@ -56,6 +56,7 @@ const createEventsFilters = (filter: FilterType, page?: number) => {
       break;
     case FilterType.FREE:
       queryFilters.priceFrom = 0;
+      queryFilters.priceTo = 0;
       break;
     case FilterType.ONLINE:
       queryFilters.lat = null;

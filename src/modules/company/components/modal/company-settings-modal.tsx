@@ -67,7 +67,7 @@ export const CompanySettingsModal: FC<Props> = ({ open, setOpen, company }) => {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="edit" className="py-4">
+            <TabsContent value="edit" className="py-2">
               <EditCompanyForm
                 company={company}
                 onSuccess={() => {
@@ -77,7 +77,7 @@ export const CompanySettingsModal: FC<Props> = ({ open, setOpen, company }) => {
               />
             </TabsContent>
 
-            <TabsContent value="promo" className="py-4">
+            <TabsContent value="promo" className="py-2">
               <div className="space-y-4">
                 <div>
                   <h3 className="text-lg font-medium">Promo Codes</h3>
@@ -90,7 +90,7 @@ export const CompanySettingsModal: FC<Props> = ({ open, setOpen, company }) => {
               </div>
             </TabsContent>
 
-            <TabsContent value="danger" className="py-4">
+            <TabsContent value="danger" className="py-2">
               <Alert variant="destructive" className="mb-6">
                 <AlertTriangle className="h-4 w-4" />
                 <AlertTitle>Warning</AlertTitle>

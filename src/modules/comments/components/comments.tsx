@@ -99,7 +99,7 @@ export const Comments = ({ eventId, newsId, parentId, title = 'Comments' }: Comm
   const totalComments = comments?.pages.at(0)?.meta.totalItemsCount || 0;
 
   return (
-    <Card className="max-sm:py-0 order-last">
+    <Card className="max-sm:py-0 order-last" id="comments">
       <CardContent className="gap-4 grid max-sm:p-3">
         <div className="flex flex-row items-center gap-4 flex-wrap">
           <CardTitle className="flex items-center gap-2 grow">

@@ -26,14 +26,13 @@ export const apiClient = ky.create({
     ],
     beforeRetry: [
       async ({ request, error }) => {
-        if ('status' in error && error.status !== 401) return;
-        const refreshToken = tokensStore.getState().tokens?.refreshToken;
-
-        if (request.url.includes('auth/refresh')) {
+        if (request.url.includes('refresh')) {
           tokensStore.getState().deleteTokens();
           window.location.href = '/';
           return;
         }
+        if ('status' in error && error.status !== 401) return;
+        const refreshToken = tokensStore.getState().tokens?.refreshToken;
 
         if (!refreshToken) return;
 
@@ -53,6 +52,6 @@ export const apiClient = ky.create({
   retry: {
     methods: ['get', 'post', 'put', 'patch', 'delete'],
     statusCodes: [401],
-    limit: 1
+    limit: 2
   }
 });

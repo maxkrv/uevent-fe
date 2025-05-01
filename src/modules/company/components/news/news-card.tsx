@@ -59,7 +59,7 @@ export const NewsCard = ({ item, onShare, className, ...props }: NewsCardProps) 
               <Share2 className="h-4 w-4 mr-1" />
               Share
             </Button>
-            <Button variant="outline" size="sm" className="gap-1 ml-auto max-sm:w-full">
+            <Button variant="outline" size="sm" className="gap-1 ml-auto max-sm:grow">
               Read More
               <ChevronRight className="h-3.5 w-3.5" />
             </Button>

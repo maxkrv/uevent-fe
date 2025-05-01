@@ -1,5 +1,6 @@
 import { apiClient } from '../../../shared/api/api';
 import type { Paginated } from '../../../shared/types/pagination';
+import { objectToSearchParams } from '../../../shared/utils/converters.utils';
 import type { CommentGetManyDto, CreateCommentDto, UpdateCommentDto } from '../interfaces/comment.dto';
 import type { Comment } from '../interfaces/comment.interface';
 
@@ -9,18 +10,7 @@ export class CommentService {
   }
 
   static getMany(opt: CommentGetManyDto): Promise<Paginated<Comment>> {
-    const searchParams = Object.entries(opt).reduce((acc, [key, value]) => {
-      if (value !== undefined && value !== null) {
-        if (Array.isArray(value)) {
-          value.forEach((val) => acc.append(key, val));
-        } else if (value instanceof Date) {
-          acc.append(key, value.toISOString());
-        } else {
-          acc.append(key, value.toString());
-        }
-      }
-      return acc;
-    }, new URLSearchParams());
+    const searchParams = objectToSearchParams(opt);
 
     return apiClient.get(`comments`, { searchParams }).json<Paginated<Comment>>();
   }

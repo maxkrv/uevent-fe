@@ -10,7 +10,8 @@ import { CompaniesStatistics } from '../components/company-statistics';
 import { FeaturedCompanies } from '../components/featured-companies';
 import { useFeaturedCompanies } from '../hooks/use-featured-companies';
 import { CompanyGetManyDto, CompanyService, CompanySortBy } from '../services/company.service';
-const MAX_COMPANIES = 9;
+
+const MAX_COMPANIES = 12;
 export const CompaniesPage = () => {
   const [searchQuery, setSearchQuery] = useQueryState('search', parseAsString.withDefault(''));
   const [currentPage, setCurrentPage] = useQueryState('page', parseAsInteger.withDefault(1));
@@ -23,9 +24,7 @@ export const CompaniesPage = () => {
       sortBy,
       page: currentPage,
       isVerified: true,
-      limit: MAX_COMPANIES,
-      lat: useerLocation.location?.lat,
-      lng: useerLocation.location?.lng
+      limit: MAX_COMPANIES
     }),
     [searchQuery, sortBy, currentPage, useerLocation.location]
   );

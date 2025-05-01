@@ -5,6 +5,7 @@ import { MdAddReaction } from 'react-icons/md';
 import { Button } from '../../../shared/components/ui/button';
 import { QueryKeys } from '../../../shared/constants/query-keys';
 import { useMyReactions } from '../../../shared/query/use-my-reactions';
+import { useAuth } from '../../auth/queries/use-auth.query';
 import { ReactionIdRelationField, ReactionType } from '../interfaces/reaction.interface';
 import { ReactionService } from '../services/reaction.service';
 import { ReactionButton } from './reaction-button';
@@ -16,6 +17,7 @@ interface ReactionListProps extends ReactionIdRelationField {
 export const Reactions: FC<ReactionListProps> = ({ small, commentId, newsId }) => {
   const queryClient = useQueryClient();
   const myReactions = useMyReactions();
+  const me = useAuth();
   const relationId = { commentId, newsId };
   const { data: reactions } = useQuery({
     queryKey: [QueryKeys.REACTIONS, relationId],
@@ -25,6 +27,9 @@ export const Reactions: FC<ReactionListProps> = ({ small, commentId, newsId }) =
 
   const reactMutation = useMutation({
     mutationFn: (reactionType: ReactionType) => {
+      if (!me.data) {
+        throw new Error('You need to be logged in to react');
+      }
       return ReactionService.react(relationId, reactionType);
     },
     onSuccess: () => {
@@ -35,7 +40,12 @@ export const Reactions: FC<ReactionListProps> = ({ small, commentId, newsId }) =
 
   // Mutation to remove a reaction
   const deleteReactionMutation = useMutation({
-    mutationFn: ReactionService.delete,
+    mutationFn: (id: string) => {
+      if (!me.data) {
+        throw new Error('You need to be logged in to remove a reaction');
+      }
+      return ReactionService.delete(id);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QueryKeys.REACTIONS, relationId] });
       queryClient.invalidateQueries({ queryKey: [QueryKeys.MY_REACTIONS] });

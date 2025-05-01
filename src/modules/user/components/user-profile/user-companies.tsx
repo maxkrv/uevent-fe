@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { parseAsBoolean, useQueryState } from 'nuqs';
 import { useState } from 'react';
 
 import { CreateCompanyModal } from '@/modules/company/components/modal/create-company-modal';
@@ -9,6 +10,7 @@ import { QueryKeys } from '@/shared/constants/query-keys';
 
 import { Pagination } from '../../../../shared/components/common/pagination';
 import { Button } from '../../../../shared/components/ui/button';
+import { useAuth } from '../../../auth/queries/use-auth.query';
 import { ShortCompanyCard } from '../../../company/components/short-company-card';
 
 interface UserCompaniesProps {
@@ -19,11 +21,15 @@ const ITEMS_PER_PAGE = 4;
 
 export const UserCompanies = ({ userId }: UserCompaniesProps) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [open, setOpen] = useState(false);
-
+  const me = useAuth();
+  const isMyCompanies = me.data?.id === userId;
+  const [open, setOpen] = useQueryState('create-company-modal', parseAsBoolean.withDefault(false));
   const { data: userCompanies, isLoading } = useQuery({
-    queryKey: [QueryKeys.USER_COMPANIES, userId, currentPage],
-    queryFn: () => CompanyService.getMyCompanies(currentPage, ITEMS_PER_PAGE),
+    queryKey: [QueryKeys.USER_COMPANIES, userId, currentPage, isMyCompanies],
+    queryFn: () =>
+      isMyCompanies
+        ? CompanyService.getMyCompanies(currentPage, ITEMS_PER_PAGE)
+        : CompanyService.getMany({ ownerId: userId, page: currentPage, limit: ITEMS_PER_PAGE }),
     enabled: !!userId
   });
 
@@ -54,9 +60,11 @@ export const UserCompanies = ({ userId }: UserCompaniesProps) => {
       <Card>
         <CardHeader className="flex justify-between items-center">
           <CardTitle className="text-2xl">Companies</CardTitle>
-          <Button variant="outline" onClick={() => setOpen(true)}>
-            Create Company
-          </Button>
+          {isMyCompanies && (
+            <Button variant="outline" onClick={() => setOpen(true)}>
+              Create Company
+            </Button>
+          )}
         </CardHeader>
         {(!userCompanies || userCompanies?.items.length === 0) && (
           <CardContent className="flex items-center justify-center min-h-20">

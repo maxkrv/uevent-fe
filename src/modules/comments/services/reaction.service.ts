@@ -1,4 +1,5 @@
 import { apiClient } from '../../../shared/api/api';
+import { objectToSearchParams } from '../../../shared/utils/converters.utils';
 import type { Reaction, ReactionCount, ReactionIdRelationField, ReactionType } from '../interfaces/reaction.interface';
 
 export class ReactionService {
@@ -15,12 +16,7 @@ export class ReactionService {
   }
 
   static getCounts(to: ReactionIdRelationField): Promise<ReactionCount> {
-    const searchParams = Object.entries(to).reduce((acc, [key, value]) => {
-      if (value !== undefined && value !== null) {
-        acc.append(key, value.toString());
-      }
-      return acc;
-    }, new URLSearchParams());
+    const searchParams = objectToSearchParams(to);
 
     return apiClient.get(`reactions/count`, { searchParams }).json<ReactionCount>();
   }
