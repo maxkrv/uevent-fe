@@ -6,8 +6,16 @@ import { UserService } from '../../user/services/user.service';
 export function userGroupOptions() {
   return queryOptions({
     queryKey: [QueryKeys.USERS_ME],
-    queryFn: UserService.me,
-    staleTime: Infinity
+    queryFn: async () => {
+      try {
+        return await UserService.me();
+      } catch (e) {
+        return null;
+      }
+    },
+    staleTime: Infinity,
+    refetchInterval: Infinity,
+    retry: false
   });
 }
 

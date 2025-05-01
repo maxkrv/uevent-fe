@@ -35,6 +35,7 @@ export const UserProfileLayout = () => {
     queryFn: () => (isOwnProfile ? currentUser : UserService.getById(id!)),
     enabled: !!id && !isLoading
   });
+  console.log('Is Loading', isLoading);
 
   if (isUserLoading || isLoading) {
     return <UserProfileSkeleton />;
