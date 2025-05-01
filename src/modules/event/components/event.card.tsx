@@ -1,4 +1,3 @@
-import { useQuery } from '@tanstack/react-query';
 import dayjs, { type Dayjs } from 'dayjs';
 import { CreditCard } from 'lucide-react';
 import type React from 'react';
@@ -10,14 +9,12 @@ import { useNavigate } from 'react-router-dom';
 import { Image } from '../../../shared/components/common/image';
 import { Link } from '../../../shared/components/common/link';
 import { Button, buttonVariants } from '../../../shared/components/ui/button';
-import { QueryKeys } from '../../../shared/constants/query-keys';
 import { useShare } from '../../../shared/hooks/use-share';
 import { cn } from '../../../shared/lib/utils';
 import { getStaticMapImageUrl } from '../../../shared/utils/maps.utils';
 import { CompanyLogo } from '../../company/components/company-logo';
 import { useEventFollow } from '../hooks/use-event-follow';
 import type { Event } from '../interfaces/event.interface';
-import { EventService } from '../services/event.service';
 
 interface EventListItemProps {
   event: Event;
@@ -38,15 +35,8 @@ export const EventCard: React.FC<EventListItemProps> = ({ event }) => {
       url: window.location.href
     });
   };
-  const { data: attendees } = useQuery({
-    queryKey: [QueryKeys.EVENT_ATTENDEES, event.id],
-    queryFn: () => {
-      return EventService.getAttendees(event.id);
-    },
-    enabled: !!event.id
-  });
+
   const { isFollowing, toggle } = useEventFollow(event.id);
-  const isSoldOut = event.maxAttendees && attendees?.meta.totalItemsCount === event.maxAttendees;
   const isEventPassed = event.endDate
     ? dayjs(event.endDate).isBefore(dayjs())
     : dayjs(event.startDate).isBefore(dayjs());
@@ -144,13 +134,9 @@ export const EventCard: React.FC<EventListItemProps> = ({ event }) => {
             </div>
             <div className="flex gap-2 grow *:grow">
               <p className={cn(buttonVariants({ variant: 'outline' }), '@max-sm:hidden')}>Learn More</p>
-              <Button disabled={isSoldOut || isEventPassed}>
+              <Button disabled={isEventPassed}>
                 <CreditCard className="mr-2 h-4 w-4" />
-                {isSoldOut
-                  ? 'Sold Out'
-                  : isEventPassed
-                    ? 'Event Ended'
-                    : `Get ${event.price ? 'Tickets' : 'Free Ticket'}`}
+                {isEventPassed ? 'Event Ended' : `Get ${event.price ? 'Tickets' : 'Free Ticket'}`}
               </Button>
             </div>
           </div>

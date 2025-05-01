@@ -1,11 +1,10 @@
 'use client';
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { Check } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { QueryKeys } from '@/shared/constants/query-keys';
 import { cn } from '@/shared/lib/utils';
 import { ColorScheme, useColorScheme } from '@/shared/store/color-scheme.store';
 import { useTheme } from '@/shared/store/theme.store';
@@ -36,7 +35,6 @@ export const ColorSchemeSelector = () => {
   const { colorScheme, setColorScheme } = useColorScheme();
   const { theme } = useTheme();
   const [selectedScheme, setSelectedScheme] = useState<ColorScheme>(colorScheme);
-  const queryClient = useQueryClient();
   const { data: currentUser } = useAuth();
 
   useEffect(() => {
@@ -59,8 +57,6 @@ export const ColorSchemeSelector = () => {
     },
     onSuccess: () => {
       toast.success('Color scheme updated successfully');
-      queryClient.invalidateQueries({ queryKey: [QueryKeys.USERS, currentUser?.id] });
-      queryClient.invalidateQueries({ queryKey: [QueryKeys.USERS_ME] });
     },
     onError: (error) => {
       toast.error('Failed to update color scheme', {

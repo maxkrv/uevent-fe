@@ -66,7 +66,6 @@ const HERO_SLIDES = [
 
 export const HeroSection = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [isLoaded, setIsLoaded] = useState(false);
   const nav = useNavigate();
   const { isLoggedIn, data: user } = useAuth();
   const autoScrollTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -85,8 +84,6 @@ export const HeroSection = () => {
   };
 
   useEffect(() => {
-    setIsLoaded(true);
-
     // Start the auto-scroll timer
     startAutoScrollTimer();
 
@@ -136,16 +133,11 @@ export const HeroSection = () => {
                 <div className="text-center max-w-3xl px-4 sm:px-6 lg:px-8">
                   <h1
                     className={cn(
-                      'text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-4 transition-all duration-700 delay-200',
-                      isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+                      'text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-4 transition-all duration-700 delay-200'
                     )}>
                     {slide.title}
                   </h1>
-                  <p
-                    className={cn(
-                      'text-xl md:text-2xl text-white mb-8 transition-all duration-700 delay-500',
-                      isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
-                    )}>
+                  <p className={cn('text-xl md:text-2xl text-white mb-8 transition-all duration-700 delay-500')}>
                     {slide.description}
                   </p>
 

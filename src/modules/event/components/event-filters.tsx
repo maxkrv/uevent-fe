@@ -12,6 +12,7 @@ import { Slider } from '@/shared/components/ui/slider';
 
 import { AddressAutocomplete } from '../../../shared/components/maps/address-autocomplete';
 import { Form } from '../../../shared/components/ui/form';
+import { Toggle } from '../../../shared/components/ui/toggle';
 import { EventFormatType, EventThemeType } from '../interfaces/event.interface';
 import { type EventGetManyDto, EventGetManySchema } from '../services/event.service';
 import { DateRangeFilter } from './date-range-filter';
@@ -37,7 +38,9 @@ export const EventFilters = ({ onFilterChange, filters, onReset }: EventFiltersP
     lat: null,
     companyId: null,
     lng: null,
-    address: ''
+    address: null,
+    isOnline: false,
+    freeOnly: false
   };
 
   // Initialize the form with React Hook Form and Zod validation
@@ -73,7 +76,8 @@ export const EventFilters = ({ onFilterChange, filters, onReset }: EventFiltersP
     reset(defaultValues);
     onReset();
   }, [onReset, reset]);
-
+  const onlineEvent = watch('isOnline') ?? false;
+  const freeOnly = watch('freeOnly') ?? false;
   const lat = watch('lat');
   const lng = watch('lng');
   const address = watch('address');
@@ -87,6 +91,14 @@ export const EventFilters = ({ onFilterChange, filters, onReset }: EventFiltersP
     onSubmit,
     ...other
   };
+  const setLocation = useCallback(
+    (lat: number | null | undefined, lng: number | null | undefined, address: string | null | undefined) => {
+      setValue('lat', lat, { shouldDirty: true });
+      setValue('lng', lng, { shouldDirty: true });
+      setValue('address', address, { shouldDirty: true });
+    },
+    [setValue]
+  );
   return (
     <Form {...form}>
       <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -186,21 +198,35 @@ export const EventFilters = ({ onFilterChange, filters, onReset }: EventFiltersP
               <FiDollarSign className="mr-2 text-primary" />
               <h3 className="font-semibold">Price</h3>
             </div>
-            <div className="px-2 grid gap-2">
-              <Slider
-                value={[watch('priceFrom') || 0, watch('priceTo') || MAX_PRICE]}
-                min={0}
-                max={300}
-                step={5}
-                onValueChange={(value) => {
-                  setValue('priceFrom', value[0]);
-                  setValue('priceTo', value[1]);
-                }}
-              />
-              <div className="flex justify-between">
-                <span className="text-sm">${watch('priceFrom')}</span>
-                <span className="text-sm">${watch('priceTo') === MAX_PRICE ? `${MAX_PRICE}+` : watch('priceTo')}</span>
+            <div className="flex items-center gap-2">
+              <div className="px-2 grid gap-2 grow mt-2">
+                <Slider
+                  value={[watch('priceFrom') || 0, watch('priceTo') || MAX_PRICE]}
+                  min={0}
+                  max={300}
+                  step={5}
+                  onValueChange={(value) => {
+                    setValue('priceFrom', value[0]);
+                    setValue('priceTo', value[1]);
+                  }}
+                />
+                <div className="flex justify-between">
+                  <span className="text-sm">${watch('priceFrom')}</span>
+                  <span className="text-sm">
+                    ${watch('priceTo') === MAX_PRICE ? `${MAX_PRICE}+` : watch('priceTo')}
+                  </span>
+                </div>
               </div>
+              <Toggle
+                pressed={freeOnly}
+                onPressedChange={() => {
+                  setValue('freeOnly', !freeOnly);
+                  setValue('priceFrom', 0);
+                  setValue('priceTo', freeOnly ? MAX_PRICE : 0);
+                }}
+                className="min-w-20 rounded-full">
+                {freeOnly ? 'FREE' : 'ALL'}
+              </Toggle>
             </div>
           </div>
 
@@ -211,24 +237,39 @@ export const EventFilters = ({ onFilterChange, filters, onReset }: EventFiltersP
               <FiMapPin className="mr-2 text-primary" />
               <h3 className="font-semibold">Location</h3>
             </div>
-            <AddressAutocomplete
-              placeholder="Search for a location"
-              label={null}
-              value={
-                lat && lng && address
-                  ? {
-                      lat,
-                      lng,
-                      address
-                    }
-                  : undefined
-              }
-              onAddressSelect={(loc) => {
-                setValue('lat', loc.lat);
-                setValue('lng', loc.lng);
-                setValue('address', loc.address);
-              }}
-            />
+            <div className="flex items-center gap-2">
+              <AddressAutocomplete
+                placeholder="Search for a location"
+                label={null}
+                className="grow"
+                disabled={onlineEvent}
+                value={
+                  lat && lng && address
+                    ? {
+                        lat,
+                        lng,
+                        address
+                      }
+                    : null
+                }
+                onAddressSelect={(loc) => {
+                  if (!loc) {
+                    setLocation(null, null, null);
+                    return;
+                  }
+                  setLocation(loc.lat, loc.lng, loc.address);
+                }}
+              />
+              <Toggle
+                pressed={onlineEvent}
+                onPressedChange={() => {
+                  setValue('isOnline', !onlineEvent);
+                  setLocation(null, null, null);
+                }}
+                className="min-w-20 rounded-full">
+                {onlineEvent ? 'ONLINE' : 'ALL'}
+              </Toggle>
+            </div>
           </div>
 
           <Separator />

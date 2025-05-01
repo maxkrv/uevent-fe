@@ -5,6 +5,7 @@ import { UrlResponse } from '@/shared/types/url';
 
 import { apiClient } from '../../../shared/api/api';
 import type { Paginated } from '../../../shared/types/pagination';
+import { objectToSearchParams } from '../../../shared/utils/converters.utils';
 import { Success } from '../../auth/interfaces/auth.interface';
 import type { User } from '../../user/interfaces/user.interface';
 import { Event, EventFormatType, EventSubscription, EventThemeType } from '../interfaces/event.interface';
@@ -26,7 +27,9 @@ export const EventGetManySchema = z.object({
   //ignore address for now it is FE only
   address: z.string().nullable().optional(),
   page: z.coerce.number().nullable().optional(),
-  limit: z.coerce.number().nullable().optional()
+  limit: z.coerce.number().nullable().optional(),
+  isOnline: z.coerce.boolean().nullable().optional(),
+  freeOnly: z.coerce.boolean().nullable().optional()
 });
 
 export type EventGetManyDto = z.infer<typeof EventGetManySchema>;
@@ -102,55 +105,29 @@ export class EventService {
     return apiClient.get(`events/${id}`).json<Event>();
   }
 
-  static getMany(dto: EventGetManyDto) {
-    const searchParams = new URLSearchParams();
+  private static createSearchParams(dto: EventGetManyDto) {
+    const search = objectToSearchParams(dto);
+    if (dto.lat === null && dto.lng === null) {
+      search.set('lat', 'null');
+      search.set('lng', 'null');
+    }
 
-    Object.entries(dto).forEach(([key, value]) => {
-      if (value) {
-        if (Array.isArray(value)) {
-          value.forEach((val) => searchParams.append(key, val));
-        } else if (value instanceof Date) {
-          searchParams.append(key, value.toISOString());
-        } else {
-          searchParams.append(key, value.toString());
-        }
-      }
-    });
+    return search;
+  }
+
+  static getMany(dto: EventGetManyDto) {
+    const searchParams = this.createSearchParams(dto);
 
     return apiClient.get('events', { searchParams }).json<Paginated<Event>>();
   }
   static async getMyEvents(dto: EventGetManyDto) {
-    const searchParams = new URLSearchParams();
-
-    Object.entries(dto).forEach(([key, value]) => {
-      if (value) {
-        if (Array.isArray(value)) {
-          value.forEach((val) => searchParams.append(key, val));
-        } else if (value instanceof Date) {
-          searchParams.append(key, value.toISOString());
-        } else {
-          searchParams.append(key, value.toString());
-        }
-      }
-    });
+    const searchParams = this.createSearchParams(dto);
 
     return apiClient.get('users/me/events', { searchParams }).json<Paginated<Event>>();
   }
 
   static getUserEvents(userId: string, dto: EventGetManyDto) {
-    const searchParams = new URLSearchParams();
-
-    Object.entries(dto).forEach(([key, value]) => {
-      if (value) {
-        if (Array.isArray(value)) {
-          value.forEach((val) => searchParams.append(key, val));
-        } else if (value instanceof Date) {
-          searchParams.append(key, value.toISOString());
-        } else {
-          searchParams.append(key, value.toString());
-        }
-      }
-    });
+    const searchParams = this.createSearchParams(dto);
 
     return apiClient.get(`users/${userId}/events`, { searchParams }).json<Paginated<Event>>();
   }
@@ -174,18 +151,7 @@ export class EventService {
   }
 
   static async getAttendees(id: string, dto?: EventAttendeesGetManyDto): Promise<Paginated<User>> {
-    const searchParams = Object.entries(dto || {}).reduce((acc, [key, value]) => {
-      if (value) {
-        if (Array.isArray(value)) {
-          value.forEach((val) => acc.append(key, val));
-        } else if (value instanceof Date) {
-          acc.append(key, value.toISOString());
-        } else {
-          acc.append(key, value.toString());
-        }
-      }
-      return acc;
-    }, new URLSearchParams());
+    const searchParams = dto && objectToSearchParams(dto);
 
     return await apiClient.get(`events/${id}/attendees`, { searchParams }).json<Paginated<User>>();
   }

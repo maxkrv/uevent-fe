@@ -3,6 +3,7 @@ import { apiClient } from '@/shared/api/api';
 import { UrlResponse } from '@/shared/types/url';
 
 import type { Paginated, PaginationDto } from '../../../shared/types/pagination';
+import { objectToSearchParams } from '../../../shared/utils/converters.utils';
 import type {
   Company,
   CompanyDto,
@@ -23,6 +24,7 @@ export interface CompanyGetManyDto extends PaginationDto {
   search?: string;
   lat?: number;
   lng?: number;
+  ownerId?: string;
   sortBy?: CompanySortBy;
   isVerified?: boolean;
 }
@@ -59,13 +61,7 @@ export class CompanyService {
   }
 
   static getMany(opt: CompanyGetManyDto): Promise<Paginated<Company>> {
-    const searchParams = Object.entries(opt).reduce((acc, [key, value]) => {
-      if (value !== undefined) {
-        acc.set(key, value.toString());
-      }
-      return acc;
-    }, new URLSearchParams());
-
+    const searchParams = objectToSearchParams(opt);
     return apiClient.get('companies', { searchParams }).json<Paginated<Company>>();
   }
 
@@ -89,12 +85,7 @@ export class CompanyService {
   }
 
   static getCompanyNews(companyId: string, opt?: PaginationDto): Promise<Paginated<CompanyNews>> {
-    const searchParams = Object.entries(opt || {}).reduce((acc, [key, value]) => {
-      if (value !== undefined) {
-        acc.set(key, value.toString());
-      }
-      return acc;
-    }, new URLSearchParams());
+    const searchParams = opt && objectToSearchParams(opt);
 
     return apiClient.get(`companies-news/company/${companyId}`, { searchParams }).json<Paginated<CompanyNews>>();
   }

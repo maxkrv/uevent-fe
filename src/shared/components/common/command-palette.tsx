@@ -8,7 +8,6 @@ import {
   CalendarCheck,
   CalendarClock,
   CalendarHeart,
-  CalendarPlus,
   CircleUser,
   Compass,
   Filter,
@@ -19,17 +18,15 @@ import {
   Lock,
   LogIn,
   Map,
-  Newspaper,
   Search,
   Settings,
-  Star,
   Ticket,
-  TrendingUp,
   UserCog,
   UserPlus,
   Zap
 } from 'lucide-react';
 import type React from 'react';
+import { CgColorPicker } from 'react-icons/cg';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '@/modules/auth/queries/use-auth.query';
@@ -46,7 +43,7 @@ import {
 } from '../ui/command';
 
 // Define all navigation items grouped by category
-const navigationGroups: NavigationGroup[] = [
+const NAVIGATION_GROUPS: NavigationGroup[] = [
   {
     name: 'Main Navigation',
     items: [
@@ -100,44 +97,23 @@ const navigationGroups: NavigationGroup[] = [
       {
         icon: Filter,
         name: 'Filter Events',
-        path: '/events?filter=true',
+        path: '/events',
         description: 'Filter events by criteria',
         keywords: ['search', 'criteria', 'sort']
       },
       {
-        icon: CalendarPlus,
-        name: 'Create Event',
-        path: '/events/create',
-        description: 'Create a new event',
-        keywords: ['new', 'add', 'organize']
-      },
-      {
-        icon: TrendingUp,
-        name: 'Popular Events',
-        path: '/events?sort=popular',
-        description: 'View popular events',
-        keywords: ['trending', 'hot', 'featured']
-      },
-      {
         icon: CalendarClock,
         name: 'Upcoming Events',
-        path: '/events?timeframe=upcoming',
+        path: `/events?fromDate=${new Date().toISOString()}`,
         description: 'View upcoming events',
         keywords: ['future', 'soon', 'scheduled']
       },
       {
         icon: CalendarCheck,
         name: 'Past Events',
-        path: '/events?timeframe=past',
+        path: `/events?toDate=${new Date().toISOString()}`,
         description: 'View past events',
         keywords: ['previous', 'completed', 'history']
-      },
-      {
-        icon: CalendarHeart,
-        name: 'Followed Events',
-        path: '/events?filter=followed',
-        description: 'View events you follow',
-        keywords: ['saved', 'bookmarked', 'favorite']
       }
     ]
   },
@@ -154,30 +130,9 @@ const navigationGroups: NavigationGroup[] = [
       {
         icon: Building,
         name: 'Create Company',
-        path: '/companies/create',
+        path: '/users/{id}/upcoming?create-company-modal=true',
         description: 'Create a new company',
         keywords: ['new', 'add', 'register']
-      },
-      {
-        icon: Star,
-        name: 'Featured Companies',
-        path: '/companies?filter=featured',
-        description: 'View featured companies',
-        keywords: ['popular', 'highlighted', 'promoted']
-      },
-      {
-        icon: Newspaper,
-        name: 'Company News',
-        path: '/companies/news',
-        description: 'View latest company news',
-        keywords: ['updates', 'articles', 'press']
-      },
-      {
-        icon: Heart,
-        name: 'Followed Companies',
-        path: '/companies?filter=followed',
-        description: 'View companies you follow',
-        keywords: ['saved', 'bookmarked', 'favorite']
       }
     ]
   },
@@ -239,6 +194,13 @@ const navigationGroups: NavigationGroup[] = [
         path: '/users/{id}/settings?tab=notifications',
         description: 'Manage notifications',
         keywords: ['alerts', 'preferences', 'email']
+      },
+      {
+        icon: CgColorPicker,
+        name: 'Appearance Settings',
+        path: '/users/{id}/settings?tab=appearance',
+        description: 'Customize appearance',
+        keywords: ['theme', 'dark mode', 'light mode']
       },
       {
         icon: Lock,
@@ -314,12 +276,6 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       return;
     }
 
-    if (path === '/companies/create' && user) {
-      navigate(`users/${user.id}?create=company`, { replace: true });
-      onOpenChange(false);
-      return;
-    }
-
     navigate(path);
     onOpenChange(false);
   };
@@ -348,7 +304,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
         </CommandEmpty>
 
         {/* Current section first */}
-        {navigationGroups.map((group) =>
+        {NAVIGATION_GROUPS.map((group) =>
           group.name === currentSection ? (
             <CommandGroup key={group.name} heading={`${group.name} (Current)`} className="text-">
               {group.items.map((item) => (
@@ -375,7 +331,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
         <CommandSeparator />
 
         {/* Other sections */}
-        {navigationGroups.map((group) =>
+        {NAVIGATION_GROUPS.map((group) =>
           group.name !== currentSection ? (
             <CommandGroup key={group.name} heading={group.name}>
               {group.items.map((item) => (

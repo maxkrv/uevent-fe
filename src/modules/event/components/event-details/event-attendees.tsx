@@ -27,7 +27,7 @@ export const EventAttendees = ({ eventId, maxAttendees, currentAttendees = 0 }: 
   const [debouncedSearch] = useDebounce(searchQuery);
 
   const attendeesQuery = useMemo(
-    () => ({ search: debouncedSearch, page: currentPage, limit: 10 }),
+    () => ({ search: debouncedSearch, page: currentPage, limit: 16 }),
     [debouncedSearch, currentPage]
   );
 
@@ -71,7 +71,7 @@ export const EventAttendees = ({ eventId, maxAttendees, currentAttendees = 0 }: 
         </div>
       </CardHeader>
 
-      <CardContent className="pt-2 gap-2 flex flex-col min-h-50">
+      <CardContent className="pt-2 gap-2 flex flex-col min-h-80">
         {/* Attendance progress */}
         {maxAttendees && (
           <div className="mb-2">
@@ -104,7 +104,7 @@ export const EventAttendees = ({ eventId, maxAttendees, currentAttendees = 0 }: 
                 {/* Attendee grid */}
                 <div className="grid w-full grid-flow-row grid-cols-[repeat(auto-fill,_6.5rem)] grid-rows-[auto] justify-center gap-2 grow">
                   {attendees.map((attendee) => (
-                    <Link key={attendee.id} to={`/users/${attendee.id}`} unstyled className="m-auto">
+                    <Link key={attendee.id} to={`/users/${attendee.id}`} unstyled className="mx-auto">
                       <EventAttendee attendee={attendee} />
                     </Link>
                   ))}

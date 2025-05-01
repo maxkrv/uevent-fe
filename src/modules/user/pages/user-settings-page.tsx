@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { parseAsString, useQueryState } from 'nuqs';
 
 import { useAuth } from '@/modules/auth/queries/use-auth.query';
 import { Skeleton } from '@/shared/components/ui/skeleton';
@@ -11,27 +10,10 @@ import { PrivacySection } from '../components/user-settings/privacy-section';
 import { ProfileSection } from '../components/user-settings/profile-section';
 
 export const UserSettingsPage = () => {
-  const { data: currentUser, isLoading } = useAuth();
-  const [activeTab, setActiveTab] = useState('profile');
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { data: currentUser } = useAuth();
+  const [activeTab, setActiveTab] = useQueryState('tab', parseAsString.withDefault('profile'));
 
-  useEffect(() => {
-    const tab = searchParams.get('tab');
-
-    if (tab && !['profile', 'notifications', 'privacy', 'appearance'].includes(tab)) {
-      setActiveTab('profile');
-      setSearchParams({});
-
-      return;
-    }
-
-    if (tab) {
-      setActiveTab(tab);
-      setSearchParams({});
-    }
-  }, [searchParams]);
-
-  if (isLoading || !currentUser) {
+  if (!currentUser) {
     return <UserSettingsSkeleton />;
   }
 

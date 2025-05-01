@@ -1,5 +1,6 @@
 import { apiClient } from '../../../shared/api/api';
 import type { Paginated, PaginationDto } from '../../../shared/types/pagination';
+import { objectToSearchParams } from '../../../shared/utils/converters.utils';
 import { Ticket } from '../../ticket/interfaces/ticket.interface';
 import type { User } from '../interfaces/user.interface';
 
@@ -13,12 +14,7 @@ export class UserService {
   }
 
   static async getTickets(opt: PaginationDto & { eventId?: string }): Promise<Paginated<Ticket>> {
-    const searchParams = Object.entries(opt).reduce((acc, [key, value]) => {
-      if (value) {
-        acc.append(key, value.toString());
-      }
-      return acc;
-    }, new URLSearchParams());
+    const searchParams = objectToSearchParams(opt);
 
     return apiClient.get<Paginated<Ticket>>('tickets/my', { searchParams }).json();
   }
